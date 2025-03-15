@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-ios</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>true</ImplicitUsings>
+    <IsBindingProject>true</IsBindingProject>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ObjcBindingApiDefinition Include="ApiDefinition.cs" />
+    <ObjcBindingCoreSource Include="StructsAndEnums.cs" />
+  </ItemGroup>
+
+  <!-- Reference to Xcode project -->
+  <ItemGroup>
+    <XcodeProject Include="../native/PluginScanner/PluginScanner.xcodeproj">
+      <SchemeName>PluginScanner</SchemeName>
+      <!-- Metadata applicable to @(NativeReference) will be used if set, otherwise the following defaults will be used:
+      <Kind>Framework</Kind>
+      <SmartLink>true</SmartLink>
+      -->
+    </XcodeProject>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Maui.NativeLibraryInterop.BuildTasks" Version="0.0.1-pre1" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

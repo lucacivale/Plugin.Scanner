@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Scanner.iOS", "Plugin.Scanner.iOS.csproj", "{23731A90-C120-4E2C-A307-88544B31E220}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binding", "Binding", "{D2088114-AD22-41C4-AAF6-BEEB08E6A1D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Scanner.iOS.Binding", "..\iOS\Plugin.Scanner.iOS.Binding\Plugin.Scanner.iOS.Binding.csproj", "{AB2A1AD3-E3F5-4C31-A48E-4B39A263B7CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23731A90-C120-4E2C-A307-88544B31E220}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23731A90-C120-4E2C-A307-88544B31E220}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23731A90-C120-4E2C-A307-88544B31E220}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23731A90-C120-4E2C-A307-88544B31E220}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB2A1AD3-E3F5-4C31-A48E-4B39A263B7CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB2A1AD3-E3F5-4C31-A48E-4B39A263B7CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB2A1AD3-E3F5-4C31-A48E-4B39A263B7CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB2A1AD3-E3F5-4C31-A48E-4B39A263B7CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AB2A1AD3-E3F5-4C31-A48E-4B39A263B7CF} = {D2088114-AD22-41C4-AAF6-BEEB08E6A1D2}
+	EndGlobalSection
+EndGlobal
