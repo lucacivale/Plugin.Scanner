@@ -32,13 +32,13 @@ public class RecognizedDataType : NSObject
         self.symbologies = symbologies
     }
 
-    @objc
+    @objc(text::)
     public static func text(languages: [String] = [], textContenttype: TextContentType = TextContentType.Default) -> RecognizedDataType
     {
         return RecognizedDataType.init(languages: languages, textContentType: textContenttype.MapToVisionTextContentType());
     }
     
-    @objc
+    @objc(barcode:)
     public static func barcode(symbologies: [VNBarcodeSymbology] = []) -> RecognizedDataType
     {
         return RecognizedDataType.init(symbologies: symbologies);

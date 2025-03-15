@@ -1,10 +1,8 @@
 using Foundation;
 using ObjCRuntime;
-//using PluginScanner;
 
 namespace Plugin.Scanner.iOS.Binding
 {
-    /*
 	// @interface DataScannerViewController : NSObject
 	[BaseType (typeof(NSObject))]
 	[DisableDefaultCtor]
@@ -18,25 +16,21 @@ namespace Plugin.Scanner.iOS.Binding
 		// +(BOOL)isSupported __attribute__((warn_unused_result("")));
 		[Static]
 		[Export ("isSupported")]
-		[Verify (MethodToProperty)]
 		bool IsSupported { get; }
 
 		// +(BOOL)isAvailable __attribute__((warn_unused_result("")));
 		[Static]
 		[Export ("isAvailable")]
-		[Verify (MethodToProperty)]
 		bool IsAvailable { get; }
 
 		// +(NSArray<NSString *> * _Nonnull)supportedTextRecognitionLanguages __attribute__((warn_unused_result("")));
 		[Static]
 		[Export ("supportedTextRecognitionLanguages")]
-		[Verify (MethodToProperty)]
 		string[] SupportedTextRecognitionLanguages { get; }
 
-		// +(NSMutableSet * _Nonnull)ScanningUnavailable __attribute__((warn_unused_result("")));
+		// +(NSMutableSet * _Nonnull)scanningUnavailable __attribute__((warn_unused_result("")));
 		[Static]
-		[Export ("ScanningUnavailable")]
-		[Verify (MethodToProperty)]
+		[Export ("scanningUnavailable")]
 		NSMutableSet ScanningUnavailable { get; }
 	}
 
@@ -45,16 +39,14 @@ namespace Plugin.Scanner.iOS.Binding
 	[DisableDefaultCtor]
 	interface RecognizedDataType
 	{
-		// +(RecognizedDataType * _Nonnull)textWithLanguages:(NSArray<NSString *> * _Nonnull)languages textContenttype:(enum TextContentType)textContenttype __attribute__((warn_unused_result("")));
+		// +(RecognizedDataType * _Nonnull)text:(NSArray<NSString *> * _Nonnull)languages :(enum TextContentType)textContenttype __attribute__((warn_unused_result("")));
 		[Static]
-		[Export ("textWithLanguages:textContenttype:")]
-		RecognizedDataType TextWithLanguages (string[] languages, TextContentType textContenttype);
+		[Export ("text::")]
+		RecognizedDataType Text (string[] languages, TextContentType textContenttype);
 
-		// +(RecognizedDataType * _Nonnull)barcodeWithSymbologies:(NSArray<VNBarcodeSymbology> * _Nonnull)symbologies __attribute__((warn_unused_result("")));
+		// +(RecognizedDataType * _Nonnull)barcode:(NSArray<VNBarcodeSymbology> * _Nonnull)symbologies __attribute__((warn_unused_result("")));
 		[Static]
-		[Export ("barcodeWithSymbologies:")]
-		RecognizedDataType BarcodeWithSymbologies (string[] symbologies);
+		[Export ("barcode:")]
+		RecognizedDataType Barcode (string[] symbologies);
 	}
-    */
-	
 }

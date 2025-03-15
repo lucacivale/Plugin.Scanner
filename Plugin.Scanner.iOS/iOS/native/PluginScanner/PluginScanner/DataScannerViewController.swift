@@ -54,7 +54,7 @@ public class DataScannerViewController : NSObject
     }
     
     @objc
-    public static func ScanningUnavailable() -> NSMutableSet
+    public static func scanningUnavailable() -> NSMutableSet
     {
         let reasons = NSMutableSet.init();
         reasons.add(VNDataScannerViewController.ScanningUnavailable.cameraRestricted);

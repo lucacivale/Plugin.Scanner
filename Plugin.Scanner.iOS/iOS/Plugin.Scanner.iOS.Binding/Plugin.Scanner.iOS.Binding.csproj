@@ -16,14 +16,15 @@
   <ItemGroup>
     <XcodeProject Include="../native/PluginScanner/PluginScanner.xcodeproj">
       <SchemeName>PluginScanner</SchemeName>
+      <Kind>Framework</Kind>
+      <LinkerFlags>-ObjC -lc++ -lz -lsqlite3</LinkerFlags>
+      <IsCxx>True</IsCxx>
+      <SmartLink>True</SmartLink>
+      <ForceLoad>False</ForceLoad>
       <!-- Metadata applicable to @(NativeReference) will be used if set, otherwise the following defaults will be used:
       <Kind>Framework</Kind>
       <SmartLink>true</SmartLink>
       -->
     </XcodeProject>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Maui.NativeLibraryInterop.BuildTasks" Version="0.0.1-pre1" PrivateAssets="all" />
   </ItemGroup>
 </Project>
