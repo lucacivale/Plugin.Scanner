@@ -1,0 +1,11 @@
+framework module PluginScanner {
+  umbrella header "PluginScanner.h"
+  export *
+
+  module * { export * }
+}
+
+module PluginScanner.Swift {
+  header "PluginScanner-Swift.h"
+  requires objc
+}
