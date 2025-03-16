@@ -11,6 +11,6 @@
         <IsTrimmable>true</IsTrimmable>
     </PropertyGroup>
     <ItemGroup>
-      <ProjectReference Include="..\iOS\Plugin.Scanner.iOS.Binding\Plugin.Scanner.iOS.Binding.csproj" />
+      <ProjectReference Include="..\Plugin.Scanner.iOS.Binding\Plugin.Scanner.iOS.Binding.csproj" />
     </ItemGroup>
 </Project>
