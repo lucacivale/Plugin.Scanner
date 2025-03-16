@@ -1,5 +1,6 @@
 using Foundation;
 using ObjCRuntime;
+using UIKit;
 
 namespace Plugin.Scanner.iOS.Binding
 {
@@ -12,6 +13,10 @@ namespace Plugin.Scanner.iOS.Binding
 		[Export ("initWithRecognizedDataTypes:qualityLevel:recognizesMultipleItems:isHighFrameRateTrackingEnabled:isPinchToZoomEnabled:isGuidanceEnabled:isHighlightingEnabled:")]
 		[DesignatedInitializer]
 		NativeHandle Constructor (RecognizedDataType[] recognizedDataTypes, QualityLevel qualityLevel, bool recognizesMultipleItems, bool isHighFrameRateTrackingEnabled, bool isPinchToZoomEnabled, bool isGuidanceEnabled, bool isHighlightingEnabled);
+
+        // -(UIViewController * _Nullable)ViewController __attribute__((warn_unused_result("")));
+        [NullAllowed, Export ("ViewController")]
+        UIViewController ViewController { get; }
 
 		// +(BOOL)isSupported __attribute__((warn_unused_result("")));
 		[Static]

@@ -14,24 +14,30 @@ typealias VNDataScannerViewController = VisionKit.DataScannerViewController
 @objc(DataScannerViewController)
 public class DataScannerViewController : NSObject
 {
-    private var dataScannerViewController: VNDataScannerViewController?
+    private var dataScannerViewController: VNDataScannerViewController
     
     @objc
     @MainActor
     public init(recognizedDataTypes: [RecognizedDataType], qualityLevel: QualityLevel = QualityLevel.balanced, recognizesMultipleItems: Bool = false, isHighFrameRateTrackingEnabled: Bool = true, isPinchToZoomEnabled: Bool = true, isGuidanceEnabled: Bool = true, isHighlightingEnabled: Bool = false)
     {
-        super.init()
-        
         var vnRecognizedDataTypes : Set<VNDataScannerViewController.RecognizedDataType> = Set()
         
         for recognizedDataType in recognizedDataTypes
         {
             vnRecognizedDataTypes.insert(recognizedDataType.ToVNRecognizedDataType())
         }
-        
+
         dataScannerViewController = VNDataScannerViewController.init(recognizedDataTypes: vnRecognizedDataTypes, qualityLevel: qualityLevel.ToVNQualityLevel(), recognizesMultipleItems: recognizesMultipleItems, isHighFrameRateTrackingEnabled: isHighFrameRateTrackingEnabled, isPinchToZoomEnabled: isPinchToZoomEnabled, isGuidanceEnabled: isGuidanceEnabled, isHighlightingEnabled: isHighlightingEnabled)
+        
+        super.init()
     }
     
+    @objc(ViewController)
+    public func ViewController() -> UIViewController?
+    {
+        return dataScannerViewController;
+    }
+
     @objc
     @MainActor
     public static func isSupported() -> Bool
