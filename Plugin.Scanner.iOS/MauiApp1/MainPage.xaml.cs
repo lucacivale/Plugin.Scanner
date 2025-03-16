@@ -1,4 +1,7 @@
-﻿namespace MauiApp1;
+﻿using Microsoft.Maui.Platform;
+using Plugin.Scanner.iOS;
+
+namespace MauiApp1;
 
 public partial class MainPage : ContentPage
 {
@@ -9,7 +12,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
     }
 
-    private void OnCounterClicked(object sender, EventArgs e)
+    private async void OnCounterClicked(object sender, EventArgs e)
     {
         _count++;
 
@@ -19,8 +22,9 @@ public partial class MainPage : ContentPage
             CounterBtn.Text = $"Clicked {_count} times";
 
         SemanticScreenReader.Announce(CounterBtn.Text);
-        var a = new Plugin.Scanner.iOS.Class1();
+        var dataScanner = new DataScannerViewController([RecognizedDataType.Text()]);
 
-        var b = 10;
+        await this.ToUIViewController(Handler.MauiContext).PresentViewControllerAsync(dataScanner.ScannerViewController, true);
+        dataScanner.StartScanning(out var error);
     }
 }

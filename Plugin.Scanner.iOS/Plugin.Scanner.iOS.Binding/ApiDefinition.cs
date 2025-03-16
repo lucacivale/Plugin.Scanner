@@ -14,8 +14,8 @@ namespace Plugin.Scanner.iOS.Binding
 		[DesignatedInitializer]
 		NativeHandle Constructor (RecognizedDataType[] recognizedDataTypes, QualityLevel qualityLevel, bool recognizesMultipleItems, bool isHighFrameRateTrackingEnabled, bool isPinchToZoomEnabled, bool isGuidanceEnabled, bool isHighlightingEnabled);
 
-        // -(UIViewController * _Nullable)ViewController __attribute__((warn_unused_result("")));
-        [NullAllowed, Export ("ViewController")]
+        // -(UIViewController * _Nonnull)ViewController __attribute__((warn_unused_result("")));
+        [Export ("ViewController")]
         UIViewController ViewController { get; }
 
 		// +(BOOL)isSupported __attribute__((warn_unused_result("")));
@@ -37,6 +37,10 @@ namespace Plugin.Scanner.iOS.Binding
 		[Static]
 		[Export ("scanningUnavailable")]
 		NSMutableSet ScanningUnavailable { get; }
+        
+        // -(BOOL)startScanning:(NSError * _Nullable * _Nullable)error;
+        [Export ("startScanning:")]
+        bool StartScanning ([NullAllowed] out NSError error);
 	}
 
 	// @interface RecognizedDataType : NSObject

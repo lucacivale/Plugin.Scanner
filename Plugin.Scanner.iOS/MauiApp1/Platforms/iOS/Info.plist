@@ -28,5 +28,9 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>CFBundleIdentifier</key>
+	<string>lc.MauiApp1</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Scan data</string>
 </dict>
 </plist>

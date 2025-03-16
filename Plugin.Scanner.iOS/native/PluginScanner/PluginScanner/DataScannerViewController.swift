@@ -33,7 +33,7 @@ public class DataScannerViewController : NSObject
     }
     
     @objc(ViewController)
-    public func ViewController() -> UIViewController?
+    public func ViewController() -> UIViewController
     {
         return dataScannerViewController;
     }
@@ -67,6 +67,19 @@ public class DataScannerViewController : NSObject
         reasons.add(VNDataScannerViewController.ScanningUnavailable.unsupported);
 
         return reasons;
+    }
+    
+    @objc(startScanning:)
+    @MainActor public func startScan() throws
+    {
+        do
+        {
+            try dataScannerViewController.startScanning()
+        }
+        catch
+        {
+            throw error;
+        }
     }
     /*private var scannerCallback: ((_ codes: [String]) -> Void)? = nil
     private var scannerUpdateCallback: ((_ codes: [String]) -> Void)? = nil
