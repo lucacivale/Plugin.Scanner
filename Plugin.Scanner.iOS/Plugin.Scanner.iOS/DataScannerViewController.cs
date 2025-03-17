@@ -1,4 +1,6 @@
+#pragma warning disable SA1300
 namespace Plugin.Scanner.iOS;
+#pragma warning restore SA1300
 
 /// <summary>
 /// An object that scans the camera live video for text, data in text, and machine-readable codes.
@@ -45,14 +47,145 @@ public sealed class DataScannerViewController : IDisposable
     }
 
     /// <summary>
-    /// Underlying DataScannerViewController.
+    /// Gets a value indicating whether the device supports data scanning.
+    /// </summary>
+    public static bool IsSupported => Plugin.Scanner.iOS.Binding.DataScannerViewController.IsSupported;
+
+    /// <summary>
+    /// Gets a value indicating whether a person grants your app access to the camera and doesn’t have any restrictions to using the camera.
+    /// </summary>
+    public static bool IsAvailable => Plugin.Scanner.iOS.Binding.DataScannerViewController.IsAvailable;
+
+    /// <summary>
+    /// Gets the identifiers for the languages that the data scanner recognizes.
+    /// </summary>
+    public static IEnumerable<string> SupportedTextRecognitionLanguages => Plugin.Scanner.iOS.Binding.DataScannerViewController.SupportedTextRecognitionLanguages;
+
+    /// <summary>
+    /// Gets the possible reasons the data scanner is unavailable.
+    /// </summary>
+    public static IEnumerable<string> ScanningUnavailable => Plugin.Scanner.iOS.Binding.DataScannerViewController.ScanningUnavailable;
+
+    /// <summary>
+    /// Gets underlying DataScannerViewController.
     /// </summary>
     public UIViewController ScannerViewController => _dataScannerViewController.ViewController;
 
+    /// <summary>
+    /// Gets or sets the delegate that handles user interaction with items recognized by the data scanner.
+    /// </summary>
+    public DataScannerViewControllerDelegate? Delegate
+    {
+        get => (DataScannerViewControllerDelegate?)_dataScannerViewController.Delegate;
+        set => _dataScannerViewController.Delegate = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the area of the live video in view coordinates that the data scanner searches for items.
+    /// </summary>
+    public CGRect RegionOfInterest
+    {
+        get => _dataScannerViewController.RegionOfInterest;
+        set => _dataScannerViewController.RegionOfInterest = value;
+    }
+
+    /// <summary>
+    /// Gets the minimum zoom factor that the camera supports.
+    /// </summary>
+    public double MinZoomFactor => _dataScannerViewController.MinZoomFactor;
+
+    /// <summary>
+    /// Gets the maximum zoom factor that the camera supports.
+    /// </summary>
+    public double MaxZoomFactor => _dataScannerViewController.MaxZoomFactor;
+
+    /// <summary>
+    /// Gets a value indicating whether the data scanner is actively looking for items.
+    /// </summary>
+    public bool IsScanning => _dataScannerViewController.IsScanning;
+
+    /// <summary>
+    /// Gets the resolution that the scanner uses to find data.
+    /// </summary>
+    public QualityLevel QualityLevel =>
+        _dataScannerViewController.QualityLevel switch
+        {
+            Plugin.Scanner.iOS.Binding.QualityLevel.Balanced => QualityLevel.Balanced,
+            Plugin.Scanner.iOS.Binding.QualityLevel.Accurate => QualityLevel.Accurate,
+            Plugin.Scanner.iOS.Binding.QualityLevel.Fast => QualityLevel.Fast,
+            _ => QualityLevel.Balanced,
+        };
+
+    /// <summary>
+    /// Gets a value indicating whether the scanner should identify all items in the live video.
+    /// </summary>
+    public bool RecognizesMultipleItems => _dataScannerViewController.RecognizesMultipleItems;
+
+    /// <summary>
+    /// Gets a value indicating whether the frequency at which the scanner updates the geometry of recognized items.
+    /// </summary>
+    public bool IsHighFrameRateTrackingEnabled => _dataScannerViewController.IsHighFrameRateTrackingEnabled;
+
+    /// <summary>
+    /// Gets a value indicating whether people can use a two-finger pinch-to-zoom gesture.
+    /// </summary>
+    public bool IsPinchToZoomEnabled => _dataScannerViewController.IsPinchToZoomEnabled;
+
+    /// <summary>
+    /// Gets a value indicating whether the scanner provides help to a person when selecting items.
+    /// </summary>
+    public bool IsGuidanceEnabled => _dataScannerViewController.IsGuidanceEnabled;
+
+    /// <summary>
+    /// Gets a value indicating whether the scanner displays highlights around recognized items.
+    /// </summary>
+    public bool IsHighlightingEnabled => _dataScannerViewController.IsHighlightingEnabled;
+
+    /// <summary>
+    /// Gets a view that the data scanner displays over its view without interfering with the Live Text interface.
+    /// </summary>
+    public UIView OverlayContainerView => _dataScannerViewController.OverlayContainerView;
+
+    /// <summary>
+    /// Free resources.
+    /// </summary>
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Captures a high-resolution photo of the camera’s live video.
+    /// </summary>
+    /// <param name="completionHandler">Completion handler.</param>
+    public void CapturePhoto(Action<UIImage?, NSError?> completionHandler)
+    {
+        _dataScannerViewController.CapturePhoto(completionHandler);
+    }
+
+    /// <summary>
+    /// Captures a high-resolution photo of the camera’s live video.
+    /// </summary>
+    /// <returns>An image of the live video.</returns>
+    public Task<UIImage> CapturePhotoAsync()
+    {
+        TaskCompletionSource<UIImage> taskSource = new();
+
+        CapturePhoto((photo, error) =>
+        {
+            if (photo is null
+                || error is not null)
+            {
+                taskSource.SetException(new CapturePhotoException(error?.LocalizedDescription ?? "Something went wrong."));
+            }
+            else
+            {
+                taskSource.SetResult(photo);
+            }
+        });
+
+        return taskSource.Task;
     }
 
     /// <summary>

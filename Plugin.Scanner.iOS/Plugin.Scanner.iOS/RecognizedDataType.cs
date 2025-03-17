@@ -1,14 +1,18 @@
 using Vision;
 
+#pragma warning disable SA1300
 namespace Plugin.Scanner.iOS;
+#pragma warning restore SA1300
 
 /// <summary>
 /// A type of data that the scanner recognizes.
 /// </summary>
-public sealed class RecognizedDataType
+public sealed class RecognizedDataType : IDisposable
 {
     private readonly Plugin.Scanner.iOS.Binding.RecognizedDataType? _text;
     private readonly Plugin.Scanner.iOS.Binding.RecognizedDataType? _barcode;
+
+    private bool _isDisposed;
 
     private RecognizedDataType(string[] languages, TextContentType textContentType)
     {
@@ -18,6 +22,11 @@ public sealed class RecognizedDataType
     private RecognizedDataType(VNBarcodeSymbology[] symbologies)
     {
         _barcode = Plugin.Scanner.iOS.Binding.RecognizedDataType.Barcode(symbologies.Select(x => x.ToString()).ToArray());
+    }
+
+    ~RecognizedDataType()
+    {
+        Dispose(false);
     }
 
     /// <summary>
@@ -64,5 +73,30 @@ public sealed class RecognizedDataType
         }
 
         return dataType;
+    }
+
+    /// <summary>
+    /// Free resources.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        _isDisposed = true;
+
+        if (disposing)
+        {
+            _text?.Dispose();
+            _barcode?.Dispose();
+        }
     }
 }

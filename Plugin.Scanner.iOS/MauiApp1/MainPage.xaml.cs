@@ -24,7 +24,11 @@ public partial class MainPage : ContentPage
         SemanticScreenReader.Announce(CounterBtn.Text);
         var dataScanner = new DataScannerViewController([RecognizedDataType.Text()]);
 
-        await this.ToUIViewController(Handler.MauiContext).PresentViewControllerAsync(dataScanner.ScannerViewController, true);
         dataScanner.StartScanning(out var error);
+        dataScanner.Delegate = new Test()
+        {
+            DataScannerViewController = dataScanner,
+        };
+        await this.ToUIViewController(Handler.MauiContext).PresentViewControllerAsync(dataScanner.ScannerViewController, true);
     }
 }

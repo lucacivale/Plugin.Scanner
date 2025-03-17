@@ -1,4 +1,6 @@
+#pragma warning disable SA1300
 namespace Plugin.Scanner.iOS;
+#pragma warning restore SA1300
 
 /// <summary>
 /// The possible quality levels that the scanner uses to find data. The quality levels mostly impact the camera resolution.

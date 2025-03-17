@@ -11,6 +11,13 @@ namespace Plugin.Scanner.iOS.Binding
     }
 
     [Native]
+    public enum ScanningUnavailable : long
+    {
+        Unsupported = 0,
+        CameraRestricted = 1
+    }
+
+    [Native]
     public enum TextContentType : long
     {
         Default = 0,

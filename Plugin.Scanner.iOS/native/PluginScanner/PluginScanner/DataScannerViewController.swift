@@ -12,9 +12,10 @@ import VisionKit
 typealias VNDataScannerViewController = VisionKit.DataScannerViewController
 
 @objc(DataScannerViewController)
-public class DataScannerViewController : NSObject
+public class DataScannerViewController : NSObject, VisionKit.DataScannerViewControllerDelegate
 {
     private var dataScannerViewController: VNDataScannerViewController
+    private var dataScannerViewControllerDelegate : DataScannerViewControllerDelegate?
     
     @objc
     @MainActor
@@ -28,49 +29,229 @@ public class DataScannerViewController : NSObject
         }
 
         dataScannerViewController = VNDataScannerViewController.init(recognizedDataTypes: vnRecognizedDataTypes, qualityLevel: qualityLevel.ToVNQualityLevel(), recognizesMultipleItems: recognizesMultipleItems, isHighFrameRateTrackingEnabled: isHighFrameRateTrackingEnabled, isPinchToZoomEnabled: isPinchToZoomEnabled, isGuidanceEnabled: isGuidanceEnabled, isHighlightingEnabled: isHighlightingEnabled)
-        
+
         super.init()
-    }
-    
-    @objc(ViewController)
-    public func ViewController() -> UIViewController
-    {
-        return dataScannerViewController;
+        
+        dataScannerViewController.delegate = self
     }
 
     @objc
     @MainActor
-    public static func isSupported() -> Bool
+    public static var isSupported : Bool
     {
-        return VNDataScannerViewController.isSupported
+        get
+        {
+            VNDataScannerViewController.isSupported
+        }
     }
     
     @objc
     @MainActor
-    public static func isAvailable() -> Bool
+    public static var isAvailable : Bool
     {
-        return VNDataScannerViewController.isAvailable
+        get
+        {
+            VNDataScannerViewController.isAvailable
+        }
     }
     
     @objc
     @MainActor
-    public static func supportedTextRecognitionLanguages() -> [String]
+    public static var supportedTextRecognitionLanguages : [String]
     {
-        return VNDataScannerViewController.supportedTextRecognitionLanguages
+        get
+        {
+            VNDataScannerViewController.supportedTextRecognitionLanguages
+        }
     }
     
     @objc
-    public static func scanningUnavailable() -> NSMutableSet
+    public static var scanningUnavailable : [String]
     {
-        let reasons = NSMutableSet.init();
-        reasons.add(VNDataScannerViewController.ScanningUnavailable.cameraRestricted);
-        reasons.add(VNDataScannerViewController.ScanningUnavailable.unsupported);
+        get
+        {
+            [VNDataScannerViewController.ScanningUnavailable.cameraRestricted.localizedDescription, VNDataScannerViewController.ScanningUnavailable.unsupported.localizedDescription];
+        }
+    }
+    
+    @objc
+    public var ViewController : UIViewController
+    {
+        get
+        {
+            dataScannerViewController
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var Delegate: DataScannerViewControllerDelegate?
+    {
+        get
+        {
+            dataScannerViewControllerDelegate
+        }
+        set
+        {
+            dataScannerViewControllerDelegate = newValue
+        }
+    }
 
-        return reasons;
+    @objc
+    @MainActor
+    public var regionOfInterest : CGRect
+    {
+        get
+        {
+            dataScannerViewController.regionOfInterest ?? CGRect.zero
+        }
+        set
+        {
+            dataScannerViewController.regionOfInterest = newValue
+        }
+    }
+
+    @objc
+    @MainActor
+    public var zoomFactor : Double
+    {
+        get
+        {
+            dataScannerViewController.zoomFactor
+        }
+        set
+        {
+            dataScannerViewController.zoomFactor = newValue
+        }
+    }
+
+    @objc
+    @MainActor
+    public var minZoomFactor : Double
+    {
+        get
+        {
+            dataScannerViewController.minZoomFactor
+        }
     }
     
-    @objc(startScanning:)
-    @MainActor public func startScan() throws
+    @objc
+    @MainActor
+    public var maxZoomFactor : Double
+    {
+        get
+        {
+            dataScannerViewController.maxZoomFactor
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var isScanning : Bool
+    {
+        get
+        {
+            dataScannerViewController.isScanning
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var qualityLevel : QualityLevel
+    {
+        get
+        {
+            switch dataScannerViewController.qualityLevel
+            {
+                case VNDataScannerViewController.QualityLevel.accurate:
+                    return QualityLevel.accurate
+                case VNDataScannerViewController.QualityLevel.balanced:
+                    return QualityLevel.balanced
+                case VNDataScannerViewController.QualityLevel.fast:
+                    return QualityLevel.fast
+                @unknown default:
+                    return QualityLevel.accurate
+            }
+        }
+    }
+
+    @objc
+    @MainActor
+    public var recognizesMultipleItems : Bool
+    {
+        get
+        {
+            dataScannerViewController.recognizesMultipleItems
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var isHighFrameRateTrackingEnabled : Bool
+    {
+        get
+        {
+            dataScannerViewController.isHighFrameRateTrackingEnabled
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var isPinchToZoomEnabled : Bool
+    {
+        get
+        {
+            dataScannerViewController.isPinchToZoomEnabled
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var isGuidanceEnabled : Bool
+    {
+        get
+        {
+            dataScannerViewController.isGuidanceEnabled
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var isHighlightingEnabled : Bool
+    {
+        get
+        {
+            dataScannerViewController.isHighlightingEnabled
+        }
+    }
+    
+    @objc
+    @MainActor
+    public var overlayContainerView : UIView
+    {
+        get
+        {
+            dataScannerViewController.overlayContainerView
+        }
+    }
+    
+    
+    @objc(capturePhoto:)
+    public func capturePhoto() async throws -> UIImage?
+    {
+        do
+        {
+            return try await dataScannerViewController.capturePhoto();
+        }
+        catch
+        {
+            throw error
+        }
+    }
+    
+    @objc(StartScanning:)
+    @MainActor
+    public func startScanning() throws
     {
         do
         {
@@ -81,89 +262,70 @@ public class DataScannerViewController : NSObject
             throw error;
         }
     }
-    /*private var scannerCallback: ((_ codes: [String]) -> Void)? = nil
-    private var scannerUpdateCallback: ((_ codes: [String]) -> Void)? = nil
-
+    
+    
     @objc
-    @MainActor override init()
+    @MainActor
+    public func stopScanning()
     {
-        let supportedBarcodes = VNDetectBarcodesRequest.init().symbologies
-        let viewController = DataScannerViewController.init(recognizedDataTypes:[.barcode(symbologies:supportedBarcodes)])
-        self.viewController = viewController
-
-        super.init()
-
-        self.viewController.delegate = self
+        dataScannerViewController.stopScanning()
+    }
+    
+    @MainActor
+    public func dataScannerDidZoom(_ dataScanner: VisionKit.DataScannerViewController)
+    {
+        dataScannerViewControllerDelegate?.dataScannerDidZoom(self)
     }
 
-    @objc
-    public func getViewController() -> UIViewController
+    public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didTapOn item: VisionKit.RecognizedItem)
     {
-        return self.viewController
+        dataScannerViewControllerDelegate?.dataScanner(self, didTapOn: RecognizedItem.fromVNRecognizedItem(recognizedItem: item))
     }
 
-    private func handleBarcodeCallback(barcodes: [RecognizedItem], callback: ((_ codes: [String]) -> Void)?)
+    public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didAdd addedItems: [VisionKit.RecognizedItem], allItems: [VisionKit.RecognizedItem])
     {
-        if(callback != nil)
-        {
-            let scannedBarcodes: [String] = barcodes.map
-            { (item) -> String in
-                switch(item)
-                {
-                case .barcode(let barcode):
-                        return barcode.payloadStringValue ?? "<barcode not read>"
-                    default:
-                        return "<not a barcode>"
-                }
-            }
-            callback!(scannedBarcodes)
-        }
+        dataScannerViewControllerDelegate?.dataScanner(
+            self,
+            didAdd: addedItems.map
+            {
+                (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
+            },
+            allItems: allItems.map
+            {
+                (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
+            })
     }
 
-    public func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem])
+    public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didUpdate updatedItems: [VisionKit.RecognizedItem], allItems: [VisionKit.RecognizedItem])
     {
-        handleBarcodeCallback(barcodes: addedItems, callback: self.scannerCallback)
+        dataScannerViewControllerDelegate?.dataScanner(
+            self,
+            didAdd: updatedItems.map
+            {
+                (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
+            },
+            allItems: allItems.map
+            {
+                (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
+            })
     }
 
-    public func dataScanner(_ dataScanner: DataScannerViewController, didUpdate updatedItems: [RecognizedItem], allItems: [RecognizedItem])
+    public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didRemove removedItems: [VisionKit.RecognizedItem], allItems: [VisionKit.RecognizedItem])
     {
-        handleBarcodeCallback(barcodes: updatedItems, callback: self.scannerUpdateCallback)
+        dataScannerViewControllerDelegate?.dataScanner(
+            self,
+            didAdd: removedItems.map
+            {
+                (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
+            },
+            allItems: allItems.map
+            {
+                (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
+            })
     }
 
-    @objc
-    @MainActor public func setScanCallback(callback: @escaping ([String]) -> Void)
+    public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, becameUnavailableWithError error: VisionKit.DataScannerViewController.ScanningUnavailable)
     {
-        self.scannerCallback = callback
+        dataScannerViewControllerDelegate?.dataScanner(self, becameUnavailableWithError: ScanningUnavailable.FromVNScanningUnavailable(scanningUnavailable: error))
     }
-
-    @objc
-    @MainActor public func setScanUpdatedCallback(callback: @escaping ([String]) -> Void)
-    {
-        self.scannerUpdateCallback = callback
-    }
-
-    @objc
-    @MainActor public func startScan() throws
-    {
-        do
-        {
-            try self.viewController.startScanning()
-        }
-        catch
-        {
-            throw error;
-        }
-    }
-
-    @objc
-    @MainActor public func stopScan()
-    {
-        self.viewController.stopScanning()
-    }*/
 }
-
-public class Box<T> {
-    let unbox: T
-    init(_ value: T) {
-        self.unbox = value
-    } }
