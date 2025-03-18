@@ -23,22 +23,9 @@ public partial class MainPage : ContentPage
             CounterBtn.Text = $"Clicked {_count} times";
 
         SemanticScreenReader.Announce(CounterBtn.Text);
-        var dataScanner = new DataScannerViewController([RecognizedDataType.Text()], recognizesMultipleItems: true);
 
-        dataScanner.StartScanning(out var error);
-        
-        Task.Delay(5000).ContinueWith(async (task) =>
-        {
-            var a = await dataScanner.RecognizedItemsAsync();
+        var result = await BarcodeScanner.ScanBarcodeAsync();
 
-            foreach (var item in a)
-            {
-                Debug.WriteLine(item.Value);
-            }
-        });
-
-        await this.ToUIViewController(Handler.MauiContext).PresentViewControllerAsync(dataScanner.ScannerViewController, true);
-        
-        var b = 10;
+        var a = 10;
     }
 }

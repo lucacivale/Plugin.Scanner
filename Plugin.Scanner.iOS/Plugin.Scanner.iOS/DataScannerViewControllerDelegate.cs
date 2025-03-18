@@ -10,10 +10,15 @@ namespace Plugin.Scanner.iOS;
 [SuppressMessage("Naming", "CA1711: Identifiers should not have incorrect suffix", Justification = "Is ok here.")]
 public abstract class DataScannerViewControllerDelegate : Plugin.Scanner.iOS.Binding.DataScannerViewControllerDelegate
 {
+    protected DataScannerViewControllerDelegate(DataScannerViewController scannerViewController)
+    {
+        DataScannerViewController = scannerViewController;
+    }
+
     /// <summary>
     /// Gets data scanner.
     /// </summary>
-    public required DataScannerViewController DataScannerViewController { get; init; }
+    public DataScannerViewController DataScannerViewController { get; }
 
     /// <summary>
     /// Responds when a person or your code changes the zoom factor.

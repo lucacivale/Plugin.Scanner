@@ -187,10 +187,10 @@ namespace Plugin.Scanner.iOS.Binding
 		[Export ("text::")]
 		RecognizedDataType Text (string[] languages, TextContentType textContenttype);
 
-		// +(RecognizedDataType * _Nonnull)barcode:(NSArray<VNBarcodeSymbology> * _Nonnull)symbologies __attribute__((warn_unused_result("")));
-		[Static]
-		[Export ("barcode:")]
-		RecognizedDataType Barcode (string[] symbologies);
+        // +(RecognizedDataType * _Nonnull)barcode:(NSArray<VNBarcodeSymbology> * _Nonnull)symbologies __attribute__((warn_unused_result("")));
+        [Static]
+        [Export ("barcode:")]
+        RecognizedDataType Barcode (string[] symbologies);
 	}
 
 	// @interface RecognizedItem : NSObject

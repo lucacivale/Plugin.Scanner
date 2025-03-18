@@ -25,11 +25,70 @@ public class RecognizedDataType : NSObject
         self.textContentType = textContentType
     }
     
-    init(symbologies: [VNBarcodeSymbology] = [])
+    init(symbologies: [String] = [])
     {
         super.init()
         
-        self.symbologies = symbologies
+        self.symbologies = [];
+        
+        for symbology in symbologies {
+            switch symbology
+            {
+                case "Aztec":
+                    self.symbologies?.append(.aztec)
+                case "Codabar":
+                    self.symbologies?.append(.codabar)
+                case "Code39":
+                    self.symbologies?.append(.code39)
+                case "Code39Checksum":
+                    self.symbologies?.append(.code39Checksum)
+                case "Code39FullASCII":
+                    self.symbologies?.append(.code39FullASCII)
+                case "Code39FullASCIIChecksum":
+                    self.symbologies?.append(.code39FullASCIIChecksum)
+                case "Code93":
+                    self.symbologies?.append(.code93)
+                case "Code93i":
+                    self.symbologies?.append(.code93i)
+                case "Code128":
+                    self.symbologies?.append(.code128)
+                case "DataMatrix":
+                    self.symbologies?.append(.dataMatrix)
+                case "Ean8":
+                    self.symbologies?.append(.ean8)
+                case "Ean13":
+                    self.symbologies?.append(.ean13)
+                case "Gs1DataBarExpanded":
+                    self.symbologies?.append(.gs1DataBarExpanded)
+                case "Gs1DataBarLimited":
+                    self.symbologies?.append(.gs1DataBarLimited)
+                case "Gs1DataBar":
+                    self.symbologies?.append(.gs1DataBar)
+                case "I2of5":
+                    self.symbologies?.append(.i2of5)
+                case "I2of5Checksum":
+                    self.symbologies?.append(.i2of5Checksum)
+                case "Itf14":
+                    self.symbologies?.append(.itf14)
+                case "MicroPDF417":
+                    self.symbologies?.append(.microPDF417)
+                case "MicroQR":
+                    self.symbologies?.append(.microQR)
+                case "MsiPlessey":
+                    if #available(iOS 17.0, *)
+                    {
+                        self.symbologies?.append(.msiPlessey)
+                    }
+                case "Pdf417":
+                    self.symbologies?.append(.pdf417)
+                case "Qr":
+                    self.symbologies?.append(.qr)
+                case "Upce":
+                    self.symbologies?.append(.upce)
+                default:
+                    break
+            }
+        }
     }
 
     @objc(text::)
@@ -39,7 +98,7 @@ public class RecognizedDataType : NSObject
     }
     
     @objc(barcode:)
-    public static func barcode(symbologies: [VNBarcodeSymbology] = []) -> RecognizedDataType
+    public static func barcode(symbologies: [String] = []) -> RecognizedDataType
     {
         return RecognizedDataType.init(symbologies: symbologies);
     }
@@ -52,7 +111,7 @@ public class RecognizedDataType : NSObject
         }
         else
         {
-            return VisionKit.DataScannerViewController.RecognizedDataType.barcode(symbologies: symbologies!);
+            return VisionKit.DataScannerViewController.RecognizedDataType.barcode(symbologies: symbologies!)
         }
     }
 }

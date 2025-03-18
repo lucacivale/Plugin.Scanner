@@ -218,10 +218,19 @@ public sealed class DataScannerViewController : IDisposable
     /// <summary>
     /// Starts scanning the camera’s live video for data.
     /// </summary>
-    /// <param name="error">Start failed.</param>
-    public void StartScanning(out NSError? error)
+    /// <param name="exception">Start failed.</param>
+    public void StartScanning(out DataScannerStartScanningException? exception)
     {
-        _dataScannerViewController.StartScanning(out error);
+        exception = null;
+        _dataScannerViewController.StartScanning(out NSError? error);
+
+        using (error)
+        {
+            if (error is not null)
+            {
+                exception = new DataScannerStartScanningException(error.Description);
+            }
+        }
     }
 
     private void RecognizedItems(Action<NSArray<Plugin.Scanner.iOS.Binding.RecognizedItem>> completionHandler)
