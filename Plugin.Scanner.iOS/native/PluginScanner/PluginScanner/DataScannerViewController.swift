@@ -236,6 +236,20 @@ public class DataScannerViewController : NSObject, VisionKit.DataScannerViewCont
     }
     
     
+    @objc(recognizedItems:)
+    public func recognizedItems() async -> [RecognizedItem]
+    {
+        var items : [RecognizedItem] = [];
+
+        for await item in dataScannerViewController.recognizedItems {
+            items = item.map
+            {
+                (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
+            }
+         }
+        
+        return items
+    }
     @objc(capturePhoto:)
     public func capturePhoto() async throws -> UIImage?
     {

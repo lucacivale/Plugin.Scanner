@@ -123,6 +123,10 @@ namespace Plugin.Scanner.iOS.Binding
 		[Export ("overlayContainerView", ArgumentSemantic.Strong)]
 		UIView OverlayContainerView { get; }
 
+        // -(void)recognizedItems:(void (^ _Nonnull)(NSArray<RecognizedItem *> * _Nonnull))completionHandler;
+        [Export ("recognizedItems:")]
+        void RecognizedItems (Action<NSArray<RecognizedItem>> completionHandler);
+
 		// -(void)capturePhoto:(void (^ _Nonnull)(UIImage * _Nullable, NSError * _Nullable))completionHandler;
 		[Export ("capturePhoto:")]
 		void CapturePhoto (Action<UIImage, NSError> completionHandler);
@@ -192,7 +196,7 @@ namespace Plugin.Scanner.iOS.Binding
 	// @interface RecognizedItem : NSObject
 	[BaseType (typeof(NSObject), Name = "_TtC13PluginScanner14RecognizedItem")]
 	[DisableDefaultCtor]
-	interface RecognizedItem
+	interface RecognizedItem : INativeObject
 	{
 		// @property (readonly, copy, nonatomic) NSUUID * _Nonnull id;
 		[Export ("id", ArgumentSemantic.Copy)]

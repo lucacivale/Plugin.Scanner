@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Platform;
+﻿using System.Diagnostics;
+using Microsoft.Maui.Platform;
 using Plugin.Scanner.iOS;
 
 namespace MauiApp1;
@@ -22,13 +23,22 @@ public partial class MainPage : ContentPage
             CounterBtn.Text = $"Clicked {_count} times";
 
         SemanticScreenReader.Announce(CounterBtn.Text);
-        var dataScanner = new DataScannerViewController([RecognizedDataType.Text()]);
+        var dataScanner = new DataScannerViewController([RecognizedDataType.Text()], recognizesMultipleItems: true);
 
         dataScanner.StartScanning(out var error);
-        dataScanner.Delegate = new Test()
+        
+        Task.Delay(5000).ContinueWith(async (task) =>
         {
-            DataScannerViewController = dataScanner,
-        };
+            var a = await dataScanner.RecognizedItemsAsync();
+
+            foreach (var item in a)
+            {
+                Debug.WriteLine(item.Value);
+            }
+        });
+
         await this.ToUIViewController(Handler.MauiContext).PresentViewControllerAsync(dataScanner.ScannerViewController, true);
+        
+        var b = 10;
     }
 }

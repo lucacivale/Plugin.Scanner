@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 #pragma warning disable SA1300
 namespace Plugin.Scanner.iOS;
 #pragma warning restore SA1300
@@ -156,6 +158,31 @@ public sealed class DataScannerViewController : IDisposable
     }
 
     /// <summary>
+    /// An asynchronous array of items that the data scanner currently recognizes in the camera’s live video.
+    /// </summary>
+    /// <returns>Text items in this array appear in the reading order of the language and region.</returns>
+    [SuppressMessage("Performance", "CA1822: Mark members as static", Justification = "False positive.")]
+    [SuppressMessage("Performance", "S2325: Methods and properties that don't access instance data should be static", Justification = "False positive.")]
+    public Task<RecognizedItem[]> RecognizedItemsAsync()
+    {
+        TaskCompletionSource<RecognizedItem[]> taskSource = new();
+
+        RecognizedItems(items =>
+        {
+            List<RecognizedItem> itemList = new();
+
+            foreach (Plugin.Scanner.iOS.Binding.RecognizedItem item in items)
+            {
+                itemList.Add(item.ToRecognizedItem());
+            }
+
+            taskSource.SetResult(itemList.ToArray());
+        });
+
+        return taskSource.Task;
+    }
+
+    /// <summary>
     /// Captures a high-resolution photo of the camera’s live video.
     /// </summary>
     /// <param name="completionHandler">Completion handler.</param>
@@ -195,6 +222,11 @@ public sealed class DataScannerViewController : IDisposable
     public void StartScanning(out NSError? error)
     {
         _dataScannerViewController.StartScanning(out error);
+    }
+
+    private void RecognizedItems(Action<NSArray<Plugin.Scanner.iOS.Binding.RecognizedItem>> completionHandler)
+    {
+        _dataScannerViewController.RecognizedItems(completionHandler);
     }
 
     private void Dispose(bool disposing)
