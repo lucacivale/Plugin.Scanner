@@ -204,7 +204,7 @@ public sealed class DataScannerViewController : IDisposable
             if (photo is null
                 || error is not null)
             {
-                taskSource.SetException(new CapturePhotoException(error?.LocalizedDescription ?? "Something went wrong."));
+                taskSource.SetException(new DataScannerCapturePhotoException(error?.LocalizedDescription ?? "Something went wrong."));
             }
             else
             {
@@ -219,7 +219,7 @@ public sealed class DataScannerViewController : IDisposable
     /// Starts scanning the camera’s live video for data.
     /// </summary>
     /// <param name="exception">Start failed.</param>
-    public void StartScanning(out DataScannerStartScanningException? exception)
+    public void StartScanning(out DataScannerStartException? exception)
     {
         exception = null;
         _dataScannerViewController.StartScanning(out NSError? error);
@@ -228,7 +228,7 @@ public sealed class DataScannerViewController : IDisposable
         {
             if (error is not null)
             {
-                exception = new DataScannerStartScanningException(error.Description);
+                exception = new DataScannerStartException(error.Description);
             }
         }
     }
