@@ -1,9 +1,19 @@
+using Plugin.Scanner.iOS.Barcode;
+
 #pragma warning disable SA1300
 namespace Plugin.Scanner.iOS;
 #pragma warning restore SA1300
 
+/// <summary>
+/// <see cref="DataScannerViewController"/> extension methods.
+/// </summary>
 internal static class DataScannerViewControllerExtensions
 {
+    /// <summary>
+    /// Add a barcode overlay view.
+    /// </summary>
+    /// <param name="dataScannerViewController"><see cref="DataScannerViewController"/> to add overlay.</param>
+    /// <returns>Added overlay view.</returns>
     internal static UIView AddBarcodeRegionOfInterestOverlay(this DataScannerViewController dataScannerViewController)
     {
         BarcodeRegionOfInterestOverlay view = new(dataScannerViewController);

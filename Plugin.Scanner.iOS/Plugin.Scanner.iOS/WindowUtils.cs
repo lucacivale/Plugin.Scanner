@@ -2,8 +2,15 @@
 namespace Plugin.Scanner.iOS;
 #pragma warning restore SA1300
 
+/// <summary>
+/// Window utilities.
+/// </summary>
 internal static class WindowUtils
 {
+    /// <summary>
+    /// Find top most <see cref="UIViewController"/>.
+    /// </summary>
+    /// <returns>Top most <see cref="UIViewController"/>.</returns>
     internal static UIViewController? GetTopViewController()
     {
         NSSet<UIScene> scenes = UIApplication.SharedApplication.ConnectedScenes;

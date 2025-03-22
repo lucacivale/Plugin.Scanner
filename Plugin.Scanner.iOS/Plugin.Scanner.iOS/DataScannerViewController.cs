@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Plugin.Scanner.iOS.Exceptions;
 
 #pragma warning disable SA1300
 namespace Plugin.Scanner.iOS;
@@ -43,6 +44,9 @@ public sealed class DataScannerViewController : IDisposable
             isHighlightingEnabled);
     }
 
+    /// <summary>
+    /// Finalizes an instance of the <see cref="DataScannerViewController"/> class.
+    /// </summary>
     ~DataScannerViewController()
     {
         Dispose(false);

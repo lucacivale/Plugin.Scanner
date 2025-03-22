@@ -8,7 +8,7 @@ namespace Plugin.Scanner.iOS;
 public enum TextContentType
 {
     /// <summary>
-    /// Default
+    /// Default.
     /// </summary>
     Default,
 

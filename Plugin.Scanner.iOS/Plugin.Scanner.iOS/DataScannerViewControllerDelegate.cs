@@ -10,6 +10,10 @@ namespace Plugin.Scanner.iOS;
 [SuppressMessage("Naming", "CA1711: Identifiers should not have incorrect suffix", Justification = "Is ok here.")]
 public abstract class DataScannerViewControllerDelegate : Plugin.Scanner.iOS.Binding.DataScannerViewControllerDelegate
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataScannerViewControllerDelegate"/> class.
+    /// </summary>
+    /// <param name="scannerViewController">Associated <see cref="DataScannerViewController"/>.</param>
     protected DataScannerViewControllerDelegate(DataScannerViewController scannerViewController)
     {
         DataScannerViewController = scannerViewController;
@@ -102,16 +106,48 @@ public abstract class DataScannerViewControllerDelegate : Plugin.Scanner.iOS.Bin
             error.ToVnScanningUnavailable());
     }
 
+    /// <summary>
+    /// Responds when a person or your code changes the zoom factor.
+    /// </summary>
+    /// <param name="dataScanner">The data scanner whose zoom factor changes.</param>
     public abstract void DataScannerDidZoom(DataScannerViewController dataScanner);
 
+    /// <summary>
+    /// Responds when a person taps an item that the data scanner recognizes.
+    /// </summary>
+    /// <param name="dataScanner">The data scanner with the zoom factor that changes.</param>
+    /// <param name="item">The item that a person taps.</param>
     public abstract void DidTapOn(DataScannerViewController dataScanner, RecognizedItem item);
 
+    /// <summary>
+    /// Responds when the data scanner starts recognizing an item.
+    /// </summary>
+    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
+    /// <param name="addedItems">The items that the data scanner starts tracking.</param>
+    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
     public abstract void DidAdd(DataScannerViewController dataScanner, RecognizedItem[] addedItems, RecognizedItem[] allItems);
 
+    /// <summary>
+    /// Responds when the data scanner updates the geometry of an item it recognizes.
+    /// </summary>
+    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
+    /// <param name="updatedItems">The items with geometry that the data scanner changes.</param>
+    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
     public abstract void DidUpdate(DataScannerViewController dataScanner, RecognizedItem[] updatedItems, RecognizedItem[] allItems);
 
+    /// <summary>
+    /// To identify an item in the `removedItems` and `allItems` parameters, use the item’s `id` property.
+    /// </summary>
+    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
+    /// <param name="removedItems">The items that the data scanner removes from the ``DataScannerViewController/recognizedItems`` property.</param>
+    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
     public abstract void DidRemove(DataScannerViewController dataScanner, RecognizedItem[] removedItems, RecognizedItem[] allItems);
 
+    /// <summary>
+    /// Responds when the data scanner becomes unavailable and stops scanning.
+    /// </summary>
+    /// <param name="dataScanner">The data scanner that’s not available.</param>
+    /// <param name="error">Describes an error if it occurs.</param>
     [SuppressMessage("Naming", "CA1716: Identifiers should not match keywords", Justification = "Is ok here.")]
     public abstract void BecameUnavailableWithError(DataScannerViewController dataScanner, ScanningUnavailable error);
 }

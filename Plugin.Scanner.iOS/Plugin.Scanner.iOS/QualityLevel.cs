@@ -7,15 +7,20 @@ namespace Plugin.Scanner.iOS;
 /// </summary>
 public enum QualityLevel
 {
-    // A quality level that’s between fast and accurate.
+    /// <summary>
+    /// A quality level that’s between fast and accurate.
+    /// </summary>
     Balanced,
 
-    // A quality level that prioritizes recognition speed over accuracy.
-    // This quality level may fail to recognize smaller text and barcodes.
+    /// <summary>
+    /// A quality level that prioritizes recognition speed over accuracy.
+    /// This quality level may fail to recognize smaller text and barcodes.
+    /// </summary>
     Fast,
 
-    // Use this quality level if you want to recognize smaller text and
-    // barcodes.
+    /// <summary>
+    /// Use this quality level if you want to recognize smaller text and barcodes.
+    /// </summary>
     Accurate,
 }
 

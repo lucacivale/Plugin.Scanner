@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Maui.Platform;
 using Plugin.Scanner.iOS;
+using Plugin.Scanner.iOS.Barcode;
 
 namespace MauiApp1;
 

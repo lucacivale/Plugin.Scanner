@@ -24,6 +24,9 @@ public sealed class RecognizedDataType : IDisposable
         _barcode = Plugin.Scanner.iOS.Binding.RecognizedDataType.Barcode(symbologies.Select(x => x.ToString()).ToArray());
     }
 
+    /// <summary>
+    /// Finalizes an instance of the <see cref="RecognizedDataType"/> class.
+    /// </summary>
     ~RecognizedDataType()
     {
         Dispose(false);
