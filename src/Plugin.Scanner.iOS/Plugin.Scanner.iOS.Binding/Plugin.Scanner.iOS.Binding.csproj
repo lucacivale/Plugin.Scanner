@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(NetVersion)-ios</TargetFramework>
+    <IsBindingProject>true</IsBindingProject>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <XCFramework>PluginScanneriOS.xcframework</XCFramework>
+    <Framework>PluginScanner.framework</Framework>
+    <ProjectResources>Plugin.Scanner.iOS.Binding.resources</ProjectResources>
+    <RID>ios-arm64</RID>
+    <SharpieOutput>sharpie-out</SharpieOutput>
+    <Namespace>$(RootNameSpace)</Namespace>
+    <SDK>iphoneos18.2</SDK>
+    <Scope>Headers Headers/PluginScanner-Swift.h</Scope>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ObjcBindingApiDefinition Include="ApiDefinition.cs" />
+    <ObjcBindingCoreSource Include="StructsAndEnums.cs" />
+  </ItemGroup>
+
+  <!-- Reference to Xcode project -->
+  <ItemGroup>
+    <XcodeProject Include="../native/PluginScanner/PluginScanner.xcodeproj">
+      <SchemeName>PluginScanner</SchemeName>
+      <!-- Metadata applicable to @(NativeReference) will be used if set, otherwise the following defaults will be used:
+      <Kind>Framework</Kind>
+      <SmartLink>true</SmartLink>
+      -->
+    </XcodeProject>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="cd $(OutDir)/$(ProjectResources)/$(XCFramework)/$(RID)/$(Framework)&#xA;&#xA;rm -rf $(SharpieOutput)&#xA;&#xA;sharpie bind --output=$(SharpieOutput) --namespace=$(Namespace) --sdk=$(SDK) --scope=$(Scope)" />
+  </Target>
+</Project>

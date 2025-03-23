@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>$(NetVersion)-ios</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <SupportedOSPlatformVersion>16.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj" />
+      <ProjectReference Include="..\Plugin.Scanner.iOS.Binding\Plugin.Scanner.iOS.Binding.csproj" />
+    </ItemGroup>
+</Project>
