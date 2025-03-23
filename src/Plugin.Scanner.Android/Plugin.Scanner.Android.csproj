@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>$(NetVersion)-android</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Xamarin.GooglePlayServices.Code.Scanner" Version="116.1.0.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj" />
+    </ItemGroup>
+</Project>

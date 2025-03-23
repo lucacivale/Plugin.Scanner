@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Scanner.Android", "..\Plugin.Scanner.Android\Plugin.Scanner.Android.csproj", "{0CBE2405-2B7A-4B67-AEC9-040D2B468B8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Scanner.Core", "..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj", "{65383142-436D-4374-BE3D-245EDF2EFB33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Scanner.iOS", "..\Plugin.Scanner.iOS\Plugin.Scanner.iOS\Plugin.Scanner.iOS.csproj", "{0E7F86A8-BC1E-4AFA-9D15-96B11AC796CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Scanner", "..\Plugin.Scanner\Plugin.Scanner.csproj", "{2E02ACDB-B5D6-48EF-8406-2F7D88EE1F88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0CBE2405-2B7A-4B67-AEC9-040D2B468B8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CBE2405-2B7A-4B67-AEC9-040D2B468B8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CBE2405-2B7A-4B67-AEC9-040D2B468B8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CBE2405-2B7A-4B67-AEC9-040D2B468B8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65383142-436D-4374-BE3D-245EDF2EFB33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65383142-436D-4374-BE3D-245EDF2EFB33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65383142-436D-4374-BE3D-245EDF2EFB33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65383142-436D-4374-BE3D-245EDF2EFB33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E7F86A8-BC1E-4AFA-9D15-96B11AC796CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E7F86A8-BC1E-4AFA-9D15-96B11AC796CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E7F86A8-BC1E-4AFA-9D15-96B11AC796CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E7F86A8-BC1E-4AFA-9D15-96B11AC796CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E02ACDB-B5D6-48EF-8406-2F7D88EE1F88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E02ACDB-B5D6-48EF-8406-2F7D88EE1F88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E02ACDB-B5D6-48EF-8406-2F7D88EE1F88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E02ACDB-B5D6-48EF-8406-2F7D88EE1F88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
