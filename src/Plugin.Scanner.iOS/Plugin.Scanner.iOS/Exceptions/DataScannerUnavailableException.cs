@@ -1,11 +1,14 @@
-#pragma warning disable SA1300
 namespace Plugin.Scanner.iOS.Exceptions;
-#pragma warning restore SA1300
 
-/// <inheritdoc />
-public class DataScannerUnavailableException : Exception
+/// <summary>
+/// The exception that is thrown when the data scanner becomes unavailable during operation.
+/// </summary>
+public sealed class DataScannerUnavailableException : Exception
 {
-    /// <inheritdoc />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataScannerUnavailableException"/> class with a specified error message.
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
     public DataScannerUnavailableException(string message)
         : base(message)
     {
@@ -18,7 +21,11 @@ public class DataScannerUnavailableException : Exception
     {
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataScannerUnavailableException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+    /// </summary>
+    /// <param name="message">The error message that explains the reason for the exception.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception.</param>
     public DataScannerUnavailableException(string message, Exception innerException)
         : base(message, innerException)
     {

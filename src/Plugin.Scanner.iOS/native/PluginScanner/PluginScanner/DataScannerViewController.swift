@@ -12,7 +12,7 @@ import VisionKit
 typealias VNDataScannerViewController = VisionKit.DataScannerViewController
 
 @objc(DataScannerViewController)
-public class DataScannerViewController : NSObject, VisionKit.DataScannerViewControllerDelegate
+public class DataScannerViewController : UIViewController, VisionKit.DataScannerViewControllerDelegate
 {
     private var dataScannerViewController: VNDataScannerViewController
     private var dataScannerViewControllerDelegate : DataScannerViewControllerDelegate?
@@ -27,12 +27,17 @@ public class DataScannerViewController : NSObject, VisionKit.DataScannerViewCont
         {
             vnRecognizedDataTypes.insert(recognizedDataType.ToVNRecognizedDataType())
         }
-
+        
         dataScannerViewController = VNDataScannerViewController.init(recognizedDataTypes: vnRecognizedDataTypes, qualityLevel: qualityLevel.ToVNQualityLevel(), recognizesMultipleItems: recognizesMultipleItems, isHighFrameRateTrackingEnabled: isHighFrameRateTrackingEnabled, isPinchToZoomEnabled: isPinchToZoomEnabled, isGuidanceEnabled: isGuidanceEnabled, isHighlightingEnabled: isHighlightingEnabled)
-
-        super.init()
+        
+        super.init(nibName: nil, bundle: nil)
         
         dataScannerViewController.delegate = self
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     @objc
@@ -235,6 +240,23 @@ public class DataScannerViewController : NSObject, VisionKit.DataScannerViewCont
         }
     }
     
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+
+        addChild(dataScannerViewController)
+        view.addSubview(dataScannerViewController.view)
+        
+        dataScannerViewController.view.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            dataScannerViewController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            dataScannerViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            dataScannerViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            dataScannerViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        dataScannerViewController.didMove(toParent: self)
+    }
     
     @objc(recognizedItems:)
     public func recognizedItems() async -> [RecognizedItem]
@@ -288,17 +310,17 @@ public class DataScannerViewController : NSObject, VisionKit.DataScannerViewCont
     @MainActor
     public func dataScannerDidZoom(_ dataScanner: VisionKit.DataScannerViewController)
     {
-        dataScannerViewControllerDelegate?.dataScannerDidZoom(self)
+        dataScannerViewControllerDelegate?.dataScannerDidZoom?(self)
     }
 
     public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didTapOn item: VisionKit.RecognizedItem)
     {
-        dataScannerViewControllerDelegate?.dataScanner(self, didTapOn: RecognizedItem.fromVNRecognizedItem(recognizedItem: item))
+        dataScannerViewControllerDelegate?.dataScanner?(self, didTapOn: RecognizedItem.fromVNRecognizedItem(recognizedItem: item))
     }
 
     public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didAdd addedItems: [VisionKit.RecognizedItem], allItems: [VisionKit.RecognizedItem])
     {
-        dataScannerViewControllerDelegate?.dataScanner(
+        dataScannerViewControllerDelegate?.dataScanner?(
             self,
             didAdd: addedItems.map
             {
@@ -312,9 +334,9 @@ public class DataScannerViewController : NSObject, VisionKit.DataScannerViewCont
 
     public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didUpdate updatedItems: [VisionKit.RecognizedItem], allItems: [VisionKit.RecognizedItem])
     {
-        dataScannerViewControllerDelegate?.dataScanner(
+        dataScannerViewControllerDelegate?.dataScanner?(
             self,
-            didAdd: updatedItems.map
+            didUpdate: updatedItems.map
             {
                 (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
             },
@@ -326,9 +348,9 @@ public class DataScannerViewController : NSObject, VisionKit.DataScannerViewCont
 
     public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, didRemove removedItems: [VisionKit.RecognizedItem], allItems: [VisionKit.RecognizedItem])
     {
-        dataScannerViewControllerDelegate?.dataScanner(
+        dataScannerViewControllerDelegate?.dataScanner?(
             self,
-            didAdd: removedItems.map
+            didRemove: removedItems.map
             {
                 (item) -> RecognizedItem in RecognizedItem.fromVNRecognizedItem(recognizedItem: item)
             },
@@ -340,6 +362,6 @@ public class DataScannerViewController : NSObject, VisionKit.DataScannerViewCont
 
     public func dataScanner(_ dataScanner: VisionKit.DataScannerViewController, becameUnavailableWithError error: VisionKit.DataScannerViewController.ScanningUnavailable)
     {
-        dataScannerViewControllerDelegate?.dataScanner(self, becameUnavailableWithError: ScanningUnavailable.FromVNScanningUnavailable(scanningUnavailable: error))
+        dataScannerViewControllerDelegate?.dataScanner?(self, becameUnavailableWithError: ScanningUnavailable.FromVNScanningUnavailable(scanningUnavailable: error))
     }
 }

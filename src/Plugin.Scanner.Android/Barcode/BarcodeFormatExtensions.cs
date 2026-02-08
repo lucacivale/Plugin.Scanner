@@ -12,20 +12,9 @@ internal static class BarcodeFormatExtensions
     /// </summary>
     /// <param name="formats">Formats.</param>
     /// <returns>Corresponding <see cref="Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode"/>.</returns>
-    internal static IEnumerable<int> ToBarcodeFormats(this IEnumerable<string> formats)
+    internal static IEnumerable<int> ToBarcodeFormats(this BarcodeFormat formats)
     {
-        return formats.Select(format => format.ToBarcodeFormat()).ToList();
-    }
-
-    /// <summary>
-    /// Gets <see cref="Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode"/> for <see cref="BarcodeFormat"/>.
-    /// </summary>
-    /// <param name="format">Format.</param>
-    /// <returns>Android format.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Throws if no corresponding <see cref="Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode"/> for <see cref="BarcodeFormat"/> is found.</exception>
-    internal static int ToBarcodeFormat(this string format)
-    {
-        return format switch
+        Func<BarcodeFormat, int> select = flag => flag switch
         {
             BarcodeFormat.Aztec => Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode.FormatAztec,
             BarcodeFormat.Codabar => Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode.FormatCodabar,
@@ -39,7 +28,24 @@ internal static class BarcodeFormatExtensions
             BarcodeFormat.Pdf417 => Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode.FormatPdf417,
             BarcodeFormat.QR => Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode.FormatQrCode,
             BarcodeFormat.Upce => Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode.FormatUpcE,
-            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null),
+            _ => throw new ArgumentOutOfRangeException(nameof(flag), flag, null),
         };
+
+        IEnumerable<int> symbologies;
+
+        if (formats == BarcodeFormat.All)
+        {
+            symbologies = Enum.GetValues<BarcodeFormat>()
+                .Where(flag => flag != BarcodeFormat.All)
+                .Select(select);
+        }
+        else
+        {
+            symbologies = Enum.GetValues<BarcodeFormat>()
+                .Where(flag => flag != BarcodeFormat.All && formats.HasFlag(flag))
+                .Select(select);
+        }
+
+        return symbologies;
     }
 }

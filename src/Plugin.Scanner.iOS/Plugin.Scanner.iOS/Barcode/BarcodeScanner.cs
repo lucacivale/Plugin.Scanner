@@ -1,53 +1,49 @@
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.iOS.Binding;
 using Plugin.Scanner.iOS.Exceptions;
+using Plugin.Scanner.iOS.Extensions;
 
-#pragma warning disable SA1300
 namespace Plugin.Scanner.iOS.Barcode;
-#pragma warning restore SA1300
 
 /// <summary>
-/// Barcode scanner.
+/// Provides barcode scanning functionality using the device camera.
 /// </summary>
-public sealed class BarcodeScanner : IBarcodeScanner
+internal sealed class BarcodeScanner : IBarcodeScanner
 {
-    /// <inheritdoc/>
-    public async Task<string> ScanBarcodeAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
+    /// <summary>
+    /// Asynchronously scans for a barcode using the device camera.
+    /// </summary>
+    /// <param name="options">The <see cref="IBarcodeScanOptions"/> specifying which barcode formats to recognize.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> token to cancel the scan operation.</param>
+    /// <returns>A <see cref="Task{IBarcode}"/> that represents the asynchronous operation. The task result contains the scanned barcode.</returns>
+    /// <exception cref="BarcodeScanException">
+    /// Thrown when a scanner-related error occurs, including
+    /// camera configuration issues, invalid event types, scanner start failures,
+    /// torch mode problems, scanner availability issues, or view controller errors.
+    /// </exception>
+    public async Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
     {
-        UIViewController topViewController = WindowUtils.GetTopViewController() ?? throw new BarcodeScanException("Failed to find top UIViewController.", new NotSupportedException($"{nameof(topViewController)} can not be null."));
-
-        if (!DataScannerViewController.IsSupported)
+        try
         {
-            throw new BarcodeScanException("Data scanner not supported.", new DataScannerUnsupportedException(string.Join(", ", DataScannerViewController.ScanningUnavailable)));
-        }
+            using RecognizedDataType barcodeType =
+                RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
+            using SingleBarcodeScannerViewController scanner = new([barcodeType]);
 
-        if (!DataScannerViewController.IsAvailable)
+            return await scanner.ScanAsync(cancellationToken).ConfigureAwait(true);
+        }
+        catch (Exception e)
+            when (e is DataScannerCameraConfigurationLockException
+                      or DataScannerEventSenderInvalidTypeException
+                      or DataScannerStartException
+                      or DataScannerTorchModeUnsupportedException
+                      or DataScannerTorchUnavailableException
+                      or DataScannerUnavailableException
+                      or DataScannerUnsupportedException
+                      or DataScannerViewControllerNotFoundException
+                      or DataScannerViewNullReferenceException)
         {
-            throw new BarcodeScanException("Data scanner not available.", new DataScannerUnavailableException(string.Join(", ", DataScannerViewController.ScanningUnavailable)));
+            throw new BarcodeScanException(e.Message, e);
         }
-
-        TaskCompletionSource<string> taskSource = new();
-
-        using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
-        using DataScannerViewController scanner = new([barcodeType], isGuidanceEnabled: false, isHighlightingEnabled: false);
-        scanner.Delegate = new BarcodeScannerDelegate(scanner, barcode => taskSource.TrySetResult(barcode));
-
-        UIView overlayView = scanner.AddBarcodeRegionOfInterestOverlay();
-
-        await topViewController.PresentViewControllerAsync(scanner.ScannerViewController, true).ConfigureAwait(true);
-
-        scanner.StartScanning(out DataScannerStartException? error);
-        if (error is not null)
-        {
-            _ = taskSource.TrySetException(new BarcodeScanException("Could not start scanner.", error));
-        }
-
-        string barcode = await taskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
-
-        await scanner.ScannerViewController.DismissViewControllerAsync(true).ConfigureAwait(true);
-
-        overlayView.Dispose();
-
-        return barcode;
     }
 }

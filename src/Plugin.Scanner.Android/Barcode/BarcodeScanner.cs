@@ -10,7 +10,7 @@ namespace Plugin.Scanner.Android.Barcode;
 public sealed class BarcodeScanner : IBarcodeScanner
 {
     /// <inheritdoc/>
-    public async Task<string> ScanBarcodeAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
+    public async Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
     {
         using GmsBarcodeScannerOptions.Builder builder = new();
 
@@ -27,6 +27,6 @@ public sealed class BarcodeScanner : IBarcodeScanner
             .StartScan()
             .AddOnCompleteListener(barcodeCompleteListener);
 
-        return await taskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
+        return new Core.Barcode.Barcode(await taskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true));
     }
 }

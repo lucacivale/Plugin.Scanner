@@ -1,30 +1,34 @@
-#pragma warning disable IDE0005
-using System.Collections.Generic;
-#pragma warning restore IDE0005
-
 namespace Plugin.Scanner.Core.Barcode;
 
-/// <inheritdoc />
+/// <summary>
+/// Provides configuration options for barcode scanning operations.
+/// </summary>
+/// <remarks>
+/// This is the default implementation of <see cref="IBarcodeScanOptions"/>.
+/// The class is sealed and mutable, allowing configuration of scan options before initiating a scan.
+/// </remarks>
 public sealed class BarcodeScanOptions : IBarcodeScanOptions
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="BarcodeScanOptions"/> class.
+    /// Gets or sets the barcode formats to be recognized during scanning.
     /// </summary>
-    /// <param name="formats">Formats to be recognized.</param>
-    public BarcodeScanOptions(IEnumerable<string> formats)
-    {
-        Formats = formats;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BarcodeScanOptions"/> class.
-    /// </summary>
-    /// <param name="format">Format to be recognized.</param>
-    public BarcodeScanOptions(string format)
-    {
-        Formats = [format];
-    }
-
-    /// <inheritdoc />
-    public IEnumerable<string> Formats { get; set; }
+    /// <value>
+    /// A <see cref="BarcodeFormat"/> value representing one or more barcode formats.
+    /// Multiple formats can be combined using the bitwise OR operator.
+    /// </value>
+    /// <remarks>
+    /// <para>
+    /// Use <see cref="BarcodeFormat.All"/> to recognize all supported formats, or combine specific formats for targeted scanning.
+    /// </para>
+    /// <example>
+    /// Scan for QR codes and EAN-13 barcodes:
+    /// <code>
+    /// var options = new BarcodeScanOptions
+    /// {
+    ///     Formats = BarcodeFormat.QR | BarcodeFormat.Ean13
+    /// };
+    /// </code>
+    /// </example>
+    /// </remarks>
+    public BarcodeFormat Formats { get; set; }
 }

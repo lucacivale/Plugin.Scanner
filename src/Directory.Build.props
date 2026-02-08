@@ -1,8 +1,28 @@
 <Project>
     <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <Nullable>enable</Nullable>
         <ImplicitUsings>true</ImplicitUsings>
+        <NetVersion>net10.0</NetVersion>
+
+        <NuGetAudit>enable</NuGetAudit>
+        <NuGetAuditMode>all</NuGetAuditMode>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Owners>Luca Civale </Owners>
+        <Authors>Luca Civale</Authors>
+        <Company>Luca Civale</Company>
+        <Copyright>Luca Civale</Copyright>
+        <PackageProjectUrl>https://github.com/lucacivale/Plugin.Scanner</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/lucacivale/Plugin.Scanner</RepositoryUrl>
+        <NeutralLanguage>en</NeutralLanguage>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="$(MSBuildProjectName.Contains('Maui')) == false and $(MSBuildProjectDirectory.Contains('Binding')) == false">
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisMode>All</AnalysisMode>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -12,12 +32,10 @@
         <RunAnalyzers>true</RunAnalyzers>
         <IsTrimmable>true</IsTrimmable>
         <IsAotCompatible>true</IsAotCompatible>
-        <NetVersion>net9.0</NetVersion>
-        <NuGetAudit>enable</NuGetAudit>
-        <NuGetAuditMode>all</NuGetAuditMode>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="$(MSBuildProjectName.Contains('Maui')) == false and $(MSBuildProjectDirectory.Contains('Binding')) == false">
         <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
