@@ -1,15 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>$(NetVersion)-android</TargetFramework>
-        <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Xamarin.Google.Android.Material" />
-        <PackageReference Include="Xamarin.Google.MLKit.BarcodeScanning" />
-        <PackageReference Include="Xamarin.AndroidX.Camera.Camera2"  />
-        <PackageReference Include="Xamarin.AndroidX.Camera.Lifecycle" />
-        <PackageReference Include="Xamarin.AndroidX.Camera.View" />
+		<PackageReference Include="Xamarin.AndroidX.Camera.Camera2" />
+		<PackageReference Include="Xamarin.AndroidX.Camera.MLKit.Vision" />
+		<PackageReference Include="Xamarin.Google.Android.Material" />
+		<PackageReference Include="Xamarin.Google.MlKit.BarcodeScanning" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,4 +20,13 @@
             <_Parameter1>Plugin.Scanner</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
+
+	<ItemGroup>
+		<Using Include="Android.Content" />
+		<Using Include="Android.Graphics" />
+		<Using Include="Android.Graphics.Drawables" />
+		<Using Include="Android.Views" />
+		<Using Include="Android.Content.Res" />
+		<Using Include="Android.Text" />
+	</ItemGroup>
 </Project>

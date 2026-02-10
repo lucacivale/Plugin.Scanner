@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+	<style name="PluginScannerDialogAnimation">
+		<item name="android:windowEnterAnimation">@anim/mtrl_bottom_sheet_slide_in</item>
+		<item name="android:windowExitAnimation">@anim/mtrl_bottom_sheet_slide_out</item>
+	</style>
+</resources>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AndroidX.AppCompat.App;
+using Microsoft.Extensions.Logging;
 using Plugin.Scanner;
 
 #if ANDROID
@@ -26,7 +27,7 @@ public static class MauiProgram
 #endif
 
 #if ANDROID
-        builder.Services.AddCurrentActivity(_ => new CurrentActivity(() => Platform.CurrentActivity));
+        builder.Services.AddCurrentActivity(_ => new CurrentActivity(() => (AppCompatActivity)Platform.CurrentActivity));
 #endif
         return builder.Build();
     }

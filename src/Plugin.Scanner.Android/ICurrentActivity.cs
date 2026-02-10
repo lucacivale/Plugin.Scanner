@@ -1,6 +1,8 @@
+using AndroidX.AppCompat.App;
+
 namespace Plugin.Scanner.Android;
 
 public interface ICurrentActivity
 {
-    Func<Activity?> GetActivity { get; }
+    Func<AppCompatActivity> GetActivity { get; }
 }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Plugin.Scanner.SingleBarcodeScanner" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">false</item>
+		<item name="android:windowAnimationStyle">@style/PluginScannerDialogAnimation</item>
     </style>
 </resources>

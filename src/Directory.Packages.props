@@ -5,10 +5,9 @@
     <PackageVersion Include="Plugin.Scanner.iOS.Binding" Version="1.0.0-7-pre" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.19.0.132793" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+    <PackageVersion Include="Xamarin.AndroidX.Camera.MLKit.Vision" Version="1.4.2.3" />
     <PackageVersion Include="Xamarin.Google.Android.Material" Version="1.12.0.5" />
-    <PackageVersion Include="Xamarin.Google.MLKit.BarcodeScanning" Version="117.2.0" />
-    <PackageVersion Include="Xamarin.AndroidX.Camera.Camera2" Version="1.3.2" />
-    <PackageVersion Include="Xamarin.AndroidX.Camera.Lifecycle" Version="1.3.2" />
-    <PackageVersion Include="Xamarin.AndroidX.Camera.View" Version="1.3.2" />
+    <PackageVersion Include="Xamarin.Google.MlKit.BarcodeScanning" Version="117.3.0.5" />
+    <PackageVersion Include="Xamarin.AndroidX.Camera.Camera2" Version="1.4.2.3" />
   </ItemGroup>
 </Project>
