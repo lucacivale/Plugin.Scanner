@@ -47,7 +47,7 @@ public static partial class IServiceCollectionExtensions
     /// </example>
     public static partial IServiceCollection AddBarcodeScanner(this IServiceCollection serviceCollection)
     {
-        //serviceCollection.TryAddSingleton<IBarcodeScanner, Plugin.Scanner.iOS.Barcode.BarcodeScanner>();
+        serviceCollection.TryAddSingleton<IBarcodeScanner, Plugin.Scanner.iOS.Barcode.BarcodeScanner>();
 
         return serviceCollection;
     }

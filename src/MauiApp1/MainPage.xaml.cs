@@ -13,7 +13,7 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            IBarcode a = await Handler.GetRequiredService<IBarcodeScanner>().ScanBarcodeAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All});
+            IBarcode a = await Handler.GetRequiredService<IBarcodeScanner>().ScanBarcodeAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.QR});
         }
         catch (Exception exception)
         {

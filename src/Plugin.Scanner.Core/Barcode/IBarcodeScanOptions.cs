@@ -22,7 +22,7 @@ public interface IBarcodeScanOptions
     /// </summary>
     /// <value>
     /// A <see cref="BarcodeFormat"/> value representing one or more barcode formats.
-    /// Multiple formats can be combined using the bitwise OR operator, or use 
+    /// Multiple formats can be combined using the bitwise OR operator, or use
     /// <see cref="BarcodeFormat.All"/> to recognize all supported formats.
     /// </value>
     /// <remarks>
