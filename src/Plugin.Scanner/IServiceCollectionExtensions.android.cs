@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Plugin.Scanner.Android;
 using Plugin.Scanner.Core.Barcode;
 
 namespace Plugin.Scanner;
@@ -47,7 +48,15 @@ public static partial class IServiceCollectionExtensions
     /// </example>
     public static partial IServiceCollection AddBarcodeScanner(this IServiceCollection serviceCollection)
     {
-        serviceCollection.TryAddSingleton<IBarcodeScanner, Plugin.Scanner.Android.Barcode.BarcodeScanner>();
+        serviceCollection
+            .TryAddSingleton<IBarcodeScanner, Plugin.Scanner.Android.Barcode.BarcodeScanner>();
+
+        return serviceCollection;
+    }
+
+    public static IServiceCollection AddCurrentActivity(this IServiceCollection serviceCollection, Func<IServiceProvider, ICurrentActivity> factory)
+    {
+        serviceCollection.TryAddSingleton(factory);
 
         return serviceCollection;
     }

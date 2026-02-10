@@ -5,10 +5,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Xamarin.GooglePlayServices.Code.Scanner" />
+        <PackageReference Include="Xamarin.Google.Android.Material" />
+        <PackageReference Include="Xamarin.Google.MLKit.BarcodeScanning" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Camera2"  />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Lifecycle" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.View" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Plugin.Scanner</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 </Project>

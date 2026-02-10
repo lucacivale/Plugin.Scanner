@@ -1,32 +1,52 @@
+using AndroidX.AppCompat.App;
+using AndroidX.Camera.Core;
+using AndroidX.Camera.Lifecycle;
+using AndroidX.Camera.View;
+using AndroidX.Lifecycle;
+using Google.Common.Util.Concurrent;
 using Plugin.Scanner.Core.Barcode;
-using Xamarin.Google.MLKit.Vision.CodeScanner;
-using Task = Android.Gms.Tasks.Task;
+using Object = Java.Lang.Object;
 
 namespace Plugin.Scanner.Android.Barcode;
 
-/// <summary>
-/// Barcode scanner.
-/// </summary>
-public sealed class BarcodeScanner : IBarcodeScanner
+internal sealed class BarcodeScanner : IBarcodeScanner
 {
-    /// <inheritdoc/>
+    private readonly ICurrentActivity _currentActivity;
+
+    public BarcodeScanner(ICurrentActivity currentActivity)
+    {
+        _currentActivity = currentActivity;
+    }
+
     public async Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
     {
-        using GmsBarcodeScannerOptions.Builder builder = new();
+        Activity activity = _currentActivity.GetActivity();
 
-        IEnumerable<int> formats = options.Formats.ToBarcodeFormats().ToArray();
-        _ = builder.SetBarcodeFormats(formats.First(), formats.Skip(1).ToArray());
+        _ = activity ?? throw new ArgumentNullException(nameof(options));
 
-        using GmsBarcodeScannerOptions gmsOptions = builder.Build();
-        using IGmsBarcodeScanner barcodeScanner = GmsBarcodeScanning.GetClient(Application.Context, gmsOptions);
+        AppCompatDialog scannerDialog = new(activity, _Microsoft.Android.Resource.Designer.Resource.Style.Plugin_Scanner_SingleBarcodeScanner);
+        scannerDialog.SetContentView(_Microsoft.Android.Resource.Designer.Resource.Layout.SingleBarcodeScanner);
 
-        TaskCompletionSource<string> taskCompletionSource = new();
-        using BarcodeCompleteListener barcodeCompleteListener = new(taskCompletionSource);
+        PreviewView? previewView = scannerDialog.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView);
 
-        using Task task = barcodeScanner
-            .StartScan()
-            .AddOnCompleteListener(barcodeCompleteListener);
+        IListenableFuture cameraProvider = ProcessCameraProvider.GetInstance(activity);
+        ProcessCameraProvider? cameraProviderInstance = (ProcessCameraProvider)cameraProvider.Get();
 
-        return new Core.Barcode.Barcode(await taskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true));
+        Preview preview = new Preview.Builder().Build();
+        preview.SetSurfaceProvider(previewView.SurfaceProvider);
+
+        scannerDialog.Show();
+
+        await Task.Delay(1000);
+        
+        previewView.Post(() =>
+        {
+            cameraProviderInstance?.BindToLifecycle(
+                (ILifecycleOwner)activity,
+                CameraSelector.DefaultBackCamera,
+                preview);
+        });
+
+        return new Core.Barcode.Barcode(string.Empty);
     }
 }
