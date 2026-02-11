@@ -1,0 +1,57 @@
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>true</ImplicitUsings>
+        <NetVersion>net10.0</NetVersion>
+
+        <NuGetAudit>enable</NuGetAudit>
+        <NuGetAuditMode>all</NuGetAuditMode>
+
+		<IsWindows>$([System.OperatingSystem]::IsWindows())</IsWindows>
+		<IsMacOS>$([System.OperatingSystem]::IsMacOS())</IsMacOS>
+
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<AvaloniaVersion>11.3.11</AvaloniaVersion>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Owners>Luca Civale </Owners>
+        <Authors>Luca Civale</Authors>
+        <Company>Luca Civale</Company>
+        <Copyright>Luca Civale</Copyright>
+        <PackageProjectUrl>https://github.com/lucacivale/Plugin.Scanner</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/lucacivale/Plugin.Scanner</RepositoryUrl>
+        <NeutralLanguage>en</NeutralLanguage>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="$(MSBuildProjectName.Contains('Test')) == false and $(MSBuildProjectDirectory.Contains('Binding')) == false">
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisMode>All</AnalysisMode>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+        <RunAnalyzers>true</RunAnalyzers>
+    </PropertyGroup>
+
+    <ItemGroup Condition="$(MSBuildProjectName.Contains('Test')) == false and $(MSBuildProjectDirectory.Contains('Binding')) == false">
+        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SonarAnalyzer.CSharp">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="StyleCop.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+</Project>

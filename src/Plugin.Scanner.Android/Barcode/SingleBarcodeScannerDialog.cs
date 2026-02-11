@@ -12,6 +12,8 @@ using Java.Interop;
 using AndroidX.Camera.Core;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Views;
+using Plugin.Scanner.Android.Extensions;
+using AndroidX.Lifecycle;
 
 namespace Plugin.Scanner.Android.Barcode;
 
@@ -30,7 +32,7 @@ namespace Plugin.Scanner.Android.Barcode;
 /// </remarks>
 internal sealed class SingleBarcodeScannerDialog : AppCompatDialog, IConsumer
 {
-    private readonly AppCompatActivity _activity;
+    private readonly Activity _activity;
     private readonly LifecycleCameraController _cameraController;
     private readonly Xamarin.Google.MLKit.Vision.BarCode.IBarcodeScanner _barcodeScanner;
 
@@ -49,12 +51,18 @@ internal sealed class SingleBarcodeScannerDialog : AppCompatDialog, IConsumer
     /// configures the dialog's content view, and initializes the ML Kit barcode analyzer
     /// with the specified formats.
     /// </remarks>
-    public SingleBarcodeScannerDialog(AppCompatActivity context, IEnumerable<int> barcodeFormats)
+    public SingleBarcodeScannerDialog(Activity context, IEnumerable<int> barcodeFormats)
         : base(context, _Microsoft.Android.Resource.Designer.Resource.Style.Plugin_Scanner_SingleBarcodeScanner)
     {
         _activity = context;
         _cameraController = new(Context);
-        _cameraController.BindToLifecycle(_activity);
+
+        if (_activity is not ILifecycleOwner)
+        {
+            throw new ActivityMustBeILifecycleOwnerException("Activity must implement ILifecycleOwner");
+        }
+
+        _cameraController.BindToLifecycle((ILifecycleOwner)_activity);
 
         SetContentView(_Microsoft.Android.Resource.Designer.Resource.Layout.SingleBarcodeScanner);
         SetOverlay();
@@ -86,7 +94,7 @@ internal sealed class SingleBarcodeScannerDialog : AppCompatDialog, IConsumer
     /// </remarks>
     public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)
     {
-        if (_cameraController.HasCamera(_cameraController.CameraSelector) == false)
+        if (Context.HasCamera() == false)
         {
             throw new NoCameraException("Device has no camera.");
         }
@@ -259,7 +267,7 @@ internal sealed class SingleBarcodeScannerDialog : AppCompatDialog, IConsumer
 
         IExecutor mainExecutor = ContextCompat.GetMainExecutor(Context) ?? throw new MainExecutorNotAvailableException("Main executor not available.");
 
-        using MlKitAnalyzer analyzer = new([_barcodeScanner], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, this);
+        using MlKitAnalyzer analyzer = new([scanner], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, this);
 
         _cameraController.SetImageAnalysisAnalyzer(mainExecutor, analyzer);
 

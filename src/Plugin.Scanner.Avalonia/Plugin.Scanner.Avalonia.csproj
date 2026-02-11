@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>$(NetVersion);$(NetVersion)-ios;$(NetVersion)-android</TargetFrameworks>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">16.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
+		<PackageReference Include="Avalonia.Android" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-ios'">
+		<PackageReference Include="Avalonia.iOS" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Plugin.Scanner\Plugin.Scanner.csproj" />
+	</ItemGroup>
+</Project>

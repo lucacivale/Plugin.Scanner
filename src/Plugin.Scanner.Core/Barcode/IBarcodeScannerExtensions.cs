@@ -38,7 +38,7 @@ public static class IBarcodeScannerExtensions
     /// Console.WriteLine($"Scanned: {barcode.RawValue}");
     /// </code>
     /// </example>
-    public static Task<IBarcode> ScanBarcodeAsync(this IBarcodeScanner scanner, IBarcodeScanOptions options)
+    public static Task<IBarcode> ScanAsync(this IBarcodeScanner scanner, IBarcodeScanOptions options)
     {
         return scanner.ScanAsync(options, CancellationToken.None);
     }

@@ -1,6 +1,5 @@
 ﻿using Android;
 using Android.Content.PM;
-using AndroidX.AppCompat.App;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
 
@@ -19,7 +18,7 @@ internal static class PermissionsHelper
     /// Requests the required camera and flashlight permissions from the user.
     /// </summary>
     /// <param name="activity">The activity to request permissions from.</param>
-    public static void RequestPermissions(AppCompatActivity activity)
+    public static void RequestPermissions(Activity activity)
     {
         ActivityCompat.RequestPermissions(activity, _requiredPermissions, RequestCodePermissions);
     }
@@ -38,7 +37,7 @@ internal static class PermissionsHelper
     /// Checks if permissions are granted and requests them if not.
     /// </summary>
     /// <param name="activity">The activity to check and request permissions from.</param>
-    public static void CheckPermissions(AppCompatActivity activity)
+    public static void CheckPermissions(Activity activity)
     {
         if (PermissionsGranted(activity) == false)
         {

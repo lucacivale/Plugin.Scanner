@@ -18,7 +18,7 @@ namespace Plugin.Scanner.Android.Barcode;
 /// requires the <c>CAMERA</c> permission to be granted.
 /// </para>
 /// </remarks>
-internal sealed class BarcodeScanner : IBarcodeScanner
+public sealed class BarcodeScanner : IBarcodeScanner
 {
     private readonly ICurrentActivity _currentActivity;
 
@@ -66,7 +66,7 @@ internal sealed class BarcodeScanner : IBarcodeScanner
     {
         try
         {
-            using SingleBarcodeScannerDialog scannerDialog = new(_currentActivity.GetActivity(), options.Formats.ToBarcodeFormats());
+            using SingleBarcodeScannerDialog scannerDialog = new(_currentActivity.Activity, options.Formats.ToBarcodeFormats());
 
             return await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true);
         }

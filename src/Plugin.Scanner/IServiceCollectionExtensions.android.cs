@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Plugin.Scanner.Android;
 using Plugin.Scanner.Core.Barcode;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Plugin.Scanner;
 
@@ -49,20 +50,15 @@ public static partial class IServiceCollectionExtensions
     public static partial IServiceCollection AddBarcodeScanner(this IServiceCollection serviceCollection)
     {
         serviceCollection
-            .TryAddSingleton<IBarcodeScanner, Plugin.Scanner.Android.Barcode.BarcodeScanner>();
+            .TryAddSingleton<IBarcodeScanner, Android.Barcode.BarcodeScanner>();
 
         return serviceCollection;
     }
 
-    /// <summary>
-    /// Registers the current activity provider with the service collection using a factory method.
-    /// </summary>
-    /// <param name="serviceCollection">The service collection to add the current activity to.</param>
-    /// <param name="factory">A factory method that creates the <see cref="ICurrentActivity"/> instance from the service provider.</param>
-    /// <returns>The <see cref="IServiceCollection"/> for method chaining.</returns>
-    public static IServiceCollection AddCurrentActivity(this IServiceCollection serviceCollection, Func<IServiceProvider, ICurrentActivity> factory)
+    public static IServiceCollection AddCurrentActivity<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCurrentActivityImplementation>(this IServiceCollection serviceCollection)
+        where TCurrentActivityImplementation : class, ICurrentActivity
     {
-        serviceCollection.TryAddSingleton(factory);
+        serviceCollection.TryAddSingleton<ICurrentActivity, TCurrentActivityImplementation>();
 
         return serviceCollection;
     }

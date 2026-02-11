@@ -9,7 +9,7 @@ namespace Plugin.Scanner.iOS.Barcode;
 /// <summary>
 /// Provides barcode scanning functionality using the device camera.
 /// </summary>
-internal sealed class BarcodeScanner : IBarcodeScanner
+public sealed class BarcodeScanner : IBarcodeScanner
 {
     /// <summary>
     /// Asynchronously scans for a barcode using the device camera.

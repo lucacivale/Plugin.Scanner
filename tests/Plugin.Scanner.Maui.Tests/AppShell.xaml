@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+	x:Class="Plugin.Scanner.Maui.Tests.AppShell"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:local="clr-namespace:Plugin.Scanner.Maui.Tests"
+	xmlns:views="clr-namespace:Plugin.Scanner.Maui.Tests.Views"
+	Title="Plugin.Scanner.Maui.Tests">
+	<ShellContent
+		Title="Main"
+		ContentTemplate="{DataTemplate views:MainPage}"
+		Route="MainPage"
+		Shell.NavBarIsVisible="False" />
+
+</Shell>
