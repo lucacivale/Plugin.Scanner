@@ -1,8 +1,8 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>$(NetVersion)-android;$(NetVersion)-ios</TargetFrameworks>
+    <TargetFrameworks>$(NetVersion);$(NetVersion)-android;$(NetVersion)-ios</TargetFrameworks>
 
-    <OutputType>Exe</OutputType>
+    <OutputType Condition="'$(TargetFramework)' != '$(NetVersion)'">Exe</OutputType>
     <UnoSingleProject>true</UnoSingleProject>
 
     <!-- Display name -->
@@ -17,7 +17,7 @@
     <!-- Package Description -->
     <Description>Plugin.Scanner.Uno.Tests powered by Uno Platform.</Description>
 
-    <NoWarn>CS1591;IDE0008</NoWarn>
+    <NoWarn>CS1591;IDE0008;XA4301</NoWarn>
       
     <!--
       UnoFeatures are used to quickly add and manage features enabled for your app.

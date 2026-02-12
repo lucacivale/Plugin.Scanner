@@ -4,7 +4,7 @@
     <TargetFramework>$(NetVersion)-ios</TargetFramework>
     <SupportedOSPlatformVersion>16.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
-	<NoWarn>CS1591;IDE0008</NoWarn>
+	<NoWarn>CS1591;IDE0008;IL2026;IL2104;</NoWarn>
     <ApplicationId>lc.MauiApp1</ApplicationId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

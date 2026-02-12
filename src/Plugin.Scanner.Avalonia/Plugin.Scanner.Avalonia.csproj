@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>$(NetVersion);$(NetVersion)-ios;$(NetVersion)-android</TargetFrameworks>
+        <NoWarn>DNAA0001</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">

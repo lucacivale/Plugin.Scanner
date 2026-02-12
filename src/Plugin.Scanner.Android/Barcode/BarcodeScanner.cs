@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Android.OS;
-using Java.Lang;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Core.Barcode;

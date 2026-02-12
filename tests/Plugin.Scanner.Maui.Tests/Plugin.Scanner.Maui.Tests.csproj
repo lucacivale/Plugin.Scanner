@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>$(NetVersion)-android;$(NetVersion)-ios</TargetFrameworks>
-		<OutputType>Exe</OutputType>
+		<TargetFrameworks>$(NetVersion);$(NetVersion)-android;$(NetVersion)-ios</TargetFrameworks>
+        <OutputType Condition="'$(TargetFramework)' != '$(NetVersion)'">Exe</OutputType>
 		<RootNamespace>Plugin.Scanner.Maui.Tests</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>

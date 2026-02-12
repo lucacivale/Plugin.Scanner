@@ -2,9 +2,26 @@
 
 namespace Plugin.Scanner.Uno.Hosting;
 
-public static class UnoBuilderExtensions
+/// <summary>
+/// Provides extension methods for configuring barcode scanner services in Uno Platform applications.
+/// </summary>
+public static partial class UnoBuilderExtensions
 {
-    public static IApplicationBuilder UseScanner(this IApplicationBuilder builder)
+    /// <summary>
+    /// Registers the barcode scanner services required for Android.
+    /// </summary>
+    /// <param name="builder">The application builder.</param>
+    /// <returns>The configured <see cref="IApplicationBuilder"/>.</returns>
+    /// <example>
+    /// <code>
+    /// protected override void OnLaunched(LaunchActivatedEventArgs args)
+    /// {
+    ///     var builder = this.CreateBuilder(args)
+    ///         .UseScanner();
+    /// }
+    /// </code>
+    /// </example>
+    public static partial IApplicationBuilder UseScanner(this IApplicationBuilder builder)
     {
         return builder.Configure(host =>
         {

@@ -6,7 +6,7 @@
 public static partial class UnoBuilderExtensions
 {
     /// <summary>
-    /// Registers the barcode scanner services required for iOS.
+    /// Registers the barcode scanner services required for .NET platforms (Windows, macOS, Linux).
     /// </summary>
     /// <param name="builder">The application builder.</param>
     /// <returns>The configured <see cref="IApplicationBuilder"/>.</returns>

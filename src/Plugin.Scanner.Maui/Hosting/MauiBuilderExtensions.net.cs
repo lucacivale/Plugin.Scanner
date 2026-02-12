@@ -1,15 +1,19 @@
 ﻿namespace Plugin.Scanner.Maui.Hosting;
 
 /// <summary>
-/// Provides extension methods for configuring the scanner plugin in a MAUI application.
+/// Provides extension methods for configuring the Plugin.Scanner library within a .NET MAUI application.
 /// </summary>
 public static partial class MauiBuilderExtensions
 {
     /// <summary>
-    /// Configures the barcode scanner services for iOS platform.
+    /// Registers and configures the scanner plugin for use in the MAUI application.
     /// </summary>
-    /// <param name="app">The MAUI app builder to configure.</param>
-    /// <returns>The <see cref="MauiAppBuilder"/> for method chaining.</returns>
+    /// <param name="app">
+    /// An instance of <see cref="MauiAppBuilder"/> representing the application builder to which the scanner plugin is added.
+    /// </param>
+    /// <returns>
+    /// The <see cref="MauiAppBuilder"/> instance, allowing for method chaining.
+    /// </returns>
     /// <example>
     /// <code>
     /// public static MauiApp CreateMauiApp()

@@ -9,7 +9,7 @@
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
-	<NoWarn>CS1591;IDE0008</NoWarn>
+	<NoWarn>CS1591;IDE0008;XA0141;XA4301</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -45,7 +45,6 @@ public interface IBarcodeScanner
     /// <example>
     /// Basic usage:
     /// <code>
-    /// var scanner = new BarcodeScanner();
     /// var options = new BarcodeScanOptions
     /// {
     ///     Formats = BarcodeFormat.QR | BarcodeFormat.Ean13

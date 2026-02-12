@@ -12,7 +12,6 @@
 
 		<IsTrimmable>true</IsTrimmable>
 		<IsAotCompatible>true</IsAotCompatible>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
         
 		<AvaloniaVersion>11.3.11</AvaloniaVersion>
 
@@ -34,6 +33,7 @@
     </PropertyGroup>
     
     <PropertyGroup Condition="$(MSBuildProjectName.Contains('Test')) == false and $(MSBuildProjectDirectory.Contains('Binding')) == false">
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisMode>All</AnalysisMode>

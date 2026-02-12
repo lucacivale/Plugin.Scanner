@@ -2,11 +2,12 @@
   <PropertyGroup>
     <TargetFramework>net9.0-ios</TargetFramework>
     <IsBindingProject>true</IsBindingProject>
+    <NoWarn>CS0114</NoWarn>
   </PropertyGroup>
 
-    <ItemGroup>
-        <None Remove="*.nupkg" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="*.nupkg" />
+  </ItemGroup>
     
   <ItemGroup>
     <ObjcBindingApiDefinition Include="ApiDefinition.cs" />
