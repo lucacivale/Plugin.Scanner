@@ -17,7 +17,7 @@
 		<ApplicationTitle>Plugin.Scanner.Maui.Tests</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.Plugin.Scanner.Maui.Tests</ApplicationId>
+		<ApplicationId>lc.MauiApp1</ApplicationId>
 		<ApplicationIdGuid>1c762429-aa4a-46c3-b177-01ddbd29bb4c</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -28,6 +28,11 @@
 		<WindowsPackageType>None</WindowsPackageType>
 
 		<NoWarn>CS1591;IDE0008</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+	  <CodesignKey>Apple Development: luca_c@live.de (QQLSWZQVF8)</CodesignKey>
+	  <CodesignProvision>iOS Team Provisioning Profile: lc.MauiApp1</CodesignProvision>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -52,10 +57,6 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-	</ItemGroup>
-
-	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-		<BundleResource Include="Platforms\iOS\PrivacyInfo.xcprivacy" LogicalName="PrivacyInfo.xcprivacy" />
 	</ItemGroup>
 
 	<ItemGroup>

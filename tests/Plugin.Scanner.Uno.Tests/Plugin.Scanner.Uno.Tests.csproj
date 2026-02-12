@@ -8,7 +8,7 @@
     <!-- Display name -->
     <ApplicationTitle>Plugin.Scanner.Uno.Tests</ApplicationTitle>
     <!-- App Identifier -->
-    <ApplicationId>com.companyname.plugin-scanner-uno-tests</ApplicationId>
+    <ApplicationId>lc.MauiApp1</ApplicationId>
     <!-- Versions -->
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
@@ -17,6 +17,8 @@
     <!-- Package Description -->
     <Description>Plugin.Scanner.Uno.Tests powered by Uno Platform.</Description>
 
+    <NoWarn>CS1591;IDE0008</NoWarn>
+      
     <!--
       UnoFeatures are used to quickly add and manage features enabled for your app.
       https://aka.platform.uno/singleproject-features
@@ -37,9 +39,10 @@
       SkiaRenderer;
     </UnoFeatures>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="appsettings.json" />
-  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignProvision>iOS Team Provisioning Profile: lc.MauiApp1</CodesignProvision>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Plugin.Scanner.Uno\Plugin.Scanner.Uno.csproj" />
   </ItemGroup>

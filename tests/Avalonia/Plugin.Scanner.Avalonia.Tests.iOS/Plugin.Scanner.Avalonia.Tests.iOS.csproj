@@ -5,6 +5,10 @@
     <SupportedOSPlatformVersion>16.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
 	<NoWarn>CS1591;IDE0008</NoWarn>
+    <ApplicationId>lc.MauiApp1</ApplicationId>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
 
   <ItemGroup>

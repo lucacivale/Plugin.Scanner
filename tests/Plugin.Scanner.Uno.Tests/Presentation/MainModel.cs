@@ -1,28 +1,32 @@
+using System.Diagnostics;
+using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Exceptions;
+
 namespace Plugin.Scanner.Uno.Tests.Presentation;
 
 public partial record MainModel
 {
-    private INavigator _navigator;
+    private readonly IBarcodeScanner _barcodeScanner;
 
-    public MainModel(
-        IStringLocalizer localizer,
-        IOptions<AppConfig> appInfo,
-        INavigator navigator)
+    public MainModel(IBarcodeScanner barcodeScanner)
     {
-        _navigator = navigator;
-        Title = "Main";
-        Title += $" - {localizer["ApplicationName"]}";
-        Title += $" - {appInfo?.Value?.Environment}";
+        _barcodeScanner = barcodeScanner;
     }
 
-    public string? Title { get; }
-
-    public IState<string> Name => State<string>.Value(this, () => string.Empty);
-
-    public async Task GoToSecond()
+    public IState<string> Barcode => State<string>.Value(this, () => string.Empty);
+    
+    public async Task ScanBarcode()
     {
-        string? name = await Name;
-        await _navigator.NavigateViewModelAsync<SecondModel>(this, data: new Entity(name!));
-    }
+        try
+        {
+            string barcode = (await _barcodeScanner.ScanAsync(new BarcodeScanOptions { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            await Barcode.SetAsync(barcode);
+        }
+        catch (BarcodeScanException exception)
+        {
+            Debug.WriteLine(exception);
 
+            await Barcode.SetAsync("Something went wrong.");
+        }
+    }
 }

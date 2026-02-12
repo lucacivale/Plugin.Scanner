@@ -15,4 +15,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Plugin.Scanner\Plugin.Scanner.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="iOS\Info.plist" />
+    </ItemGroup>
 </Project>

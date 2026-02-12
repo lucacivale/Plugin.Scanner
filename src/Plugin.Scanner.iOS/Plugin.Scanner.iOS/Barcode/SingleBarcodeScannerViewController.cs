@@ -170,7 +170,7 @@ internal sealed class SingleBarcodeScannerViewController : BarcodeScannerViewCon
         CleanupBarcodeItems(scanner);
 
         scanner.StopScanning();
-        scanner.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetException(e));
+        scanner.DismissViewController(true, () => throw e);
     }
 
     /// <summary>

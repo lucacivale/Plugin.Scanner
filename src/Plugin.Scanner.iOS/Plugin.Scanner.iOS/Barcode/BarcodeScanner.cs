@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using CoreFoundation;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.iOS.Binding;
@@ -22,15 +24,30 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// camera configuration issues, invalid event types, scanner start failures,
     /// torch mode problems, scanner availability issues, or view controller errors.
     /// </exception>
+    [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
     public async Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
     {
+        TaskCompletionSource<IBarcode> scanCompleteTaskSource = new();
+
+        DispatchQueue.MainQueue.DispatchAsync(async () =>
+        {
+            try
+            {
+                using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
+                using SingleBarcodeScannerViewController scanner = new([barcodeType]);
+
+                scanCompleteTaskSource.TrySetResult(await scanner.ScanAsync(cancellationToken).ConfigureAwait(true));
+            }
+            catch (Exception e)
+            {
+                scanCompleteTaskSource.TrySetException(e);
+            }
+        });
+
         try
         {
-            using RecognizedDataType barcodeType =
-                RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
-            using SingleBarcodeScannerViewController scanner = new([barcodeType]);
-
-            return await scanner.ScanAsync(cancellationToken).ConfigureAwait(true);
+            return await scanCompleteTaskSource.Task.WaitAsync(CancellationToken.None).ConfigureAwait(true);
         }
         catch (Exception e)
             when (e is DataScannerCameraConfigurationLockException

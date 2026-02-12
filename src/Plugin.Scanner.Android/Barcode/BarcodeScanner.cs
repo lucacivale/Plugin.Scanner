@@ -1,7 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+using Android.OS;
+using Java.Lang;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Exception = System.Exception;
 
 namespace Plugin.Scanner.Android.Barcode;
 
@@ -49,7 +53,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// <item><description>ML Kit analyzer returns an unexpected result type</description></item>
     /// </list>
     /// </exception>
-    /// <exception cref="OperationCanceledException">
+    /// <exception cref="System.OperationCanceledException">
     /// Thrown when the operation is canceled via the <paramref name="cancellationToken"/>
     /// or by the user dismissing the scanner dialog.
     /// </exception>
@@ -62,19 +66,40 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// The dialog is automatically disposed after the scan completes or is canceled.
     /// </para>
     /// </remarks>
+    [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
     public async Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
     {
+        _ = _currentActivity.Activity.MainLooper ?? throw new BarcodeScanException("MainLooper can't be null here");
+
+        TaskCompletionSource<IBarcode> scanCompleteTaskSource = new();
+
+        using Handler handler = new(_currentActivity.Activity.MainLooper);
+
+        handler.Post(async () =>
+        {
+            try
+            {
+                using SingleBarcodeScannerDialog scannerDialog = new(_currentActivity.Activity, options.Formats.ToBarcodeFormats());
+
+                IBarcode barcode = await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true);
+                scanCompleteTaskSource.TrySetResult(barcode);
+            }
+            catch (Exception e)
+            {
+                scanCompleteTaskSource.TrySetException(e);
+            }
+        });
+
         try
         {
-            using SingleBarcodeScannerDialog scannerDialog = new(_currentActivity.Activity, options.Formats.ToBarcodeFormats());
-
-            return await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true);
+            return await scanCompleteTaskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
         }
         catch (Exception e)
             when (e is MainExecutorNotAvailableException
-                      or MlKitAnalyzerResultNotBarcodeException
-                      or NoCameraException
-                      or ViewNotFoundException)
+                or MlKitAnalyzerResultNotBarcodeException
+                or NoCameraException
+                or ViewNotFoundException)
         {
             throw new BarcodeScanException(e.Message, e);
         }

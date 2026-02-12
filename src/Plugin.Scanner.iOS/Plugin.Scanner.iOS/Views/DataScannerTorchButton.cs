@@ -35,7 +35,7 @@ internal sealed class DataScannerTorchButton : UIButton
     {
         _torchButtonSymbolConfiguration = UIImageSymbolConfiguration.Create(22, UIImageSymbolWeight.Medium);
 
-        SetImage(UIImage.GetSystemImage(OffSymbolName, _torchButtonSymbolConfiguration), UIControlState.Normal);
+        SetImage(UIImage.GetSystemImage(OnSymbolName, _torchButtonSymbolConfiguration), UIControlState.Normal);
 
         TintColor = UIColor.White;
         TranslatesAutoresizingMaskIntoConstraints = false;
