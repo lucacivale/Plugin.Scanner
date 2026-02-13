@@ -1,0 +1,70 @@
+name: Build plugin
+
+env:
+  Configuration: 'Release'
+  DOTNETFrameworkVersion: 'net10.0'
+  DOTNET_VERSION: '10.0.100'
+  XCODE_VERSION: '26.2'
+  Plugin_Scanner_ProjectPath: 'src/Plugin.Scanner/Plugin.Scanner.csproj'
+  Plugin_Scanner_Android_ProjectPath: 'src/Plugin.Scanner.Android/Plugin.Scanner.Android.csproj'
+  Plugin_Scanner_Avalonia_ProjectPath: 'src/Plugin.Scanner.Avalonia/Plugin.Scanner.Avalonia.csproj'
+  Plugin_Scanner_Core_ProjectPath: 'src/Plugin.Scanner.Core/Plugin.Scanner.Core.csproj'
+  Plugin_Scanner_iOS_ProjectPath: 'src/Plugin.Scanner.iOS/Plugin.Scanner.iOS/Plugin.Scanner.iOS.csproj'
+  Plugin_Scanner_Maui_ProjectPath: 'src/Plugin.Scanner.Maui/Plugin.Scanner.Maui.csproj'
+  Plugin_Scanner_Uno_ProjectPath: 'src/Plugin.Scanner.Uno/Plugin.Scanner.Uno.csproj'
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/ci.yml'
+      - '!src/Plugin.Scanner.iOS/native/**'
+      - '!src/Plugin.Scanner.iOS/Plugin.Scanner.iOS.Binding/**'
+      - '!**/*.md'
+
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/ci.yml'
+      - '!src/Plugin.Scanner.iOS/native/**'
+      - '!src/Plugin.Scanner.iOS/Plugin.Scanner.iOS.Binding/**'
+      - '!**/*.md' 
+      
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set Xcode version ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
+
+      - name: Install workloads
+        run: dotnet workload install ios android  --version ${{ env.DOTNET_VERSION }}
+  
+      - name: Build plugin
+        run: |
+          projects=(
+            "${{ env.Plugin_Scanner_ProjectPath }}"
+            "${{ env.Plugin_Scanner_Android_ProjectPath }}"
+            "${{ env.Plugin_Scanner_Avalonia_ProjectPath }}"
+            "${{ env.Plugin_Scanner_Core_ProjectPath }}"
+            "${{ env.Plugin_Scanner_iOS_ProjectPath }}"
+            "${{ env.Plugin_Scanner_Maui_ProjectPath }}"
+            "${{ env.Plugin_Scanner_Uno_ProjectPath }}"
+          )
+
+          for project in "${projects[@]}"; do
+            echo "Building $project"
+            dotnet build "$project" -c ${{ env.Configuration }}
+          done

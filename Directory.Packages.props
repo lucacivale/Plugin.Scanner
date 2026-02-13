@@ -2,7 +2,7 @@
   <ItemGroup>
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" />
-    <PackageVersion Include="Plugin.Scanner.iOS.Binding" Version="1.0.0-7-pre" />
+    <PackageVersion Include="Plugin.Scanner.iOS.Binding" Version="0.0.1-alpha" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.19.0.132793" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <PackageVersion Include="Xamarin.AndroidX.Camera.MLKit.Vision" Version="1.4.2.3" />
