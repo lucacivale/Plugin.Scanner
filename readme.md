@@ -1,5 +1,14 @@
 ﻿# 📱 Plugin.Scanner
 
+# EARLY ALPHA
+
+- Planned
+  - More options for IBarcodeScanner(Zoom, multiple recognition, enable/disable highlighting, recognition area)
+  - Custom data scanner view with overlay etc.
+  - Custom overlay for IBarcodeScanner
+  - Custom behavior for IBarcodeScanner
+  - TextScanner and DocumentScanner
+
 **🚀 Mobile cross platform data scanner**
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.Scanner.svg?style=flat-square&label=NuGet)](https://www.nuget.org/packages/Plugin.Scanner)
@@ -8,9 +17,9 @@
 [![Framework Support](https://img.shields.io/badge/frameworks-MAUI%20%7C%20Uno%20%7C%20Avalonia-lightgrey.svg?style=flat-square)](#platforms)
 
 This plugin aims to enalbe *simple*, *fast* and *customizable* data scanning(barcodes, text, documents...) using native **Android** and **iOS** APIs [ML Kit](https://developers.google.com/ml-kit?hl=de) and [Vision Kit](https://developer.apple.com/documentation/visionkit?language=objc).
-- Platform support **iOS** 16+ and **Android 23+**
+- Platform support **iOS 16+** and **Android 23+**
 - Native AI supported detection
-- One Shared API cross platforms and framworks
+- One Shared API cross platforms and frameworks
 - Scan barcodes with only 2 lines of code
 
 ## 🚀 Get started

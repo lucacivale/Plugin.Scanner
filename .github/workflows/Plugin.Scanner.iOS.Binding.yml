@@ -1,0 +1,58 @@
+name: Build Plugin.Scanner.iOS.Binding
+
+env:
+  Configuration: 'Release'
+  DOTNETFrameworkVersion: 'net10.0'
+  DOTNET_VERSION: '10.0.100'
+  XCODE_VERSION: '26.2'
+  Plugin_Scanner_iOS_BindingProjectPath: 'src/Plugin.Scanner.iOS/Plugin.Scanner.iOS.Binding/Plugin.Scanner.iOS.Binding.csproj'
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/Plugin.Scanner.iOS/Plugin.Scanner.iOS.Binding/**'
+      - 'src/Plugin.Scanner.iOS/native/**'
+      - '.github/workflows/Plugin.Scanner.iOS.Binding.yml'
+      - '!**/*.md'
+
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/Plugin.Scanner.iOS/Plugin.Scanner.iOS.Binding/**'
+      - 'src/Plugin.Scanner.iOS/native/**'
+      - '.github/workflows/Plugin.Scanner.iOS.Binding.yml'
+      - '!**/*.md' 
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set Xcode version ${{ env.XCODE_VERSION }}
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
+
+      - name: Install iOS
+        run: dotnet workload install ios  --version ${{ env.DOTNET_VERSION }}
+  
+      - name: Build Plugin.Scanner.iOS.Binding
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        run: dotnet build {{ env.Plugin_Scanner_iOS_BindingProjectPath }} -c ${{ env.Configuration }}
+
+      - name: Pack Plugin.Scanner.iOS.Binding
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: dotnet pack {{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }}
+    
+      - name: Upload NuGet artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Plugin.Scanner.iOS.Binding.nupkg
+          path: ./artifacts/*.nupkg
