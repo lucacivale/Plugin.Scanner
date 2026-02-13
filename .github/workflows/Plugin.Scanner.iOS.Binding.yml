@@ -58,7 +58,7 @@ jobs:
 
       - name: Pack Plugin.Scanner.iOS.Binding.${{ steps.version.outputs.version }}-alpha
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: dotnet pack ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} --version-suffix alpha
+        run: dotnet pack ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}-alpha
     
       - name: Upload NuGet artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
