@@ -28,6 +28,7 @@
       MVUX;
       Navigation;
       SkiaRenderer;
+      Toolkit;
     </UnoFeatures>
   </PropertyGroup>
 

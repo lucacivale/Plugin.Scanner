@@ -31,6 +31,7 @@ public partial class App : Application
     {
         IApplicationBuilder builder = this.CreateBuilder(args)
             .UseScanner()
+            .UseToolkitNavigation()
             .Configure(host => host
                 .UseNavigation(ReactiveViewModelMappings.ViewModelMappings, RegisterRoutes)
             );
