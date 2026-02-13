@@ -34,12 +34,6 @@ jobs:
       - name: Install workloads
         run: dotnet workload install maui ios android  --version ${{ env.DOTNET_VERSION }}
       
-      - name: Install Uno check
-        run: dotnet tool install -g uno.check
-
-      - name: Run Uno check
-        run: uno-check -v --ci --non-interactive --fix --target android --target ios --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates --skip openjdk --skip androidsdk
-  
       - name: Get next version
         uses: reecetech/version-increment@2024.10.1
         id: version
@@ -47,7 +41,7 @@ jobs:
           scheme: semver
           increment: patch
 
-      - name: Pack plugin
+      - name: Pack plugin (without Uno)
         run: |
           projects=(
             "${{ env.Plugin_Scanner_ProjectPath }}"
@@ -56,13 +50,14 @@ jobs:
             "${{ env.Plugin_Scanner_Core_ProjectPath }}"
             "${{ env.Plugin_Scanner_iOS_ProjectPath }}"
             "${{ env.Plugin_Scanner_Maui_ProjectPath }}"
-            "${{ env.Plugin_Scanner_Uno_ProjectPath }}"
           )
 
           for project in "${projects[@]}"; do
             echo "Packing $project"
             dotnet pack "$project" -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}-alpha
           done
+      - name: Pack Uno plugin
+        run: dotnet build ${{ env.Plugin_Scanner_Maui_ProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}-alpha
 
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v4
