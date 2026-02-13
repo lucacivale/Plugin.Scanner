@@ -6,14 +6,16 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
+		<ProjectReference Include="..\Plugin.Scanner.Android\Plugin.Scanner.Android.csproj" />
 		<PackageReference Include="Avalonia.Android" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-ios'">
+		<ProjectReference Include="..\Plugin.Scanner.iOS\Plugin.Scanner.iOS\Plugin.Scanner.iOS.csproj" />
 		<PackageReference Include="Avalonia.iOS" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Plugin.Scanner\Plugin.Scanner.csproj" />
+	  <ProjectReference Include="..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj" />
 	</ItemGroup>
 </Project>
