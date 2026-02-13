@@ -23,6 +23,8 @@ on:
       - 'src/Plugin.Scanner.iOS/native/**'
       - '.github/workflows/Plugin.Scanner.iOS.Binding.yml'
       - '!**/*.md' 
+      
+  workflow_dispatch:
 
 jobs:
   build:
