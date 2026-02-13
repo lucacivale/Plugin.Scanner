@@ -38,7 +38,7 @@ jobs:
         run: dotnet tool install -g uno.check
 
       - name: Run Uno check
-        run: uno-check -v --ci --non-interactive --fix --target $target --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates --skip openjdk --skip androidsdk
+        run: uno-check -v --ci --non-interactive --fix --target android --target ios --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates --skip openjdk --skip androidsdk
   
       - name: Get next version
         uses: reecetech/version-increment@2024.10.1
