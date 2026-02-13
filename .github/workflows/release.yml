@@ -1,4 +1,4 @@
-name: Build plugin
+name: Release plugin
 
 env:
   Configuration: 'Release'
@@ -14,28 +14,10 @@ env:
   Plugin_Scanner_Uno_ProjectPath: 'src/Plugin.Scanner.Uno/Plugin.Scanner.Uno.csproj'
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - '.github/workflows/ci.yml'
-      - '!src/Plugin.Scanner.iOS/native/**'
-      - '!src/Plugin.Scanner.iOS/Plugin.Scanner.iOS.Binding/**'
-      - '!**/*.md'
-
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - '.github/workflows/ci.yml'
-      - '!src/Plugin.Scanner.iOS/native/**'
-      - '!src/Plugin.Scanner.iOS/Plugin.Scanner.iOS.Binding/**'
-      - '!**/*.md' 
-      
   workflow_dispatch:
 
 jobs:
-  build:
+  pack:
     runs-on: macos-15
 
     steps:
