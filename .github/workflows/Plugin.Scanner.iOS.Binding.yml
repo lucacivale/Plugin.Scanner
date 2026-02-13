@@ -44,11 +44,11 @@ jobs:
   
       - name: Build Plugin.Scanner.iOS.Binding
         if: ${{ github.event_name != 'workflow_dispatch' }}
-        run: dotnet build {{ env.Plugin_Scanner_iOS_BindingProjectPath }} -c ${{ env.Configuration }}
+        run: dotnet build ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -c ${{ env.Configuration }}
 
       - name: Pack Plugin.Scanner.iOS.Binding
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: dotnet pack {{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }}
+        run: dotnet pack ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }}
     
       - name: Upload NuGet artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
