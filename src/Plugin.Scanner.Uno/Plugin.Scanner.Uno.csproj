@@ -10,7 +10,8 @@
             SkiaRenderer;
             Hosting;
         </UnoFeatures>
-    </PropertyGroup>
+		<PackageTags>dotnet; uno-platform; barcode; scanner;</PackageTags>
+	</PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Plugin.Scanner\Plugin.Scanner.csproj" />

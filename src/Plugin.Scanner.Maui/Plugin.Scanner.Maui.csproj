@@ -5,6 +5,7 @@
 
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
+		<PackageTags>dotnet; maui; barcode; scanner;</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

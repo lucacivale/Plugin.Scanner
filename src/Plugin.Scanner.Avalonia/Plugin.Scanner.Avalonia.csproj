@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>$(NetVersion);$(NetVersion)-ios;$(NetVersion)-android</TargetFrameworks>
         <NoWarn>DNAA0001</NoWarn>
+		<PackageTags>dotnet; avalonia; barcode; scanner;</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
