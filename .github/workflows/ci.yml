@@ -50,7 +50,7 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
 
       - name: Install workloads
-        run: dotnet workload install ios android  --version ${{ env.DOTNET_VERSION }}
+        run: dotnet workload install maui ios android  --version ${{ env.DOTNET_VERSION }}
   
       - name: Build plugin
         run: |
