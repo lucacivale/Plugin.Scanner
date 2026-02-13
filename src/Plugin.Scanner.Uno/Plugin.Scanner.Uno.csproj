@@ -1,6 +1,6 @@
 <Project Sdk="Uno.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>$(NetVersion);$(NetVersion)-ios;$(NetVersion)-android</TargetFrameworks>
+        <TargetFrameworks>$(NetVersion)-ios;$(NetVersion)-android;$(NetVersion)</TargetFrameworks>
         <UnoSingleProject>true</UnoSingleProject>
         <OutputType>Library</OutputType>
         <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
