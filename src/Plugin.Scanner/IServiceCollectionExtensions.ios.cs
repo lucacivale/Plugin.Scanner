@@ -4,14 +4,16 @@ using Plugin.Scanner.Core.Barcode;
 
 namespace Plugin.Scanner;
 
-// ReSharper disable once InconsistentNaming
+/// <summary>
+/// Provides extension methods for registering barcode scanner services with the dependency injection container.
+/// </summary>
 public static partial class IServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds barcode scanner to container.
+    /// Registers the platform-specific barcode scanner implementation with the service collection.
     /// </summary>
-    /// <param name="serviceCollection">Container to add scanner.</param>
-    /// <returns>Container with added scanner.</returns>
+    /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to add the barcode scanner to.</param>
+    /// <returns>The <see cref="IServiceCollection"/> for method chaining.</returns>
     public static partial IServiceCollection AddBarcodeScanner(this IServiceCollection serviceCollection)
     {
         serviceCollection.TryAddSingleton<IBarcodeScanner, Plugin.Scanner.iOS.Barcode.BarcodeScanner>();

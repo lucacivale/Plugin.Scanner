@@ -1,12 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>$(NetVersion)-ios</TargetFramework>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <SupportedOSPlatformVersion>16.0</SupportedOSPlatformVersion>
+        <NoWarn>SA1649;SA1300;S6608</NoWarn>
     </PropertyGroup>
-    
+
     <ItemGroup>
       <ProjectReference Include="..\..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj" />
-      <ProjectReference Include="..\Plugin.Scanner.iOS.Binding\Plugin.Scanner.iOS.Binding.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Plugin.Scanner.iOS.Binding" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Plugin.Scanner</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 </Project>

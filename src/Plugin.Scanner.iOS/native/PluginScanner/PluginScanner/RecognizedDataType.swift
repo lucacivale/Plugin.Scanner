@@ -81,7 +81,7 @@ public class RecognizedDataType : NSObject
                     }
                 case "Pdf417":
                     self.symbologies?.append(.pdf417)
-                case "Qr":
+                case "QR":
                     self.symbologies?.append(.qr)
                 case "Upce":
                     self.symbologies?.append(.upce)

@@ -1,20 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(NetVersion)-ios</TargetFramework>
+    <TargetFramework>net9.0-ios</TargetFramework>
     <IsBindingProject>true</IsBindingProject>
+    <NoWarn>CS0114;NU5123</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <XCFramework>PluginScanneriOS.xcframework</XCFramework>
-    <Framework>PluginScanner.framework</Framework>
-    <ProjectResources>Plugin.Scanner.iOS.Binding.resources</ProjectResources>
-    <RID>ios-arm64</RID>
-    <SharpieOutput>sharpie-out</SharpieOutput>
-    <Namespace>$(RootNameSpace)</Namespace>
-    <SDK>iphoneos18.2</SDK>
-    <Scope>Headers Headers/PluginScanner-Swift.h</Scope>
-  </PropertyGroup>
-
+  <ItemGroup>
+    <None Remove="*.nupkg" />
+  </ItemGroup>
+    
   <ItemGroup>
     <ObjcBindingApiDefinition Include="ApiDefinition.cs" />
     <ObjcBindingCoreSource Include="StructsAndEnums.cs" />
@@ -30,7 +24,26 @@
       -->
     </XcodeProject>
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cd $(OutDir)/$(ProjectResources)/$(XCFramework)/$(RID)/$(Framework)&#xA;&#xA;rm -rf $(SharpieOutput)&#xA;&#xA;sharpie bind --output=$(SharpieOutput) --namespace=$(Namespace) --sdk=$(SDK) --scope=$(Scope)" />
+    
+  <Target Name="Bind">
+    <PropertyGroup>
+      <XCFramework>PluginScanneriOS.xcframework</XCFramework>
+      <Framework>PluginScanner.framework</Framework>
+      <ProjectResources>Plugin.Scanner.iOS.Binding.resources</ProjectResources>
+      <RID>ios-arm64</RID>
+      <SharpieOutput>sharpie-out</SharpieOutput>
+      <Namespace>$(RootNameSpace)</Namespace>
+      <SDK>iphoneos18.2</SDK>
+      <Scope>Headers Headers/PluginScanner-Swift.h</Scope>
+    </PropertyGroup>
+    <Exec WorkingDirectory="$(ProjectDir)" Command="dotnet build" />
+    <Exec Command="cd $(OutDir)$(ProjectResources)/$(XCFramework)/$(RID)/$(Framework)&#xA;&#xA;rm -rf $(ProjectDir)/bin/$(SharpieOutput)&#xA;&#xA;sharpie bind --output=$(ProjectDir)/bin/$(SharpieOutput) --namespace=$(Namespace) --sdk=$(SDK) --scope=$(Scope)" />
+  </Target>
+    
+  <Target Name="Nuget">
+    <PropertyGroup>
+      <Version>7-pre</Version>
+      </PropertyGroup>
+    <Exec WorkingDirectory="$(ProjectDir)" Command="dotnet pack -o:$(ProjectDir) --version-suffix $(Version)" />
   </Target>
 </Project>

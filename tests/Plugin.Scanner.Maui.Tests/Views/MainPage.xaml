@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Plugin.Scanner.Maui.Tests.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Plugin.Scanner.Maui.Tests.ViewModels"
+    x:DataType="vm:MainViewModel">
+    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+        <Button Command="{Binding ScanBarcodeCommand}" Text="Scan single barcode" />
+        <Label HorizontalOptions="Center" Text="{Binding Barcode}" />
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,153 +1,112 @@
-using System.Diagnostics.CodeAnalysis;
+using Plugin.Scanner.iOS.Binding;
+using Plugin.Scanner.iOS.Exceptions;
 
-#pragma warning disable SA1300
 namespace Plugin.Scanner.iOS;
-#pragma warning restore SA1300
 
 /// <summary>
-/// A delegate object that responds when people interact with items that the data scanner recognizes.
+/// Implements the delegate pattern for <see cref="Binding.DataScannerViewController"/> events,
+/// exposing them as standard .NET events.
 /// </summary>
-[SuppressMessage("Naming", "CA1711: Identifiers should not have incorrect suffix", Justification = "Is ok here.")]
-public abstract class DataScannerViewControllerDelegate : Plugin.Scanner.iOS.Binding.DataScannerViewControllerDelegate
+internal sealed class DataScannerViewControllerDelegate : iOS.Binding.DataScannerViewControllerDelegate
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataScannerViewControllerDelegate"/> class.
+    /// Gets or sets the event handler invoked when the scanner zoom level changes.
     /// </summary>
-    /// <param name="scannerViewController">Associated <see cref="DataScannerViewController"/>.</param>
-    protected DataScannerViewControllerDelegate(DataScannerViewController scannerViewController)
+    public EventHandler? Zoomed { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event handler invoked when a recognized item is tapped.
+    /// </summary>
+    public EventHandler<RecognizedItem>? Tapped { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event handler invoked when items are added to the scanner's recognition results.
+    /// </summary>
+    public EventHandler<(RecognizedItem[] AddedItems, RecognizedItem[] AllItems)>? Added { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event handler invoked when recognized items are updated.
+    /// </summary>
+    public EventHandler<(RecognizedItem[] UpdatedItems, RecognizedItem[] AllItems)>? Updated { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event handler invoked when items are removed from the scanner's recognition results.
+    /// </summary>
+    public EventHandler<(RecognizedItem[] RemovedItems, RecognizedItem[] AllItems)>? Removed { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event handler invoked when the scanner becomes unavailable.
+    /// </summary>
+    public EventHandler<DataScannerUnavailableException>? BecameUnavailable { get; set; }
+
+    /// <summary>
+    /// Called when the scanner zoom level changes.
+    /// </summary>
+    /// <param name="dataScanner">The <see cref="Binding.DataScannerViewController"/> that changed zoom level.</param>
+    public override void DidZoom(iOS.Binding.DataScannerViewController dataScanner)
     {
-        DataScannerViewController = scannerViewController;
+        Zoomed?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
-    /// Gets data scanner.
+    /// Called when the user taps a recognized item.
     /// </summary>
-    public DataScannerViewController DataScannerViewController { get; }
-
-    /// <summary>
-    /// Responds when a person or your code changes the zoom factor.
-    /// </summary>
-    /// <param name="dataScanner">The data scanner whose zoom factor changes.</param>
-    public override void DataScannerDidZoom(Plugin.Scanner.iOS.Binding.DataScannerViewController dataScanner)
+    /// <param name="dataScanner">The <see cref="Binding.DataScannerViewController"/> containing the tapped item.</param>
+    /// <param name="item">The <see cref="RecognizedItem"/> that was tapped.</param>
+    public override void DidTapOn(iOS.Binding.DataScannerViewController dataScanner, RecognizedItem item)
     {
-        DataScannerDidZoom(DataScannerViewController);
+        Tapped?.Invoke(this, item);
     }
 
     /// <summary>
-    /// Responds when a person taps an item that the data scanner recognizes.
+    /// Called when new items are recognized and added to the scanner's results.
     /// </summary>
-    /// <param name="dataScanner">The data scanner whose recognized item is tapped.</param>
-    /// <param name="item">The item that a person taps.</param>
-    public override void DidTapOn(Plugin.Scanner.iOS.Binding.DataScannerViewController dataScanner, Plugin.Scanner.iOS.Binding.RecognizedItem item)
-    {
-        DidTapOn(DataScannerViewController, item.ToRecognizedItem());
-    }
-
-    /// <summary>
-    /// Responds when the data scanner starts recognizing an item.
-    /// </summary>
-    /// <param name="dataScanner"> The data scanner that recognizes the item.</param>
-    /// <param name="addedItems">The items that the data scanner starts tracking.</param>
-    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
+    /// <param name="dataScanner">The <see cref="Binding.DataScannerViewController"/> that recognized the items.</param>
+    /// <param name="addedItems">The array of newly added <see cref="RecognizedItem"/> objects.</param>
+    /// <param name="allItems">The complete array of all currently recognized <see cref="RecognizedItem"/> objects.</param>
     public override void DidAdd(
-        Plugin.Scanner.iOS.Binding.DataScannerViewController dataScanner,
-        Plugin.Scanner.iOS.Binding.RecognizedItem[] addedItems,
-        Plugin.Scanner.iOS.Binding.RecognizedItem[] allItems)
+        iOS.Binding.DataScannerViewController dataScanner,
+        RecognizedItem[] addedItems,
+        RecognizedItem[] allItems)
     {
-        DidAdd(
-            DataScannerViewController,
-            addedItems.Select(x => x.ToRecognizedItem()).ToArray(),
-            allItems.Select(x => x.ToRecognizedItem()).ToArray());
+        Added?.Invoke(this, (addedItems, allItems));
     }
 
     /// <summary>
-    /// Responds when the data scanner updates the geometry of an item it recognizes.
+    /// Called when existing recognized items are updated with new information.
     /// </summary>
-    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
-    /// <param name="updatedItems">The items with geometry that the data scanner changes.</param>
-    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
+    /// <param name="dataScanner">The <see cref="Binding.DataScannerViewController"/> that updated the items.</param>
+    /// <param name="updatedItems">The array of updated <see cref="RecognizedItem"/> objects.</param>
+    /// <param name="allItems">The complete array of all currently recognized <see cref="RecognizedItem"/> objects.</param>
     public override void DidUpdate(
-        Plugin.Scanner.iOS.Binding.DataScannerViewController dataScanner,
-        Plugin.Scanner.iOS.Binding.RecognizedItem[] updatedItems,
-        Plugin.Scanner.iOS.Binding.RecognizedItem[] allItems)
+        iOS.Binding.DataScannerViewController dataScanner,
+        RecognizedItem[] updatedItems,
+        RecognizedItem[] allItems)
     {
-        DidUpdate(
-            DataScannerViewController,
-            updatedItems.Select(x => x.ToRecognizedItem()).ToArray(),
-            allItems.Select(x => x.ToRecognizedItem()).ToArray());
+        Updated?.Invoke(this, (updatedItems, allItems));
     }
 
     /// <summary>
-    /// Responds when the data scanner stops recognizing an item.
+    /// Called when items are removed from the scanner's recognition results.
     /// </summary>
-    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
-    /// <param name="removedItems">The items that the data scanner removes.</param>
-    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
+    /// <param name="dataScanner">The <see cref="Binding.DataScannerViewController"/> that removed the items.</param>
+    /// <param name="removedItems">The array of removed <see cref="RecognizedItem"/> objects.</param>
+    /// <param name="allItems">The complete array of all currently recognized <see cref="RecognizedItem"/> objects.</param>
     public override void DidRemove(
-        Plugin.Scanner.iOS.Binding.DataScannerViewController dataScanner,
-        Plugin.Scanner.iOS.Binding.RecognizedItem[] removedItems,
-        Plugin.Scanner.iOS.Binding.RecognizedItem[] allItems)
+        iOS.Binding.DataScannerViewController dataScanner,
+        RecognizedItem[] removedItems,
+        RecognizedItem[] allItems)
     {
-        DidRemove(
-            DataScannerViewController,
-            removedItems.Select(x => x.ToRecognizedItem()).ToArray(),
-            allItems.Select(x => x.ToRecognizedItem()).ToArray());
+        Removed?.Invoke(this, (removedItems, allItems));
     }
 
     /// <summary>
-    /// Responds when the data scanner becomes unavailable and stops scanning.
+    /// Called when the scanner becomes unavailable due to an error condition.
     /// </summary>
-    /// <param name="dataScanner">The data scanner that’s not available.</param>
-    /// <param name="error">Describes an error if it occurs.</param>
-    public override void BecameUnavailableWithError(Plugin.Scanner.iOS.Binding.DataScannerViewController dataScanner, Plugin.Scanner.iOS.Binding.ScanningUnavailable error)
+    /// <param name="dataScanner">The <see cref="Binding.DataScannerViewController"/> that became unavailable.</param>
+    /// <param name="error">The <see cref="ScanningUnavailable"/> error code indicating why the scanner became unavailable.</param>
+    public override void BecameUnavailableWithError(iOS.Binding.DataScannerViewController dataScanner, ScanningUnavailable error)
     {
-        BecameUnavailableWithError(
-            DataScannerViewController,
-            error.ToVnScanningUnavailable());
+        BecameUnavailable?.Invoke(this, new DataScannerUnavailableException(error.ToString()));
     }
-
-    /// <summary>
-    /// Responds when a person or your code changes the zoom factor.
-    /// </summary>
-    /// <param name="dataScanner">The data scanner whose zoom factor changes.</param>
-    public abstract void DataScannerDidZoom(DataScannerViewController dataScanner);
-
-    /// <summary>
-    /// Responds when a person taps an item that the data scanner recognizes.
-    /// </summary>
-    /// <param name="dataScanner">The data scanner with the zoom factor that changes.</param>
-    /// <param name="item">The item that a person taps.</param>
-    public abstract void DidTapOn(DataScannerViewController dataScanner, RecognizedItem item);
-
-    /// <summary>
-    /// Responds when the data scanner starts recognizing an item.
-    /// </summary>
-    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
-    /// <param name="addedItems">The items that the data scanner starts tracking.</param>
-    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
-    public abstract void DidAdd(DataScannerViewController dataScanner, RecognizedItem[] addedItems, RecognizedItem[] allItems);
-
-    /// <summary>
-    /// Responds when the data scanner updates the geometry of an item it recognizes.
-    /// </summary>
-    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
-    /// <param name="updatedItems">The items with geometry that the data scanner changes.</param>
-    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
-    public abstract void DidUpdate(DataScannerViewController dataScanner, RecognizedItem[] updatedItems, RecognizedItem[] allItems);
-
-    /// <summary>
-    /// To identify an item in the `removedItems` and `allItems` parameters, use the item’s `id` property.
-    /// </summary>
-    /// <param name="dataScanner">The data scanner that recognizes the item.</param>
-    /// <param name="removedItems">The items that the data scanner removes from the ``DataScannerViewController/recognizedItems`` property.</param>
-    /// <param name="allItems">The current items that the data scanner tracks. Text items appear in the reading order of the language and region.</param>
-    public abstract void DidRemove(DataScannerViewController dataScanner, RecognizedItem[] removedItems, RecognizedItem[] allItems);
-
-    /// <summary>
-    /// Responds when the data scanner becomes unavailable and stops scanning.
-    /// </summary>
-    /// <param name="dataScanner">The data scanner that’s not available.</param>
-    /// <param name="error">Describes an error if it occurs.</param>
-    [SuppressMessage("Naming", "CA1716: Identifiers should not match keywords", Justification = "Is ok here.")]
-    public abstract void BecameUnavailableWithError(DataScannerViewController dataScanner, ScanningUnavailable error);
 }

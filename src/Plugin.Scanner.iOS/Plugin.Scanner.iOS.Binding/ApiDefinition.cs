@@ -6,36 +6,35 @@ using UIKit;
 
 namespace Plugin.Scanner.iOS.Binding
 {
-    // @interface Bounds : NSObject
-    [BaseType (typeof(NSObject), Name = "_TtC13PluginScanner6Bounds")]
-    [DisableDefaultCtor]
-    interface Bounds
-    {
-        // @property (readonly, nonatomic) CGPoint topLeft;
-        [Export ("topLeft")]
-        CGPoint TopLeft { get; }
-
-        // @property (readonly, nonatomic) CGPoint topRight;
-        [Export ("topRight")]
-        CGPoint TopRight { get; }
-
-        // @property (readonly, nonatomic) CGPoint bottomRight;
-        [Export ("bottomRight")]
-        CGPoint BottomRight { get; }
-
-        // @property (readonly, nonatomic) CGPoint bottomLeft;
-        [Export ("bottomLeft")]
-        CGPoint BottomLeft { get; }
-
-        // -(instancetype _Nonnull)initWithTopLeft:(CGPoint)topLeft topRight:(CGPoint)topRight bottomRight:(CGPoint)bottomRight bottomLeft:(CGPoint)bottomLeft __attribute__((objc_designated_initializer));
-        [Export ("initWithTopLeft:topRight:bottomRight:bottomLeft:")]
-        [DesignatedInitializer]
-        NativeHandle Constructor (CGPoint topLeft, CGPoint topRight, CGPoint bottomRight, CGPoint bottomLeft);
-    }
-
-	// @interface DataScannerViewController : NSObject
-	[BaseType (typeof(NSObject))]
+	// @interface Bounds : NSObject
+	[BaseType (typeof(NSObject), Name = "_TtC13PluginScanner6Bounds")]
 	[DisableDefaultCtor]
+	interface Bounds
+	{
+		// @property (readonly, nonatomic) CGPoint topLeft;
+		[Export ("topLeft")]
+		CGPoint TopLeft { get; }
+
+		// @property (readonly, nonatomic) CGPoint topRight;
+		[Export ("topRight")]
+		CGPoint TopRight { get; }
+
+		// @property (readonly, nonatomic) CGPoint bottomRight;
+		[Export ("bottomRight")]
+		CGPoint BottomRight { get; }
+
+		// @property (readonly, nonatomic) CGPoint bottomLeft;
+		[Export ("bottomLeft")]
+		CGPoint BottomLeft { get; }
+
+		// -(instancetype _Nonnull)initWithTopLeft:(CGPoint)topLeft topRight:(CGPoint)topRight bottomRight:(CGPoint)bottomRight bottomLeft:(CGPoint)bottomLeft __attribute__((objc_designated_initializer));
+		[Export ("initWithTopLeft:topRight:bottomRight:bottomLeft:")]
+		[DesignatedInitializer]
+		NativeHandle Constructor (CGPoint topLeft, CGPoint topRight, CGPoint bottomRight, CGPoint bottomLeft);
+	}
+
+	// @interface DataScannerViewController : UIViewController
+	[BaseType (typeof(UIViewController))]
 	interface DataScannerViewController
 	{
 		// -(instancetype _Nonnull)initWithRecognizedDataTypes:(NSArray<RecognizedDataType *> * _Nonnull)recognizedDataTypes qualityLevel:(enum QualityLevel)qualityLevel recognizesMultipleItems:(BOOL)recognizesMultipleItems isHighFrameRateTrackingEnabled:(BOOL)isHighFrameRateTrackingEnabled isPinchToZoomEnabled:(BOOL)isPinchToZoomEnabled isGuidanceEnabled:(BOOL)isGuidanceEnabled isHighlightingEnabled:(BOOL)isHighlightingEnabled __attribute__((objc_designated_initializer));
@@ -123,9 +122,13 @@ namespace Plugin.Scanner.iOS.Binding
 		[Export ("overlayContainerView", ArgumentSemantic.Strong)]
 		UIView OverlayContainerView { get; }
 
-        // -(void)recognizedItems:(void (^ _Nonnull)(NSArray<RecognizedItem *> * _Nonnull))completionHandler;
-        [Export ("recognizedItems:")]
-        void RecognizedItems (Action<NSArray<RecognizedItem>> completionHandler);
+		// -(void)viewDidLoad;
+		[Export ("viewDidLoad")]
+		void ViewDidLoad ();
+
+		// -(void)recognizedItems:(void (^ _Nonnull)(NSArray<RecognizedItem *> * _Nonnull))completionHandler;
+		[Export ("recognizedItems:")]
+		void RecognizedItems (Action<NSArray<RecognizedItem>> completionHandler);
 
 		// -(void)capturePhoto:(void (^ _Nonnull)(UIImage * _Nullable, NSError * _Nullable))completionHandler;
 		[Export ("capturePhoto:")]
@@ -140,40 +143,33 @@ namespace Plugin.Scanner.iOS.Binding
 		void StopScanning ();
 	}
 
-	// @protocol DataScannerViewControllerDelegate
-	[Protocol (Name = "_TtP13PluginScanner33DataScannerViewControllerDelegate_")]
-    [BaseType(typeof(NSObject))]
-    [Model]
+	// @protocol DataScannerViewControllerDelegate <NSObject>
+	[Protocol (Name = "_TtP13PluginScanner33DataScannerViewControllerDelegate_"), Model]
+	[BaseType (typeof(NSObject), Name = "_TtP13PluginScanner33DataScannerViewControllerDelegate_")]
 	interface DataScannerViewControllerDelegate
 	{
-		// @required -(void)dataScannerDidZoom:(DataScannerViewController * _Nonnull)dataScanner;
-		[Abstract]
-		[Export ("dataScannerDidZoom:")]
-		void DataScannerDidZoom (DataScannerViewController dataScanner);
+		// @optional -(void)didZoom:(DataScannerViewController * _Nonnull)dataScanner;
+		[Export ("didZoom:")]
+		void DidZoom (DataScannerViewController dataScanner);
 
-		// @required -(void)didTapOn:(DataScannerViewController * _Nonnull)dataScanner :(RecognizedItem * _Nonnull)item;
-		[Abstract]
-		[Export ("didTapOn::")]
+		// @optional -(void)didTapOn:(DataScannerViewController * _Nonnull)dataScanner didTapOn:(RecognizedItem * _Nonnull)item;
+		[Export ("didTapOn:didTapOn:")]
 		void DidTapOn (DataScannerViewController dataScanner, RecognizedItem item);
 
-		// @required -(void)didAdd:(DataScannerViewController * _Nonnull)dataScanner :(NSArray<RecognizedItem *> * _Nonnull)addedItems :(NSArray<RecognizedItem *> * _Nonnull)allItems;
-		[Abstract]
-		[Export ("didAdd:::")]
+		// @optional -(void)didAdd:(DataScannerViewController * _Nonnull)dataScanner didAdd:(NSArray<RecognizedItem *> * _Nonnull)addedItems allItems:(NSArray<RecognizedItem *> * _Nonnull)allItems;
+		[Export ("didAdd:didAdd:allItems:")]
 		void DidAdd (DataScannerViewController dataScanner, RecognizedItem[] addedItems, RecognizedItem[] allItems);
 
-		// @required -(void)didUpdate:(DataScannerViewController * _Nonnull)dataScanner :(NSArray<RecognizedItem *> * _Nonnull)updatedItems :(NSArray<RecognizedItem *> * _Nonnull)allItems;
-		[Abstract]
-		[Export ("didUpdate:::")]
+		// @optional -(void)didUpdate:(DataScannerViewController * _Nonnull)dataScanner didUpdate:(NSArray<RecognizedItem *> * _Nonnull)updatedItems allItems:(NSArray<RecognizedItem *> * _Nonnull)allItems;
+		[Export ("didUpdate:didUpdate:allItems:")]
 		void DidUpdate (DataScannerViewController dataScanner, RecognizedItem[] updatedItems, RecognizedItem[] allItems);
 
-		// @required -(void)didRemove:(DataScannerViewController * _Nonnull)dataScanner :(NSArray<RecognizedItem *> * _Nonnull)removedItems :(NSArray<RecognizedItem *> * _Nonnull)allItems;
-		[Abstract]
-		[Export ("didRemove:::")]
+		// @optional -(void)didRemove:(DataScannerViewController * _Nonnull)dataScanner didRemove:(NSArray<RecognizedItem *> * _Nonnull)removedItems allItems:(NSArray<RecognizedItem *> * _Nonnull)allItems;
+		[Export ("didRemove:didRemove:allItems:")]
 		void DidRemove (DataScannerViewController dataScanner, RecognizedItem[] removedItems, RecognizedItem[] allItems);
 
-		// @required -(void)becameUnavailableWithError:(DataScannerViewController * _Nonnull)dataScanner :(enum ScanningUnavailable)error;
-		[Abstract]
-		[Export ("becameUnavailableWithError::")]
+		// @optional -(void)becameUnavailableWithError:(DataScannerViewController * _Nonnull)dataScanner becameUnavailableWithError:(enum ScanningUnavailable)error;
+		[Export ("becameUnavailableWithError:becameUnavailableWithError:")]
 		void BecameUnavailableWithError (DataScannerViewController dataScanner, ScanningUnavailable error);
 	}
 
@@ -187,10 +183,10 @@ namespace Plugin.Scanner.iOS.Binding
 		[Export ("text::")]
 		RecognizedDataType Text (string[] languages, TextContentType textContenttype);
 
-        // +(RecognizedDataType * _Nonnull)barcode:(NSArray<VNBarcodeSymbology> * _Nonnull)symbologies __attribute__((warn_unused_result("")));
-        [Static]
-        [Export ("barcode:")]
-        RecognizedDataType Barcode (string[] symbologies);
+		// +(RecognizedDataType * _Nonnull)barcode:(NSArray<NSString *> * _Nonnull)symbologies __attribute__((warn_unused_result("")));
+		[Static]
+		[Export ("barcode:")]
+		RecognizedDataType Barcode (string[] symbologies);
 	}
 
 	// @interface RecognizedItem : NSObject

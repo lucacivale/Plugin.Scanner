@@ -1,0 +1,22 @@
+<Project Sdk="Uno.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>$(NetVersion)-ios;$(NetVersion)-android;$(NetVersion)</TargetFrameworks>
+        <UnoSingleProject>true</UnoSingleProject>
+        <OutputType>Library</OutputType>
+        <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
+        <GenerateLibraryLayout>true</GenerateLibraryLayout>
+
+        <UnoFeatures>
+            SkiaRenderer;
+            Hosting;
+        </UnoFeatures>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Plugin.Scanner\Plugin.Scanner.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="iOS\Info.plist" />
+    </ItemGroup>
+</Project>

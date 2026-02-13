@@ -1,76 +1,30 @@
-//
-//  DataScannerViewControllerDelegate.swift
-//  PluginScanner
-//
-//  Created by Luca Civale on 17.03.25.
-//
-
-import Foundation
-
 @objc
 @MainActor
-public protocol DataScannerViewControllerDelegate : AnyObject {
-    
-    @objc
-    @MainActor
-    func dataScannerDidZoom(_ dataScanner: DataScannerViewController)
+public protocol DataScannerViewControllerDelegate: NSObjectProtocol {
 
-    @objc(didTapOn::)
-    @MainActor
-    func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem)
+    @objc(didZoom:)
+    optional func dataScannerDidZoom(_ dataScanner: DataScannerViewController)
 
-    @objc(didAdd:::)
-    @MainActor
-    func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem])
+    @objc(didTapOn:didTapOn:)
+    optional func dataScanner(_ dataScanner: DataScannerViewController,
+                              didTapOn item: RecognizedItem)
 
-    @objc(didUpdate:::)
-    @MainActor
-    func dataScanner(_ dataScanner: DataScannerViewController, didUpdate updatedItems: [RecognizedItem], allItems: [RecognizedItem])
+    @objc(didAdd:didAdd:allItems:)
+    optional func dataScanner(_ dataScanner: DataScannerViewController,
+                              didAdd addedItems: [RecognizedItem],
+                              allItems: [RecognizedItem])
 
-    @objc(didRemove:::)
-    @MainActor
-    func dataScanner(_ dataScanner: DataScannerViewController, didRemove removedItems: [RecognizedItem], allItems: [RecognizedItem])
+    @objc(didUpdate:didUpdate:allItems:)
+    optional func dataScanner(_ dataScanner: DataScannerViewController,
+                              didUpdate updatedItems: [RecognizedItem],
+                              allItems: [RecognizedItem])
 
-    @objc(becameUnavailableWithError::)
-    @MainActor
-    func dataScanner(_ dataScanner: DataScannerViewController, becameUnavailableWithError error: ScanningUnavailable)
-}
+    @objc(didRemove:didRemove:allItems:)
+    optional func dataScanner(_ dataScanner: DataScannerViewController,
+                              didRemove removedItems: [RecognizedItem],
+                              allItems: [RecognizedItem])
 
-extension DataScannerViewControllerDelegate {
-    
-    @MainActor
-    public func dataScannerDidZoom(_ dataScanner: DataScannerViewController)
-    {
-        
-    }
-    
-    @MainActor
-    public func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem)
-    {
-        
-    }
-    
-    @MainActor
-    public func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem])
-    {
-        
-    }
-
-    @MainActor
-    public func dataScanner(_ dataScanner: DataScannerViewController, didUpdate updatedItems: [RecognizedItem], allItems: [RecognizedItem])
-    {
-        
-    }
-
-    @MainActor
-    public func dataScanner(_ dataScanner: DataScannerViewController, didRemove removedItems: [RecognizedItem], allItems: [RecognizedItem])
-    {
-        
-    }
-
-    @MainActor
-    public func dataScanner(_ dataScanner: DataScannerViewController, becameUnavailableWithError error: ScanningUnavailable)
-    {
-        
-    }
+    @objc(becameUnavailableWithError:becameUnavailableWithError:)
+    optional func dataScanner(_ dataScanner: DataScannerViewController,
+                              becameUnavailableWithError error: ScanningUnavailable)
 }

@@ -1,0 +1,35 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Exceptions;
+using System.Diagnostics;
+
+namespace Plugin.Scanner.Maui.Tests.ViewModels;
+
+public partial class MainViewModel : BaseViewModel
+{
+    private readonly IBarcodeScanner _barcodeScanner;
+
+    [ObservableProperty]
+    private string _barcode = string.Empty;
+
+    public MainViewModel(IBarcodeScanner barcodeScanner)
+    {
+        _barcodeScanner = barcodeScanner;
+    }
+
+    [RelayCommand]
+    public async Task ScanBarcode()
+    {
+        try
+        {
+            Barcode = (await _barcodeScanner.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+        }
+        catch(BarcodeScanException exception)
+        {
+            Debug.WriteLine(exception);
+
+            Barcode = "Something went wrong.";
+        }
+    }
+}

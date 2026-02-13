@@ -5,10 +5,11 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">16.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     </PropertyGroup>
+
     <ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-ios'">
         <ProjectReference Include="..\Plugin.Scanner.iOS\Plugin.Scanner.iOS\Plugin.Scanner.iOS.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
         <ProjectReference Include="..\Plugin.Scanner.Android\Plugin.Scanner.Android.csproj" />
     </ItemGroup>

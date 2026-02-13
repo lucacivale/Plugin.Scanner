@@ -1,95 +1,80 @@
-#pragma warning disable IDE0005
-using System;
-using System.Collections.Generic;
-#pragma warning restore IDE0005
-
 namespace Plugin.Scanner.Core.Barcode;
 
 /// <summary>
-/// Supported barcode formats.
+/// Specifies the barcode formats that can be recognized by the scanner.
 /// </summary>
-public static class BarcodeFormat
+/// <remarks>
+/// This is a flags enumeration that allows combining multiple barcode formats using bitwise operations.
+/// Use <see cref="All"/> to recognize all supported formats, or combine specific formats using the bitwise OR operator.
+/// </remarks>
+[Flags]
+public enum BarcodeFormat
 {
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Aztec-Code"/>.
+    /// Aztec 2D barcode format.
     /// </summary>
-    public const string Aztec = "Aztec";
+    Aztec = 1 << 0,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Codabar"/>.
+    /// Codabar 1D barcode format, commonly used in libraries, blood banks, and air parcel tracking.
     /// </summary>
-    public const string Codabar = "Codabar";
+    Codabar = 1 << 1,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Code_39"/>.
+    /// Code 39 1D barcode format, widely used in automotive and defense industries.
     /// </summary>
-    public const string Code39 = "Code39";
+    Code39 = 1 << 2,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Code_93"/>.
+    /// Code 93 1D barcode format, designed to supplement and improve upon Code 39.
     /// </summary>
-    public const string Code93 = "Code93";
+    Code93 = 1 << 3,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Code128"/>.
+    /// Code 128 1D barcode format, high-density format used in logistics and transportation.
     /// </summary>
-    public const string Code128 = "Code128";
+    Code128 = 1 << 4,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Data_Matrix"/>.
+    /// Data Matrix 2D barcode format, commonly used for marking small items.
     /// </summary>
-    public const string DataMatrix = "DataMatrix";
+    DataMatrix = 1 << 5,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/European_Article_Number"/>.
+    /// EAN-8 barcode format, a shortened version of EAN-13 for small packages.
     /// </summary>
-    public const string Ean8 = "Ean8";
+    Ean8 = 1 << 6,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/European_Article_Number"/>.
+    /// EAN-13 barcode format, the standard European retail product code.
     /// </summary>
-    public const string Ean13 = "Ean13";
+    Ean13 = 1 << 7,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Aztec-Code"/>.
+    /// ITF-14 barcode format, used for packaging and shipping containers.
     /// </summary>
-    public const string Itf14 = "Itf14";
+    Itf14 = 1 << 8,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/PDF417"/>.
+    /// PDF417 2D barcode format, capable of storing large amounts of data.
     /// </summary>
-    public const string Pdf417 = "Pdf417";
+    Pdf417 = 1 << 9,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/QR-Code"/>.
+    /// QR Code 2D barcode format, widely used for URLs, payments, and general data encoding.
     /// </summary>
-    // ReSharper disable once InconsistentNaming
-    public const string QR = "QR";
+    QR = 1 << 10,
 
     /// <summary>
-    /// <see href="https://en.wikipedia.org/wiki/Universal_Product_Code"/>.
+    /// UPC-E barcode format, a compressed version of UPC-A for small packages.
     /// </summary>
-    public const string Upce = "Upce";
+    Upce = 1 << 11,
 
     /// <summary>
     /// All supported barcode formats.
     /// </summary>
-    /// <returns>Collection of supported barcode formats.</returns>
-    public static IEnumerable<string> SupportedBarcodeFormats()
-    {
-        return [
-            Aztec,
-            Codabar,
-            Code39,
-            Code93,
-            Code128,
-            DataMatrix,
-            Ean8,
-            Ean13,
-            Itf14,
-            Pdf417,
-            QR,
-            Upce,
-        ];
-    }
+    /// <remarks>
+    /// Use this value to enable recognition of all available barcode formats simultaneously.
+    /// </remarks>
+    All = Aztec | Codabar | Code39 | Code93 | Code128 | DataMatrix | Ean8 | Ean13 | Itf14 | Pdf417 | QR | Upce,
 }

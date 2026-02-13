@@ -1,8 +1,0 @@
-<Project>
-  <ItemGroup>
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" />
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="9.32.0.97167" />
-    <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
-  </ItemGroup>
-</Project>

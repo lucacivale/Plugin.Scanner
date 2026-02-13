@@ -1,26 +1,45 @@
-#pragma warning disable IDE0005
-using System.Threading;
-using System.Threading.Tasks;
-#pragma warning restore IDE0005
-using Plugin.Scanner.Core.Exceptions;
-
 namespace Plugin.Scanner.Core.Barcode;
 
 /// <summary>
-/// <see cref="IBarcodeScanner"/> extension methods.
+/// Provides extension methods for <see cref="IBarcodeScanner"/> to simplify common scanning operations.
 /// </summary>
-// ReSharper disable once InconsistentNaming
 public static class IBarcodeScannerExtensions
 {
     /// <summary>
-    /// Scan a single barcode without a cancellation token.
+    /// Asynchronously scans for a barcode using the device camera without a cancellation token.
     /// </summary>
-    /// <param name="scanner">Scanner.</param>
-    /// <param name="options">Configure barcode scan.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    /// <exception cref="BarcodeScanException">Throws an <see cref="BarcodeScanException"/> if something went wrong. For more details check platform implementations.</exception>
-    public static Task<string> ScanBarcodeAsync(this IBarcodeScanner scanner, IBarcodeScanOptions options)
+    /// <param name="scanner">The <see cref="IBarcodeScanner"/> instance to use for scanning.</param>
+    /// <param name="options">The <see cref="IBarcodeScanOptions"/> specifying which barcode formats to recognize.</param>
+    /// <returns>
+    /// A <see cref="Task{IBarcode}"/> that represents the asynchronous scan operation.
+    /// The task result contains the scanned barcode with its decoded value.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This is a convenience method that calls <see cref="IBarcodeScanner.ScanAsync"/> with
+    /// <see cref="CancellationToken.None"/>, meaning the scan operation can only be canceled
+    /// through user interaction (e.g., pressing a cancel button in the scanning interface).
+    /// </para>
+    /// <para>
+    /// For operations that require programmatic cancellation, use <see cref="IBarcodeScanner.ScanAsync"/>
+    /// directly with a <see cref="CancellationToken"/>.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// Simple barcode scanning:
+    /// <code>
+    /// var scanner = new BarcodeScanner();
+    /// var options = new BarcodeScanOptions
+    /// {
+    ///     Formats = BarcodeFormat.All
+    /// };
+    ///
+    /// var barcode = await scanner.ScanBarcodeAsync(options);
+    /// Console.WriteLine($"Scanned: {barcode.RawValue}");
+    /// </code>
+    /// </example>
+    public static Task<IBarcode> ScanAsync(this IBarcodeScanner scanner, IBarcodeScanOptions options)
     {
-        return scanner.ScanBarcodeAsync(options, CancellationToken.None);
+        return scanner.ScanAsync(options, CancellationToken.None);
     }
 }
