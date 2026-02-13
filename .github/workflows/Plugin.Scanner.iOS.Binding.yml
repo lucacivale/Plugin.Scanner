@@ -46,13 +46,21 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' }}
         run: dotnet build ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -c ${{ env.Configuration }}
 
-      - name: Pack Plugin.Scanner.iOS.Binding
+      - name: Get next version
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: dotnet pack ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }}
+        uses: reecetech/version-increment@2024.10.1
+        id: version
+        with:
+          scheme: semver
+          increment: patch
+
+      - name: Pack Plugin.Scanner.iOS.Binding.${{ steps.version.outputs.version }}-alpha
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: dotnet pack ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} --version-suffix alpha
     
       - name: Upload NuGet artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v4
         with:
-          name: Plugin.Scanner.iOS.Binding.nupkg
+          name: Plugin.Scanner.iOS.Binding.${{ steps.version.outputs.version }}-alpha.nupkg
           path: ./artifacts/*.nupkg
