@@ -56,8 +56,9 @@ jobs:
             echo "Packing $project"
             dotnet pack "$project" -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}-alpha
           done
+          
       - name: Pack Uno plugin
-        run: dotnet build ${{ env.Plugin_Scanner_Maui_ProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}-alpha
+        run: dotnet build ${{ env.Plugin_Scanner_Maui_ProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}-alpha -p:GeneratePackageOnBuild=true
 
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v4
