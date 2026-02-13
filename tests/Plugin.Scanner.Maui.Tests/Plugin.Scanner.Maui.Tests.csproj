@@ -30,11 +30,6 @@
 		<NoWarn>CS1591;IDE0008</NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-	  <CodesignKey>Apple Development: luca_c@live.de (QQLSWZQVF8)</CodesignKey>
-	  <CodesignProvision>iOS Team Provisioning Profile: lc.MauiApp1</CodesignProvision>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />

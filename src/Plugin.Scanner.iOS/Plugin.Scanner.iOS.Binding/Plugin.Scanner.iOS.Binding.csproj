@@ -39,11 +39,11 @@
     <Exec WorkingDirectory="$(ProjectDir)" Command="dotnet build" />
     <Exec Command="cd $(OutDir)$(ProjectResources)/$(XCFramework)/$(RID)/$(Framework)&#xA;&#xA;rm -rf $(ProjectDir)/bin/$(SharpieOutput)&#xA;&#xA;sharpie bind --output=$(ProjectDir)/bin/$(SharpieOutput) --namespace=$(Namespace) --sdk=$(SDK) --scope=$(Scope)" />
   </Target>
-
-    <Target Name="Nuget">
-        <PropertyGroup>
-            <Version>7-pre</Version>
-        </PropertyGroup>
-        <Exec WorkingDirectory="$(ProjectDir)" Command="dotnet pack -o:$(ProjectDir) --version-suffix $(Version)" />
-    </Target>
+    
+  <Target Name="Nuget">
+    <PropertyGroup>
+      <Version>7-pre</Version>
+      </PropertyGroup>
+    <Exec WorkingDirectory="$(ProjectDir)" Command="dotnet pack -o:$(ProjectDir) --version-suffix $(Version)" />
+  </Target>
 </Project>

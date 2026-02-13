@@ -24,25 +24,13 @@
       https://aka.platform.uno/singleproject-features
     -->
     <UnoFeatures>
-      Material;
-      Dsp;
       Hosting;
-      Toolkit;
-      Logging;
       MVUX;
-      Configuration;
-      HttpKiota;
-      Serialization;
-      Localization;
       Navigation;
-      ThemeService;
       SkiaRenderer;
     </UnoFeatures>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <CodesignKey>iPhone Developer</CodesignKey>
-    <CodesignProvision>iOS Team Provisioning Profile: lc.MauiApp1</CodesignProvision>
-  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Plugin.Scanner.Uno\Plugin.Scanner.Uno.csproj" />
   </ItemGroup>

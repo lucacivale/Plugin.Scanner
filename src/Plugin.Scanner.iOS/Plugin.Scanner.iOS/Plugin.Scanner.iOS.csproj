@@ -5,24 +5,14 @@
         <NoWarn>SA1649;SA1300;S6608</NoWarn>
     </PropertyGroup>
 
-	<ItemGroup>
-		<None Remove="*.dll" />
-	</ItemGroup>
-	
     <ItemGroup>
       <ProjectReference Include="..\..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj" />
     </ItemGroup>
-    
-    <ItemGroup Condition="$(IsMacOS)">
-      <PackageReference Include="Plugin.Scanner.iOS.Binding" />
+
+    <ItemGroup>
+        <PackageReference Include="Plugin.Scanner.iOS.Binding" />
     </ItemGroup>
-
-	<ItemGroup Condition="$(IsWindows)">
-		<Reference Include="Plugin.Scanner.iOS.Binding">
-			<HintPath>Plugin.Scanner.iOS.Binding.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
+    
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>Plugin.Scanner</_Parameter1>

@@ -31,18 +31,7 @@ public partial class App : Application
     {
         IApplicationBuilder builder = this.CreateBuilder(args)
             .UseScanner()
-            .UseToolkitNavigation()
             .Configure(host => host
-                .UseLogging(configure: (context, logBuilder) =>
-                {
-                    logBuilder
-                        .SetMinimumLevel(
-                            context.HostingEnvironment.IsDevelopment() ?
-                                LogLevel.Information :
-                                LogLevel.Warning)
-
-                        .CoreLogLevel(LogLevel.Warning);
-                }, enableUnoLogging: true)
                 .UseNavigation(ReactiveViewModelMappings.ViewModelMappings, RegisterRoutes)
             );
         MainWindow = builder.Window;
