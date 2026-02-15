@@ -1,10 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using Android.OS;
+using AndroidX.Camera.Core;
+using AndroidX.Camera.MLKit.Vision;
+using AndroidX.Core.Content;
+using Java.Util.Concurrent;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Xamarin.Google.MLKit.Vision.BarCode;
 using Exception = System.Exception;
+using IBarcodeScanner = Plugin.Scanner.Core.Barcode.IBarcodeScanner;
 
 namespace Plugin.Scanner.Android.Barcode;
 
@@ -13,7 +19,7 @@ namespace Plugin.Scanner.Android.Barcode;
 /// </summary>
 /// <remarks>
 /// <para>
-/// This class implements <see cref="IBarcodeScanner"/> for Android devices and uses Google ML Kit's
+/// This class implements <see cref="Core.Barcode.IBarcodeScanner"/> for Android devices and uses Google ML Kit's
 /// barcode scanning capabilities through a camera dialog interface.
 /// </para>
 /// <para>
@@ -79,9 +85,28 @@ public sealed class BarcodeScanner : IBarcodeScanner
         {
             try
             {
-                using BarcodeScannerDialog scannerDialog = new(_currentActivity.Activity, options.Formats.ToBarcodeFormats(), options.RecognizeMultiple);
+                IExecutor mainExecutor = ContextCompat.GetMainExecutor(_currentActivity.Activity) ?? throw new MainExecutorNotAvailableException("Main executor not available.");
+                List<int> formats = options.Formats.ToBarcodeFormats().ToList();
 
-                IBarcode barcode = await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true);
+                using BarcodeScannerOptions.Builder builder = new();
+                using BarcodeScannerOptions scannerOptions = builder
+                    .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
+                    .Build();
+                using BarcodeDetector barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions));
+                using MlKitAnalyzer analyzer = new(
+                    [barcodeDetector.Detector],
+                    ImageAnalysis.CoordinateSystemViewReferenced,
+                    mainExecutor,
+                    barcodeDetector);
+
+                using DataScannerDialog scannerDialog = new(
+                    _currentActivity.Activity,
+                    barcodeDetector,
+                    analyzer,
+                    mainExecutor,
+                    options.RecognizeMultiple);
+
+                IBarcode barcode = new Core.Barcode.Barcode((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);
                 scanCompleteTaskSource.TrySetResult(barcode);
             }
             catch (Exception e)

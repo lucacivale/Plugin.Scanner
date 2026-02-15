@@ -203,3 +203,6 @@ dotnet_diagnostic.IDE0130.severity = warning
 
 # S6608: Prefer indexing instead of "Enumerable" methods on types implementing "IList"
 dotnet_diagnostic.S6608.severity = none
+
+[*.{cs,vb}]
+dotnet_diagnostic.CA1826.severity = none

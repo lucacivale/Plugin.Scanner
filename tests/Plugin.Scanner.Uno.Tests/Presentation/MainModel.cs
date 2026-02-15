@@ -19,7 +19,13 @@ public partial record MainModel
     {
         try
         {
-            string barcode = (await _barcodeScanner.ScanAsync(new BarcodeScanOptions { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            BarcodeScanOptions options = new()
+            {
+                Formats = BarcodeFormat.All,
+                RecognizeMultiple = true,
+            };
+            string barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
+
             await Barcode.SetAsync(barcode);
         }
         catch (BarcodeScanException exception)

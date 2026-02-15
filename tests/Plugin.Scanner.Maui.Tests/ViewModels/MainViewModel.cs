@@ -23,10 +23,10 @@ public partial class MainViewModel : BaseViewModel
     {
         try
         {
-            var options = new BarcodeScanOptions()
+            BarcodeScanOptions options = new()
             {
                 Formats = BarcodeFormat.All,
-                RecognizeMultiple = true,
+                RecognizeMultiple = false,
             };
             Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
         }

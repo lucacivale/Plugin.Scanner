@@ -30,6 +30,7 @@ public partial class App : Application
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         IApplicationBuilder builder = this.CreateBuilder(args)
+            .UseToolkitNavigation()
             .UseScanner()
             .Configure(host => host
                 .UseNavigation(ReactiveViewModelMappings.ViewModelMappings, RegisterRoutes)

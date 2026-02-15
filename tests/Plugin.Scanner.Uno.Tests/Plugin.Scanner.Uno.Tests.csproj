@@ -28,7 +28,11 @@
       MVUX;
       Navigation;
       SkiaRenderer;
+      Toolkit;
     </UnoFeatures>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
 
   <ItemGroup>

@@ -21,6 +21,4 @@ public sealed class Barcode : IBarcode
     /// The decoded string content of the scanned barcode.
     /// </value>
     public string RawValue { get; }
-
-    public static Barcode Empty() => new(string.Empty);
 }

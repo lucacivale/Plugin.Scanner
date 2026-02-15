@@ -223,3 +223,13 @@ using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
 var barcode = await scanner.ScanAsync(options, cts.Token);
 Console.WriteLine($"Scanned: {barcode.RawValue}");
 ```
+
+There are multiple barcodes in the frame? 
+Enable multiple item recognition to recognize all barcodes in the frame.
+```csharp
+var options = new BarcodeScanOptions
+{
+    RecognizeMultiple = true
+};
+```
+All barcodes are now recognized. Tapping a target barcode will display the confirmation button to complete the scan.

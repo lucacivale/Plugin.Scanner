@@ -1,34 +1,21 @@
 ﻿using Android.Animation;
 using Path = Android.Graphics.Path;
 
-namespace Plugin.Scanner.Android.Barcode.Views;
+namespace Plugin.Scanner.Android.Views;
 
-/// <summary>
-/// Represents a custom drawable that renders a rounded corner highlight box around a detected barcode.
-/// </summary>
-internal sealed class BarcodeHighlight : Drawable
+internal sealed class RecognizedItemHighlight : Drawable
 {
-    /// <summary>
-    /// The radius for the rounded corners of the highlight box.
-    /// </summary>
     private const float CornerRadius = 25f;
 
-    /// <summary>
-    /// The length of each corner line extending from the corner arc.
-    /// </summary>
     private const float CornerLength = 60f;
 
-    private readonly Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode _barcode;
+    private readonly RecognizedItem _item;
     private readonly Paint _boxPaint;
     private readonly Rect _box;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BarcodeHighlight"/> class.
-    /// </summary>
-    /// <param name="box">The bounding rectangle of the detected barcode in screen coordinates.</param>
-    public BarcodeHighlight(Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode barcode)
+    public RecognizedItemHighlight(RecognizedItem item)
     {
-        _barcode = barcode;
+        _item = item;
 
         _boxPaint = new Paint
         {
@@ -39,24 +26,14 @@ internal sealed class BarcodeHighlight : Drawable
         };
         _boxPaint.SetStyle(Paint.Style.Stroke);
 
-        _box = new Rect(_barcode.BoundingBox);
+        _box = new Rect(_item.Bounds);
         _box.Inset(-30, -30);
     }
 
-    public Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode Barcode => _barcode;
-
-    /// <summary>
-    /// Gets the opacity classification of this drawable.
-    /// </summary>
-    /// <value>
-    /// Always returns <see cref="Format.Translucent"/> to indicate the drawable has transparency.
-    /// </value>
     public override int Opacity => (int)Format.Translucent;
 
-    /// <summary>
-    /// Draws the barcode highlight overlay on the specified canvas.
-    /// </summary>
-    /// <param name="canvas">The canvas on which to draw the highlight.</param>
+    public RecognizedItem RecognizedItem => _item;
+
     public override void Draw(Canvas canvas)
     {
         using Path path = new();
@@ -98,30 +75,16 @@ internal sealed class BarcodeHighlight : Drawable
         canvas.DrawPath(path, _boxPaint);
     }
 
-    /// <summary>
-    /// Sets the alpha (opacity) value for the highlight.
-    /// </summary>
-    /// <param name="alpha">The alpha value (0-255), where 0 is fully transparent and 255 is fully opaque.</param>
     public override void SetAlpha(int alpha)
     {
         _boxPaint.Alpha = alpha;
     }
 
-    /// <summary>
-    /// Sets a color filter for the highlight paint.
-    /// </summary>
-    /// <param name="colorFilter">The color filter to apply, or <c>null</c> to remove any existing filter.</param>
     public override void SetColorFilter(ColorFilter? colorFilter)
     {
         _boxPaint.SetColorFilter(colorFilter);
     }
 
-    /// <summary>
-    /// Releases the unmanaged resources used by the <see cref="BarcodeHighlight"/> and optionally releases the managed resources.
-    /// </summary>
-    /// <param name="disposing">
-    /// <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.
-    /// </param>
     protected override void Dispose(bool disposing)
     {
         if (disposing)

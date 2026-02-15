@@ -34,8 +34,8 @@
             android:tint="@android:color/white" />
 	</FrameLayout>
 
-	<Plugin.Scanner.Android.Barcode.Views.BarcodeItemButton
-        android:id="@+id/barcodeButton"
+	<Plugin.Scanner.Android.Views.RecognizedItemButton
+        android:id="@+id/recognizedItemButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"

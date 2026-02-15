@@ -196,7 +196,7 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
         _cancelButton.TranslatesAutoresizingMaskIntoConstraints = false;
 
         UIButtonConfiguration config = UIButtonConfiguration.FilledButtonConfiguration;
-        config.BaseBackgroundColor = UIColor.Yellow;
+        config.BaseBackgroundColor = UIColor.White;
         config.BaseForegroundColor = UIColor.Black;
         config.Background.CornerRadius = buttonCornerRadius;
         _cancelButton.Configuration = config;
@@ -266,7 +266,14 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
     /// <exception cref="DataScannerViewNullReferenceException">Thrown when the scanner's view is null.</exception>
     private void OnRemoved(object? sender, (RecognizedItem[] RemovedItems, RecognizedItem[] AllItems) e)
     {
-        CleanupBarcodeItems();
+        BarcodeItemButton? barcodeItem = View?.Subviews
+            .OfType<BarcodeItemButton>()
+            .FirstOrDefault(x => e.RemovedItems.Any(y => x.Barcode.Id.Equals(y.Id)));
+
+        if (barcodeItem is not null)
+        {
+            CleanupBarcodeItem(barcodeItem);
+        }
     }
 
     private void OnBarcodeItemTapped(object? sender, EventArgs e)
