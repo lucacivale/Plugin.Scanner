@@ -20,11 +20,11 @@
     </PropertyGroup>
 
 	<ItemGroup>
-		<None Condition="$(MSBuildProjectName.Contains('iOS'))" Include="..\..\..\README.md">
+		<None Condition="$(MSBuildProjectName.Contains('iOS')) or $(MSBuildProjectName.Contains('Avalonia.Tests'))" Include="..\..\..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Condition="$(MSBuildProjectName.Contains('iOS')) == false" Include="..\..\README.md">
+		<None Condition="$(MSBuildProjectName.Contains('iOS')) == false and $(MSBuildProjectName.Contains('Avalonia.Tests')) == false" Include="..\..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
@@ -42,7 +42,8 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-    </PropertyGroup>
+		<Description>This plugin aims to enalbe simple, fast and customizable data scanning(barcodes, text, documents...) using native Android and iOS APIs ML Kit and Vision Kit.</Description>
+	</PropertyGroup>
     
     <PropertyGroup Condition="$(MSBuildProjectName.Contains('Test')) == false and $(MSBuildProjectDirectory.Contains('Binding')) == false">
         <GenerateDocumentationFile>true</GenerateDocumentationFile>

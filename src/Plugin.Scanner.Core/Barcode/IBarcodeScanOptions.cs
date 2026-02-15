@@ -40,4 +40,6 @@ public interface IBarcodeScanOptions
     /// </para>
     /// </remarks>
     BarcodeFormat Formats { get; }
+
+    bool RecognizeMultiple { get; }
 }

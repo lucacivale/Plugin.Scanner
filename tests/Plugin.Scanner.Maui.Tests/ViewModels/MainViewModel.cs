@@ -23,7 +23,12 @@ public partial class MainViewModel : BaseViewModel
     {
         try
         {
-            Barcode = (await _barcodeScanner.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            var options = new BarcodeScanOptions()
+            {
+                Formats = BarcodeFormat.All,
+                RecognizeMultiple = true,
+            };
+            Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
         }
         catch(BarcodeScanException exception)
         {

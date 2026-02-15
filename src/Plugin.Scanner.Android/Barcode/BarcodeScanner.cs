@@ -58,7 +58,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// </exception>
     /// <remarks>
     /// <para>
-    /// This method creates and displays a <see cref="SingleBarcodeScannerDialog"/> that handles
+    /// This method creates and displays a <see cref="BarcodeScannerDialog"/> that handles
     /// the camera preview, barcode detection, and user interaction.
     /// </para>
     /// <para>
@@ -79,7 +79,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
         {
             try
             {
-                using SingleBarcodeScannerDialog scannerDialog = new(_currentActivity.Activity, options.Formats.ToBarcodeFormats());
+                using BarcodeScannerDialog scannerDialog = new(_currentActivity.Activity, options.Formats.ToBarcodeFormats(), options.RecognizeMultiple);
 
                 IBarcode barcode = await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true);
                 scanCompleteTaskSource.TrySetResult(barcode);
@@ -96,7 +96,6 @@ public sealed class BarcodeScanner : IBarcodeScanner
         }
         catch (Exception e)
             when (e is MainExecutorNotAvailableException
-                or MlKitAnalyzerResultNotBarcodeException
                 or NoCameraException
                 or ViewNotFoundException)
         {

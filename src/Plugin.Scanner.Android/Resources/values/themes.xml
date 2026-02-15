@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Plugin.Scanner.SingleBarcodeScanner" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Plugin.Scanner.DataScannerDialog" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 		<item name="android:windowAnimationStyle">@style/PluginScannerDialogAnimation</item>
     </style>
 </resources>

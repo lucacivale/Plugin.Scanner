@@ -31,4 +31,6 @@ public sealed class BarcodeScanOptions : IBarcodeScanOptions
     /// </example>
     /// </remarks>
     public BarcodeFormat Formats { get; set; }
+
+    public bool RecognizeMultiple { get; set; }
 }

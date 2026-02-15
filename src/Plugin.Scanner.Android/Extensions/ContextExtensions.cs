@@ -16,4 +16,9 @@ internal static class ContextExtensions
     {
         return context.PackageManager?.HasSystemFeature(PackageManager.FeatureCamera) == true;
     }
+
+    public static bool HasFlash(this Context context)
+    {
+        return context.PackageManager?.HasSystemFeature(PackageManager.FeatureCameraFlash) == true;
+    }
 }

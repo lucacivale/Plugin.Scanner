@@ -1,4 +1,5 @@
-﻿using Path = Android.Graphics.Path;
+﻿using Android.Animation;
+using Path = Android.Graphics.Path;
 
 namespace Plugin.Scanner.Android.Barcode.Views;
 
@@ -17,6 +18,7 @@ internal sealed class BarcodeHighlight : Drawable
     /// </summary>
     private const float CornerLength = 60f;
 
+    private readonly Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode _barcode;
     private readonly Paint _boxPaint;
     private readonly Rect _box;
 
@@ -24,8 +26,10 @@ internal sealed class BarcodeHighlight : Drawable
     /// Initializes a new instance of the <see cref="BarcodeHighlight"/> class.
     /// </summary>
     /// <param name="box">The bounding rectangle of the detected barcode in screen coordinates.</param>
-    public BarcodeHighlight(Rect box)
+    public BarcodeHighlight(Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode barcode)
     {
+        _barcode = barcode;
+
         _boxPaint = new Paint
         {
             Color = Color.Yellow,
@@ -35,9 +39,11 @@ internal sealed class BarcodeHighlight : Drawable
         };
         _boxPaint.SetStyle(Paint.Style.Stroke);
 
-        _box = new Rect(box);
+        _box = new Rect(_barcode.BoundingBox);
         _box.Inset(-30, -30);
     }
+
+    public Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode Barcode => _barcode;
 
     /// <summary>
     /// Gets the opacity classification of this drawable.
