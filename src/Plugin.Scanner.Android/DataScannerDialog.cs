@@ -1,8 +1,6 @@
 ﻿using AndroidX.AppCompat.App;
 using AndroidX.Camera.Core;
 using AndroidX.Camera.View;
-using AndroidX.Lifecycle;
-using Java.Util.Concurrent;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Views;
@@ -23,23 +21,15 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
     public DataScannerDialog(
         Activity context,
         DataDetector detector,
-        ImageAnalysis.IAnalyzer analyzer,
-        IExecutor executor,
+        LifecycleCameraController cameraController,
         bool recognizeMultiple)
         : base(context, _Microsoft.Android.Resource.Designer.Resource.Style.Plugin_Scanner_DataScannerDialog)
     {
         _activity = context;
         _dataDetector = detector;
-        _cameraController = new(Context);
+        _cameraController = cameraController;
+
         _recognizeMultiple = recognizeMultiple;
-
-        if (_activity is not ILifecycleOwner owner)
-        {
-            throw new ActivityMustBeILifecycleOwnerException("Activity must implement ILifecycleOwner");
-        }
-
-        _cameraController.BindToLifecycle(owner);
-        _cameraController.SetImageAnalysisAnalyzer(executor, analyzer);
 
         SetContentView();
     }
@@ -55,6 +45,7 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         _dataDetector.Added += AddedItems;
         _dataDetector.Removed += RemovedItems;
+        _dataDetector.Updated += UpdatedItems;
 
         _scanCompleteTaskSource = new();
 
@@ -104,24 +95,15 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
             }
         }
 
-        return true;
+        return false;
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _cameraController.Dispose();
-        }
-
-        base.Dispose(disposing);
-    }
-
-    protected void Cleanup()
+    private void Cleanup()
     {
         _dataDetector.Stop();
         _dataDetector.Added -= AddedItems;
         _dataDetector.Removed -= RemovedItems;
+        _dataDetector.Updated -= UpdatedItems;
 
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Controller = null;
@@ -135,14 +117,11 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         FlashButton flashButton = FindViewById<FlashButton>(_Microsoft.Android.Resource.Designer.Resource.Id.flashButton) ?? throw new ViewNotFoundException(nameof(FlashButton));
         flashButton.Toggled -= FlashButton_Toggled;
-
-        _cameraController.ClearImageAnalysisAnalyzer();
-        _cameraController.Unbind();
     }
 
     private void SetContentView()
     {
-        base.SetContentView(_Microsoft.Android.Resource.Designer.Resource.Layout.DataScanner);
+        SetContentView(_Microsoft.Android.Resource.Designer.Resource.Layout.DataScanner);
 
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Controller = _cameraController;
@@ -182,12 +161,8 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
                 AddHighlight(previewView.Overlay, recognizedItem);
 
                 RecognizedItemButton itemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-
-                if (recognizedItem.Text != itemButton.RecognizedItem?.Text)
-                {
-                    itemButton.RecognizedItem = recognizedItem;
-                    itemButton.Visibility = ViewStates.Visible;
-                }
+                itemButton.RecognizedItem = recognizedItem;
+                itemButton.Visibility = ViewStates.Visible;
             }
         }
         else
@@ -207,9 +182,10 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         if (_recognizeMultiple == false)
         {
-            if (e.Removed.Count >= 1)
+            if (e.Removed.Count >= 1
+                && _barcodeHighlights.Count >= 1)
             {
-                RemoveHighlights(previewView.Overlay, e.Removed.First());
+                RemoveHighlights(previewView.Overlay, _barcodeHighlights.First().RecognizedItem);
             }
         }
         else
@@ -222,10 +198,32 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         RecognizedItemButton itemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
 
-        if (e.All.Any(x => x.Text == itemButton.RecognizedItem?.Text) == false)
+        if (e.Removed.Count >= 1
+            && e.All.Any(x => x.Equals(itemButton.RecognizedItem)) == false)
         {
             itemButton.RecognizedItem = null;
             itemButton.Visibility = ViewStates.Gone;
+        }
+
+        previewView.Invalidate();
+    }
+
+    private void UpdatedItems(object? sender, (IReadOnlyList<RecognizedItem> Updated, IReadOnlyList<RecognizedItem> All) e)
+    {
+        PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        RecognizedItemButton itemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
+
+        foreach (RecognizedItem item in e.Updated)
+        {
+            if (_barcodeHighlights.FirstOrDefault(x => x.RecognizedItem.Equals(item)) is RecognizedItemHighlight highlight)
+            {
+                highlight.Update(item);
+            }
+
+            if (item.Equals(itemButton.RecognizedItem))
+            {
+                itemButton.RecognizedItem = item;
+            }
         }
 
         previewView.Invalidate();

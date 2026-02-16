@@ -40,7 +40,7 @@ internal abstract class DataDetector<TResult> : DataDetector, IConsumer
     private void ProcessResults(ArrayList? results)
     {
         if (results is null
-            || results.IsEmpty)
+             || results.IsEmpty)
         {
             Removed?.Invoke(this, (_recognizedItems, []));
             _recognizedItems.Clear();
@@ -50,8 +50,13 @@ internal abstract class DataDetector<TResult> : DataDetector, IConsumer
             IEnumerable<TResult> detectedItems = results.ToEnumerable().OfType<TResult>();
             IReadOnlyList<RecognizedItem> recognizedItems = GetRecognizedItems(detectedItems);
 
-            List<RecognizedItem> removedItems = _recognizedItems.Where(x => recognizedItems.Any(y => y.Equals(x) == false)).ToList();
-            List<RecognizedItem> addedItems = _recognizedItems.Count == 0 ? recognizedItems.ToList() : recognizedItems.Where(x => _recognizedItems.Any(y => y.Equals(x) == false)).ToList();
+            //List<RecognizedItem> removedItems = _recognizedItems.Where(x => recognizedItems.Any(y => y.Equals(x)) == false).ToList();
+            //List<RecognizedItem> addedItems = _recognizedItems.Count == 0 ? recognizedItems.ToList() : recognizedItems.Where(x => _recognizedItems.Any(y => y.Equals(x)) == false).ToList();
+            //List<RecognizedItem> updatedItems = _recognizedItems.Where(x => recognizedItems.Any(y => y.Equals(x) && x.Compare(y) == false)).ToList();
+
+            List<RecognizedItem> removedItems = _recognizedItems.Except(recognizedItems).ToList();
+            List<RecognizedItem> addedItems = recognizedItems.Where(x => _recognizedItems.Any(y => y.Equals(x)) == false).ToList();
+            List<RecognizedItem> updatedItems = _recognizedItems.Where(x => recognizedItems.Any(y => y.Equals(x) && x.Compare(y) == false)).ToList();
 
             _recognizedItems.Clear();
             _recognizedItems.AddRange(recognizedItems);
@@ -64,6 +69,11 @@ internal abstract class DataDetector<TResult> : DataDetector, IConsumer
             if (addedItems.Count != 0)
             {
                Added?.Invoke(this, (addedItems, _recognizedItems));
+            }
+
+            if (updatedItems.Count != 0)
+            {
+                Updated?.Invoke(this, (updatedItems, _recognizedItems));
             }
         }
     }

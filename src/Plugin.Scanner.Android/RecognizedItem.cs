@@ -1,5 +1,6 @@
 using System.ComponentModel;
-using Plugin.Scanner.Android.Extensions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Plugin.Scanner.Android;
 
@@ -10,7 +11,10 @@ public sealed class RecognizedItem : IEquatable<RecognizedItem>
     {
         Text = text;
         Bounds = bounds;
+        Id = GenerateIdFromText(text);
     }
+
+    public string Id { get; }
 
     public string Text { get; }
 
@@ -28,8 +32,7 @@ public sealed class RecognizedItem : IEquatable<RecognizedItem>
             return true;
         }
 
-        return Text == other.Text
-            && Bounds.Equals(other.Bounds);
+        return Id == other.Id;
     }
 
     public override bool Equals(object? obj)
@@ -41,8 +44,27 @@ public sealed class RecognizedItem : IEquatable<RecognizedItem>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Text, Bounds);
+        return Id.GetHashCode(StringComparison.Ordinal);
+    }
+
+    public bool Compare(RecognizedItem? other)
+    {
+        return Text.Equals(other?.Text, StringComparison.Ordinal)
+            && Bounds.Equals(other?.Bounds);
     }
 
     public static RecognizedItem Empty => new(string.Empty, new Rect(0, 0, 0, 0));
+
+    private static string GenerateIdFromText(string text)
+    {
+        byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(text));
+
+        StringBuilder sb = new();
+        foreach (byte b in hashBytes)
+        {
+            sb.Append(b.ToString("x2", System.Globalization.CultureInfo.CurrentCulture));
+        }
+
+        return sb.ToString();
+    }
 }

@@ -1,14 +1,18 @@
 using System.Diagnostics.CodeAnalysis;
 using Android.OS;
 using AndroidX.Camera.Core;
+using AndroidX.Camera.Core.ResolutionSelector;
 using AndroidX.Camera.MLKit.Vision;
+using AndroidX.Camera.View;
 using AndroidX.Core.Content;
+using AndroidX.Lifecycle;
 using Java.Util.Concurrent;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Xamarin.Google.MLKit.Vision.BarCode;
+using ASize = Android.Util.Size;
 using Exception = System.Exception;
 using IBarcodeScanner = Plugin.Scanner.Core.Barcode.IBarcodeScanner;
 
@@ -64,7 +68,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// </exception>
     /// <remarks>
     /// <para>
-    /// This method creates and displays a <see cref="BarcodeScannerDialog"/> that handles
+    /// This method creates and displays a <see cref="DataScannerDialog"/> that handles
     /// the camera preview, barcode detection, and user interaction.
     /// </para>
     /// <para>
@@ -85,6 +89,11 @@ public sealed class BarcodeScanner : IBarcodeScanner
         {
             try
             {
+                if (_currentActivity.Activity is not ILifecycleOwner owner)
+                {
+                    throw new ActivityMustBeILifecycleOwnerException("Activity must implement ILifecycleOwner");
+                }
+
                 IExecutor mainExecutor = ContextCompat.GetMainExecutor(_currentActivity.Activity) ?? throw new MainExecutorNotAvailableException("Main executor not available.");
                 List<int> formats = options.Formats.ToBarcodeFormats().ToList();
 
@@ -93,21 +102,34 @@ public sealed class BarcodeScanner : IBarcodeScanner
                     .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
                     .Build();
                 using BarcodeDetector barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions));
-                using MlKitAnalyzer analyzer = new(
-                    [barcodeDetector.Detector],
-                    ImageAnalysis.CoordinateSystemViewReferenced,
-                    mainExecutor,
-                    barcodeDetector);
+                using MlKitAnalyzer analyzer = new([barcodeDetector.Detector], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, barcodeDetector);
+
+                using LifecycleCameraController cameraController = new(_currentActivity.Activity);
+                cameraController.BindToLifecycle(owner);
+                cameraController.SetImageAnalysisAnalyzer(mainExecutor, analyzer);
+                cameraController.ImageAnalysisBackpressureStrategy = ImageAnalysis.StrategyKeepOnlyLatest;
+
+                // As google recommends https://developers.google.com/ml-kit/vision/barcode-scanning/android?hl=de 2 mp
+                using ResolutionSelector.Builder resolutionBuilder = new();
+                using ResolutionStrategy resolutionStrategy = new(new ASize(1920, 1080), ResolutionStrategy.FallbackRuleClosestHigherThenLower);
+                using AspectRatioStrategy aspectRatioStrategy = new(AspectRatio.Ratio169, AspectRatio.RatioDefault);
+
+                cameraController.ImageAnalysisResolutionSelector = resolutionBuilder
+                    .SetResolutionStrategy(resolutionStrategy)
+                    .SetAspectRatioStrategy(aspectRatioStrategy)
+                    .Build();
 
                 using DataScannerDialog scannerDialog = new(
                     _currentActivity.Activity,
                     barcodeDetector,
-                    analyzer,
-                    mainExecutor,
+                    cameraController,
                     options.RecognizeMultiple);
 
                 IBarcode barcode = new Core.Barcode.Barcode((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);
                 scanCompleteTaskSource.TrySetResult(barcode);
+
+                cameraController.ClearImageAnalysisAnalyzer();
+                cameraController.Unbind();
             }
             catch (Exception e)
             {

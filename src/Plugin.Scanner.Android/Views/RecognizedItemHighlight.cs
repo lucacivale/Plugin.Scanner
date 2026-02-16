@@ -1,5 +1,4 @@
-﻿using Android.Animation;
-using Path = Android.Graphics.Path;
+﻿using Path = Android.Graphics.Path;
 
 namespace Plugin.Scanner.Android.Views;
 
@@ -9,9 +8,10 @@ internal sealed class RecognizedItemHighlight : Drawable
 
     private const float CornerLength = 60f;
 
-    private readonly RecognizedItem _item;
     private readonly Paint _boxPaint;
-    private readonly Rect _box;
+
+    private RecognizedItem _item;
+    private Rect _box;
 
     public RecognizedItemHighlight(RecognizedItem item)
     {
@@ -73,6 +73,16 @@ internal sealed class RecognizedItemHighlight : Drawable
         path.AddArc(bottomLeftRect, 90, 90);
 
         canvas.DrawPath(path, _boxPaint);
+    }
+
+    public void Update(RecognizedItem item)
+    {
+        _item = item;
+
+        _box.Dispose();
+
+        _box = new Rect(_item.Bounds);
+        _box.Inset(-30, -30);
     }
 
     public override void SetAlpha(int alpha)
