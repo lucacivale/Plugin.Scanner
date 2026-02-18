@@ -9,7 +9,12 @@ namespace Plugin.Scanner.Android;
 internal abstract class DataDetector<TResult> : DataDetector, IConsumer
     where TResult : class
 {
+    private const int MaxFrames = 5;
+    private const int MinOccurrences = 3;
+
     private readonly List<RecognizedItem> _recognizedItems = new();
+    private readonly Dictionary<RecognizedItem, int> _itemFrequencies = new();
+    private int _frameCount;
 
     protected DataDetector(IDetector detector)
         : base(detector)
@@ -42,38 +47,43 @@ internal abstract class DataDetector<TResult> : DataDetector, IConsumer
         if (results is null
              || results.IsEmpty)
         {
-            Removed?.Invoke(this, (_recognizedItems, []));
+            _frameCount = 0;
+            Cleared?.Invoke(this, EventArgs.Empty);
             _recognizedItems.Clear();
         }
         else
         {
+            _frameCount++;
+
             IEnumerable<TResult> detectedItems = results.ToEnumerable().OfType<TResult>();
             IReadOnlyList<RecognizedItem> recognizedItems = GetRecognizedItems(detectedItems);
 
-            //List<RecognizedItem> removedItems = _recognizedItems.Where(x => recognizedItems.Any(y => y.Equals(x)) == false).ToList();
-            //List<RecognizedItem> addedItems = _recognizedItems.Count == 0 ? recognizedItems.ToList() : recognizedItems.Where(x => _recognizedItems.Any(y => y.Equals(x)) == false).ToList();
-            //List<RecognizedItem> updatedItems = _recognizedItems.Where(x => recognizedItems.Any(y => y.Equals(x) && x.Compare(y) == false)).ToList();
-
-            List<RecognizedItem> removedItems = _recognizedItems.Except(recognizedItems).ToList();
-            List<RecognizedItem> addedItems = recognizedItems.Where(x => _recognizedItems.Any(y => y.Equals(x)) == false).ToList();
-            List<RecognizedItem> updatedItems = _recognizedItems.Where(x => recognizedItems.Any(y => y.Equals(x) && x.Compare(y) == false)).ToList();
-
-            _recognizedItems.Clear();
-            _recognizedItems.AddRange(recognizedItems);
-
-            if (removedItems.Count != 0)
+            foreach (RecognizedItem item in recognizedItems)
             {
-                Removed?.Invoke(this, (removedItems, _recognizedItems));
+                if (_itemFrequencies.TryGetValue(item, out int value))
+                {
+                    _itemFrequencies[item] = ++value;
+                }
+                else
+                {
+                    _itemFrequencies[item] = 1;
+                }
             }
 
-            if (addedItems.Count != 0)
+            if (_frameCount >= MaxFrames)
             {
-               Added?.Invoke(this, (addedItems, _recognizedItems));
-            }
+                List<RecognizedItem> frequentItems = _itemFrequencies
+                    .Where(kv => kv.Value > MinOccurrences)
+                    .Select(kv => kv.Key)
+                    .ToList();
 
-            if (updatedItems.Count != 0)
-            {
-                Updated?.Invoke(this, (updatedItems, _recognizedItems));
+                if (frequentItems.Count != 0)
+                {
+                    Detected?.Invoke(this, frequentItems);
+                }
+
+                _frameCount = 0;
+                _itemFrequencies.Clear();
             }
         }
     }

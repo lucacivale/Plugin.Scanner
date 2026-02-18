@@ -17,6 +17,8 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
     private readonly bool _recognizeMultiple;
 
     private TaskCompletionSource<RecognizedItem>? _scanCompleteTaskSource;
+    private RecognizedItem? _selectedRecognizedItem;
+    private IReadOnlyList<RecognizedItem>? _recognizedItems;
 
     public DataScannerDialog(
         Activity context,
@@ -43,9 +45,8 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         Show();
 
-        _dataDetector.Added += AddedItems;
-        _dataDetector.Removed += RemovedItems;
-        _dataDetector.Updated += UpdatedItems;
+        _dataDetector.Detected += Detected;
+        _dataDetector.Cleared += Cleared;
 
         _scanCompleteTaskSource = new();
 
@@ -83,15 +84,21 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
     public bool OnTouch(View? v, MotionEvent? e)
     {
-        if (e?.Action == MotionEventActions.Up
-            && _barcodeHighlights.FirstOrDefault(x => x.RecognizedItem.Bounds.Contains((int)e.GetX(), (int)e.GetY())) is RecognizedItemHighlight highlight)
+        if (e?.Action == MotionEventActions.Up)
         {
-            RecognizedItemButton recognizedItemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-
-            if (highlight.RecognizedItem.Text != recognizedItemButton.RecognizedItem?.Text)
+            if (_recognizeMultiple == false)
             {
-                recognizedItemButton.RecognizedItem = highlight.RecognizedItem;
-                recognizedItemButton.Visibility = ViewStates.Visible;
+                if (_recognizedItems?.FirstOrDefault(x => x.Bounds.ContainsWithTolerance((int)e.GetX(), (int)e.GetY(), 30)) is RecognizedItem item)
+                {
+                    _selectedRecognizedItem = item;
+                }
+            }
+            else
+            {
+                if (_barcodeHighlights.FirstOrDefault(x => x.RecognizedItem.Bounds.ContainsWithTolerance((int)e.GetX(), (int)e.GetY(), 30)) is RecognizedItemHighlight highlight)
+                {
+                    _selectedRecognizedItem = highlight.RecognizedItem;
+                }
             }
         }
 
@@ -101,9 +108,8 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
     private void Cleanup()
     {
         _dataDetector.Stop();
-        _dataDetector.Added -= AddedItems;
-        _dataDetector.Removed -= RemovedItems;
-        _dataDetector.Updated -= UpdatedItems;
+        _dataDetector.Detected -= Detected;
+        _dataDetector.Cleared -= Cleared;
 
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Controller = null;
@@ -125,11 +131,7 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Controller = _cameraController;
-
-        if (_recognizeMultiple)
-        {
-            previewView.SetOnTouchListener(this);
-        }
+        previewView.SetOnTouchListener(this);
 
         AddOverlay();
     }
@@ -149,82 +151,58 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
         flashButton.Toggled += FlashButton_Toggled;
     }
 
-    private void AddedItems(object? sender, (IReadOnlyList<RecognizedItem> Added, IReadOnlyList<RecognizedItem> All) e)
+    private void Detected(object? sender, IReadOnlyList<RecognizedItem> e)
     {
+        _recognizedItems = e;
+
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        previewView.Overlay?.Clear();
+
+        _barcodeHighlights.Clear();
+
+        RecognizedItem? recognizedItem;
 
         if (_recognizeMultiple == false)
         {
-            if (e.Added.Count >= 1)
-            {
-                RecognizedItem recognizedItem = e.Added.First();
-                AddHighlight(previewView.Overlay, recognizedItem);
+            recognizedItem = e.FirstOrDefault(x => x.Equals(_selectedRecognizedItem)) is RecognizedItem item ? item : e.First();
+        }
+        else
+        {
+            recognizedItem = e.FirstOrDefault(x => x.Equals(_selectedRecognizedItem)) is RecognizedItem item ? item : null;
+        }
 
-                RecognizedItemButton itemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-                itemButton.RecognizedItem = recognizedItem;
-                itemButton.Visibility = ViewStates.Visible;
+        RecognizedItemButton itemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
+        itemButton.RecognizedItem = recognizedItem;
+        itemButton.Visibility = recognizedItem is null ? ViewStates.Gone : ViewStates.Visible;
+
+        if (_recognizeMultiple == false)
+        {
+            if (recognizedItem is not null)
+            {
+                AddHighlight(previewView.Overlay, recognizedItem);
             }
         }
         else
         {
-            foreach (RecognizedItem recognizedItem in e.Added)
+            foreach (RecognizedItem item in e)
             {
-                AddHighlight(previewView.Overlay, recognizedItem);
+                AddHighlight(previewView.Overlay, item);
             }
         }
 
         previewView.Invalidate();
     }
 
-    private void RemovedItems(object? sender, (IReadOnlyList<RecognizedItem> Removed, IReadOnlyList<RecognizedItem> All) e)
+    private void Cleared(object? sender, EventArgs e)
     {
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        previewView.Overlay?.Clear();
 
-        if (_recognizeMultiple == false)
-        {
-            if (e.Removed.Count >= 1
-                && _barcodeHighlights.Count >= 1)
-            {
-                RemoveHighlights(previewView.Overlay, _barcodeHighlights.First().RecognizedItem);
-            }
-        }
-        else
-        {
-            foreach (RecognizedItem recognizedItem in e.Removed)
-            {
-                RemoveHighlights(previewView.Overlay, recognizedItem);
-            }
-        }
+        _barcodeHighlights.Clear();
 
         RecognizedItemButton itemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-
-        if (e.Removed.Count >= 1
-            && e.All.Any(x => x.Equals(itemButton.RecognizedItem)) == false)
-        {
-            itemButton.RecognizedItem = null;
-            itemButton.Visibility = ViewStates.Gone;
-        }
-
-        previewView.Invalidate();
-    }
-
-    private void UpdatedItems(object? sender, (IReadOnlyList<RecognizedItem> Updated, IReadOnlyList<RecognizedItem> All) e)
-    {
-        PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
-        RecognizedItemButton itemButton = FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-
-        foreach (RecognizedItem item in e.Updated)
-        {
-            if (_barcodeHighlights.FirstOrDefault(x => x.RecognizedItem.Equals(item)) is RecognizedItemHighlight highlight)
-            {
-                highlight.Update(item);
-            }
-
-            if (item.Equals(itemButton.RecognizedItem))
-            {
-                itemButton.RecognizedItem = item;
-            }
-        }
+        itemButton.RecognizedItem = null;
+        itemButton.Visibility = ViewStates.Gone;
 
         previewView.Invalidate();
     }
@@ -235,15 +213,6 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         _barcodeHighlights.Add(highlight);
         overlay?.Add(highlight);
-    }
-
-    private void RemoveHighlights(ViewOverlay? overlay, RecognizedItem item)
-    {
-        if (_barcodeHighlights.FirstOrDefault(x => x.RecognizedItem.Equals(item)) is RecognizedItemHighlight highlight)
-        {
-            overlay?.Remove(highlight);
-            _barcodeHighlights.Remove(highlight);
-        }
     }
 
     private void RecognizedItemClicked(object? sender, RecognizedItem e)

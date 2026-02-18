@@ -13,11 +13,9 @@ internal abstract class DataDetector : Java.Lang.Object
 
     public IDetector Detector => _detector;
 
-    public EventHandler<(IReadOnlyList<RecognizedItem> Added, IReadOnlyList<RecognizedItem> All)>? Added { get; set; }
+    public EventHandler<IReadOnlyList<RecognizedItem>>? Detected { get; set; }
 
-    public EventHandler<(IReadOnlyList<RecognizedItem> Removed, IReadOnlyList<RecognizedItem> All)>? Removed { get; set; }
-
-    public EventHandler<(IReadOnlyList<RecognizedItem> Updated, IReadOnlyList<RecognizedItem> All)>? Updated { get; set; }
+    public EventHandler? Cleared { get; set; }
 
     public void Stop()
     {
