@@ -164,6 +164,11 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         if (_recognizeMultiple == false)
         {
+            if (_selectedRecognizedItem is null)
+            {
+                _selectedRecognizedItem = e.First();
+            }
+
             recognizedItem = e.FirstOrDefault(x => x.Equals(_selectedRecognizedItem)) is RecognizedItem item ? item : e.First();
         }
         else

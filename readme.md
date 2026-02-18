@@ -208,10 +208,13 @@ public partial class MainViewModel
     }
 }
 ```
+
 </details>
 
-You want to detect only specific format(s)?
-Create options and set the target formats(s)
+### You want to detect only specific format(s)?
+
+<details>
+<summary><b>Create options and set the target formats(s)</b></summary>
 
 ```csharp
 var options = new BarcodeScanOptions
@@ -224,12 +227,26 @@ var barcode = await scanner.ScanAsync(options, cts.Token);
 Console.WriteLine($"Scanned: {barcode.RawValue}");
 ```
 
-There are multiple barcodes in the frame? 
-Enable multiple item recognition to recognize all barcodes in the frame.
-```csharp
-var options = new BarcodeScanOptions
-{
-    RecognizeMultiple = true
-};
-```
-All barcodes are now recognized. Tapping a target barcode will display the confirmation button to complete the scan.
+</details>
+
+### There are multiple barcodes in the frame? 
+
+<details>
+<summary><b>Single recognition(default)</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
+  - First detected barcode is highlighted
+  - Tap on target barcode to highlight it, display confirmation button and complete the scan
+![Android](.screenshots/Android/singleRecognition.gif)
+  
+</details>
+
+<details>
+<summary><b>Multiple recognition</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ RecognizeMultiple = true }))`
+  - All detected barcodes are highlighted
+  - Tap on target barcode to display confirmation button and complete the scan
+![Android](.screenshots/Android/multipleRecognition.gif)
+  
+</details>

@@ -26,7 +26,7 @@ public partial class MainViewModel : BaseViewModel
             BarcodeScanOptions options = new()
             {
                 Formats = BarcodeFormat.All,
-                RecognizeMultiple = false,
+                RecognizeMultiple = true,
             };
             Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
         }
