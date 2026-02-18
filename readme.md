@@ -236,9 +236,10 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
   - First detected barcode is highlighted
-  - Tap on target barcode to highlight it, display confirmation button and complete the scan
-![Android](.screenshots/Android/singleRecognition.gif)
-![iOS](.screenshots/iOS/singleRecognition.gif)
+  - Tap on target barcode to highlight it, display confirmation button and complete the scan</br> </br>
+    
+  ![Android](.screenshots/Android/singleRecognition.gif)
+  ![iOS](.screenshots/iOS/singleRecognition.gif)
   
 </details>
 
@@ -247,8 +248,9 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ RecognizeMultiple = true }))`
   - All detected barcodes are highlighted
-  - Tap on target barcode to display confirmation button and complete the scan
-![Android](.screenshots/Android/multipleRecognition.gif)
-![iOS](.screenshots/iOS/multipleRecognition.gif)
+  - Tap on target barcode to display confirmation button and complete the scan</br> </br>
+
+  ![Android](.screenshots/Android/multipleRecognition.gif)
+  ![iOS](.screenshots/iOS/multipleRecognition.gif)
   
 </details>
