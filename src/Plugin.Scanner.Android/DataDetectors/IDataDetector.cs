@@ -12,5 +12,7 @@ internal interface IDataDetector : IConsumer
 
     IDetector Detector { get; }
 
+    Rect RegionOfInterest { get; }
+
     void Stop();
 }

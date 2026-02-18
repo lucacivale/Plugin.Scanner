@@ -211,7 +211,7 @@ public partial class MainViewModel
 
 </details>
 
-### Detect only specific format(s)?
+### 🟢 Detect only specific format(s)?
 
 <details>
 <summary><b>Create options and set the target formats(s)</b></summary>
@@ -229,7 +229,7 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 </details>
 
-### There are multiple barcodes in the frame? 
+### 🟢 There are multiple barcodes in the frame? 
 
 <details>
 <summary><b>Single recognition(default)</b></summary>
@@ -255,7 +255,7 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
   
 </details>
 
-### You don't want to highlight detected barcodes? 
+### 🟢 You don't want to highlight detected barcodes? 
 
 <details>
 <summary><b>Highlighting enabled(default)</b></summary>
@@ -279,7 +279,7 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 </details>
 
-### Allow a two-finger pinch-to-zoom gesture? 
+### 🟢 Allow a two-finger pinch-to-zoom gesture? 
 
 <details>
 <summary><b>Pinch to zoom enabled(default)</b></summary>

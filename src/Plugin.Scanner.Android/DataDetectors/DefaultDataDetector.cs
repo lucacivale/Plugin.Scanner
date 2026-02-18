@@ -31,6 +31,8 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
 
     public IDetector Detector => _detector;
 
+    public Rect RegionOfInterest => _regionOfInterest;
+
     public EventHandler<IReadOnlyList<RecognizedItem>>? Detected { get; set; }
 
     public EventHandler? Cleared { get; set; }
@@ -104,7 +106,7 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
                 if (_regionOfInterest is not null)
                 {
                     frequentItems = _itemFrequencies
-                        .Where(kv => kv.Value > MinOccurrences && kv.Key.Bounds.ContainsWithTolerance(_regionOfInterest, 30))
+                        .Where(kv => kv.Value > MinOccurrences && _regionOfInterest.Contains(kv.Key.Bounds))
                         .Select(kv => kv.Key)
                         .ToList();
                 }

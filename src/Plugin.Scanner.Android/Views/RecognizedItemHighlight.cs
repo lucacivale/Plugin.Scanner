@@ -76,16 +76,6 @@ internal sealed class RecognizedItemHighlight : Drawable
         canvas.DrawPath(path, _boxPaint);
     }
 
-    public void Update(RecognizedItem item)
-    {
-        _item = item;
-
-        _box.Dispose();
-
-        _box = new Rect(_item.Bounds);
-        _box.Inset(-30, -30);
-    }
-
     public override void SetAlpha(int alpha)
     {
         _boxPaint.Alpha = alpha;
