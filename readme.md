@@ -238,6 +238,7 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
   - First detected barcode is highlighted
   - Tap on target barcode to highlight it, display confirmation button and complete the scan
 ![Android](.screenshots/Android/singleRecognition.gif)
+![iOS](.screenshots/iOS/singleRecognition.gif)
   
 </details>
 
@@ -248,5 +249,6 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
   - All detected barcodes are highlighted
   - Tap on target barcode to display confirmation button and complete the scan
 ![Android](.screenshots/Android/multipleRecognition.gif)
+![iOS](.screenshots/iOS/multipleRecognition.gif)
   
 </details>
