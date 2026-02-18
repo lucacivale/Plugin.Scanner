@@ -1,8 +1,10 @@
 ﻿using AndroidX.AppCompat.App;
 using AndroidX.Camera.Core;
 using AndroidX.Camera.View;
+using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
+using Plugin.Scanner.Android.Models;
 using Plugin.Scanner.Android.Views;
 
 namespace Plugin.Scanner.Android;
@@ -11,7 +13,7 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 {
     private readonly Activity _activity;
     private readonly LifecycleCameraController _cameraController;
-    private readonly DataDetector _dataDetector;
+    private readonly IDataDetector _dataDetector;
 
     private readonly bool _recognizeMultiple;
     private readonly bool _isHighlightingEnabled;
@@ -23,7 +25,7 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
     public DataScannerDialog(
         Activity context,
-        DataDetector detector,
+        IDataDetector detector,
         LifecycleCameraController cameraController,
         bool recognizeMultiple,
         bool isHighlightingEnabled)

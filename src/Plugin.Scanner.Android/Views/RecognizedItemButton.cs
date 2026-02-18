@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Android.Util;
+using Plugin.Scanner.Android.Models;
 
 namespace Plugin.Scanner.Android.Views;
 

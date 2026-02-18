@@ -1,3 +1,5 @@
+using Plugin.Scanner.Core.Models;
+
 namespace Plugin.Scanner.Core.Barcode;
 
 /// <summary>
@@ -46,4 +48,6 @@ public interface IBarcodeScanOptions
     bool IsHighlightingEnabled { get; }
 
     bool IsPinchToZoomEnabled { get; }
+
+    Rect? RegionOfInterest { get; }
 }

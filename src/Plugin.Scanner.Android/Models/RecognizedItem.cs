@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Plugin.Scanner.Android;
+namespace Plugin.Scanner.Android.Models;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class RecognizedItem : IEquatable<RecognizedItem>

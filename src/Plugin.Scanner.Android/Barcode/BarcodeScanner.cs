@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Android.OS;
 using AndroidX.Camera.Core;
 using AndroidX.Camera.Core.ResolutionSelector;
@@ -7,14 +6,18 @@ using AndroidX.Camera.View;
 using AndroidX.Core.Content;
 using AndroidX.Lifecycle;
 using Java.Util.Concurrent;
+using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
+using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using System.Diagnostics.CodeAnalysis;
 using Xamarin.Google.MLKit.Vision.BarCode;
 using ASize = Android.Util.Size;
 using Exception = System.Exception;
 using IBarcodeScanner = Plugin.Scanner.Core.Barcode.IBarcodeScanner;
+using MLBarcode = Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode;
 
 namespace Plugin.Scanner.Android.Barcode;
 
@@ -101,7 +104,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
                 using BarcodeScannerOptions scannerOptions = builder
                     .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
                     .Build();
-                using BarcodeDetector barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions));
+                using DefaultDataDetector<MLBarcode> barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode(), options.RegionOfInterest?.ToRect(_currentActivity.Activity));
                 using MlKitAnalyzer analyzer = new([barcodeDetector.Detector], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, barcodeDetector);
 
                 using LifecycleCameraController cameraController = new(_currentActivity.Activity);

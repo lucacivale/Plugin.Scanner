@@ -1,4 +1,5 @@
-﻿using Path = Android.Graphics.Path;
+﻿using Plugin.Scanner.Android.Models;
+using Path = Android.Graphics.Path;
 
 namespace Plugin.Scanner.Android.Views;
 

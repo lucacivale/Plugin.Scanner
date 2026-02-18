@@ -43,13 +43,19 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
         bool isHighFrameRateTrackingEnabled = true,
         bool isPinchToZoomEnabled = true,
         bool isGuidanceEnabled = true,
-        bool isHighlightingEnabled = true)
+        bool isHighlightingEnabled = true,
+        CGRect? regionOfInterest = null)
         : base(recognizedDataTypes, qualityLevel, recognizesMultipleItems, isHighFrameRateTrackingEnabled, isPinchToZoomEnabled, isGuidanceEnabled, isHighlightingEnabled)
     {
         _cancelButton = new(UIButtonType.Close);
 
         _topBar = [];
         _bottomBar = [];
+
+        if (regionOfInterest is CGRect rect)
+        {
+            RegionOfInterest = rect;
+        }
     }
 
     public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)

@@ -9,4 +9,12 @@ internal static class RectExtensions
 
         return expanded.Contains(x, y);
     }
+
+    public static bool ContainsWithTolerance(this Rect bounds, Rect other, float tolerance)
+    {
+        return Math.Abs(bounds.Left - other.Left) <= tolerance
+            && Math.Abs(bounds.Top - other.Top) <= tolerance
+            && Math.Abs(bounds.Width() - other.Width()) <= tolerance
+            && Math.Abs(bounds.Height() - other.Height()) <= tolerance;
+    }
 }
