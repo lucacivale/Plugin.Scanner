@@ -33,4 +33,8 @@ public sealed class BarcodeScanOptions : IBarcodeScanOptions
     public BarcodeFormat Formats { get; set; }
 
     public bool RecognizeMultiple { get; set; }
+
+    public bool IsHighlightingEnabled { get; set; } = true;
+
+    public bool IsPinchToZoomEnabled { get; set; } = true;
 }

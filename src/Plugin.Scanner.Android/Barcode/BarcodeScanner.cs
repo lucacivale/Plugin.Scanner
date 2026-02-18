@@ -108,6 +108,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
                 cameraController.BindToLifecycle(owner);
                 cameraController.SetImageAnalysisAnalyzer(mainExecutor, analyzer);
                 cameraController.ImageAnalysisBackpressureStrategy = ImageAnalysis.StrategyKeepOnlyLatest;
+                cameraController.PinchToZoomEnabled = options.IsPinchToZoomEnabled;
 
                 // As google recommends https://developers.google.com/ml-kit/vision/barcode-scanning/android?hl=de 2 mp
                 using ResolutionSelector.Builder resolutionBuilder = new();
@@ -123,7 +124,8 @@ public sealed class BarcodeScanner : IBarcodeScanner
                     _currentActivity.Activity,
                     barcodeDetector,
                     cameraController,
-                    options.RecognizeMultiple);
+                    options.RecognizeMultiple,
+                    options.IsHighlightingEnabled);
 
                 IBarcode barcode = new Core.Barcode.Barcode((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);
                 scanCompleteTaskSource.TrySetResult(barcode);

@@ -35,7 +35,11 @@ public sealed class BarcodeScanner : IBarcodeScanner
             try
             {
                 using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
-                using BarcodeScannerViewController scanner = new([barcodeType], recognizesMultipleItems: options.RecognizeMultiple);
+                using BarcodeScannerViewController scanner = new(
+                    [barcodeType],
+                    recognizesMultipleItems: options.RecognizeMultiple,
+                    isHighlightingEnabled: options.IsHighlightingEnabled,
+                    isPinchToZoomEnabled: options.IsPinchToZoomEnabled);
 
                 scanCompleteTaskSource.TrySetResult(await scanner.ScanAsync(cancellationToken).ConfigureAwait(true));
             }

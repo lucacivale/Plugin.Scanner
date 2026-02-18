@@ -211,7 +211,7 @@ public partial class MainViewModel
 
 </details>
 
-### You want to detect only specific format(s)?
+### Detect only specific format(s)?
 
 <details>
 <summary><b>Create options and set the target formats(s)</b></summary>
@@ -253,4 +253,49 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
   ![Android](.screenshots/Android/multipleRecognition.gif)
   ![iOS](.screenshots/iOS/multipleRecognition.gif)
   
+</details>
+
+### You don't want to highlight detected barcodes? 
+
+<details>
+<summary><b>Highlighting enabled(default)</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
+  - All detected barcodes are highlighted</br> </br>
+
+  <!-- ToDo ADD GIF -->
+
+
+</details>
+
+<details>
+<summary><b>Highlighting disabled</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ IsHighlightingEnabled = false }))`
+  - No detected barcode is highlighted</br> </br>
+
+  <!-- ToDo ADD GIF -->
+
+
+</details>
+
+### Allow a two-finger pinch-to-zoom gesture? 
+
+<details>
+<summary><b>Pinch to zoom enabled(default)</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
+
+  <!-- ToDo ADD GIF -->
+
+</details>
+
+<details>
+<summary><b>Pinch to zoom disabled</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ IsPinchToZoomEnabled = false }))`
+  - No zoom allowed</br> </br>
+
+  <!-- ToDo ADD GIF -->
+
 </details>

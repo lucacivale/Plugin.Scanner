@@ -42,4 +42,8 @@ public interface IBarcodeScanOptions
     BarcodeFormat Formats { get; }
 
     bool RecognizeMultiple { get; }
+
+    bool IsHighlightingEnabled { get; }
+
+    bool IsPinchToZoomEnabled { get; }
 }
