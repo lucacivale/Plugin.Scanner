@@ -298,3 +298,22 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
   <!-- ToDo ADD GIF -->
 
 </details>
+
+### 🟢 Detect barcodes only in a specific area?
+<details>
+<summary><b>Specify region of interest</b></summary>
+
+```csharp
+BarcodeScanOptions options = new()
+{
+    RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+};
+string barcode = (await _barcodeScanner.ScanAsync(options);`
+```
+- Adds a vertical and horizontal-centered 250x200 detection area
+- You can create your own area by implementing `IRegionOfInterest`
+- A region of interest will also add a visual overlay</br> </br>
+ 
+<!-- ToDo ADD GIF -->
+
+</details>

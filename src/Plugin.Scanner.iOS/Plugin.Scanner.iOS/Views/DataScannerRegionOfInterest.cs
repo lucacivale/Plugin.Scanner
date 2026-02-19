@@ -7,12 +7,15 @@ namespace Plugin.Scanner.iOS.Views;
 internal sealed class DataScannerRegionOfInterest : UIView
 {
     private const float CornerRadius = 30f;
+    private const float VisibleDashLength = 80f;
 
     private readonly IRegionOfInterest _regionOfInterest;
 
-    private CAShapeLayer _baseLayer;
-    private CAShapeLayer _highlightLayer;
+    private readonly CAShapeLayer _baseLayer;
+    private readonly CAShapeLayer _highlightLayer;
+
     private CABasicAnimation? _strokeAnimation;
+    private nfloat _pathLength;
 
     public DataScannerRegionOfInterest(IRegionOfInterest regionOfInterest)
     {
@@ -23,14 +26,14 @@ internal sealed class DataScannerRegionOfInterest : UIView
         _baseLayer = new CAShapeLayer
         {
             StrokeColor = UIColor.Red.CGColor,
-            LineWidth = 6f,
+            LineWidth = 4f,
             FillColor = UIColor.Clear.CGColor,
         };
 
         _highlightLayer = new CAShapeLayer
         {
             StrokeColor = UIColor.Red.CGColor,
-            LineWidth = 14f,
+            LineWidth = 8f,
             LineCap = CAShapeLayer.CapRound,
             FillColor = UIColor.Clear.CGColor,
         };
@@ -41,24 +44,47 @@ internal sealed class DataScannerRegionOfInterest : UIView
 
     public void StartStrokeAnimation()
     {
-        if (_highlightLayer.Path == null)
+        if (_highlightLayer.Path is null
+            || _pathLength <= 0)
         {
             return;
         }
 
-        _strokeAnimation = CABasicAnimation.FromKeyPath("strokeEnd");
-        _strokeAnimation.From = NSNumber.FromInt32(0);
-        _strokeAnimation.To = NSNumber.FromInt32(1);
-        _strokeAnimation.Duration = 3.0;
-        _strokeAnimation.RepeatCount = float.MaxValue;
-        _strokeAnimation.TimingFunction = CAMediaTimingFunction.FromName(CAMediaTimingFunction.Linear);
+        StopStrokeAnimation();
 
-        _highlightLayer.AddAnimation(_strokeAnimation, "strokeAnimation");
+        nfloat gapLength = _pathLength - VisibleDashLength;
+
+        _highlightLayer.LineDashPattern =
+        [
+            NSNumber.FromNFloat(VisibleDashLength),
+            NSNumber.FromNFloat(gapLength)
+        ];
+
+        _strokeAnimation = CABasicAnimation.FromKeyPath("lineDashPhase");
+        _strokeAnimation.By = NSNumber.FromNFloat(_pathLength);
+        _strokeAnimation.Duration = 2.5;
+        _strokeAnimation.RepeatCount = float.MaxValue;
+        _strokeAnimation.Cumulative = true;
+        _strokeAnimation.TimingFunction = CAMediaTimingFunction.FromName(CAMediaTimingFunction.Linear);
+        _strokeAnimation.RemovedOnCompletion = false;
+
+        _highlightLayer.AddAnimation(_strokeAnimation, "dashPhase");
     }
 
     public void StopStrokeAnimation()
     {
         _highlightLayer.RemoveAllAnimations();
+    }
+
+    public void SetupStroke()
+    {
+        CGRect regionRect = _regionOfInterest.CalculateRegionOfInterest().ToRect();
+        UIBezierPath path = UIBezierPath.FromRoundedRect(regionRect, CornerRadius);
+
+        _baseLayer.Path = path.CGPath;
+        _highlightLayer.Path = path.CGPath;
+
+        _pathLength = CalculateRoundedRectPerimeter(regionRect, CornerRadius);
     }
 
     public void Reset()
@@ -68,45 +94,25 @@ internal sealed class DataScannerRegionOfInterest : UIView
         StartStrokeAnimation();
     }
 
-    public override void LayoutSubviews()
-    {
-        base.LayoutSubviews();
-        SetupStroke();
-    }
-
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            _baseLayer?.Dispose();
-            _highlightLayer?.Dispose();
+            StopStrokeAnimation();
+            _baseLayer.Dispose();
+            _highlightLayer.Dispose();
             _strokeAnimation?.Dispose();
         }
 
         base.Dispose(disposing);
     }
 
-    private static nfloat GetPathLength(CGPath? path)
+    private static nfloat CalculateRoundedRectPerimeter(CGRect rect, nfloat radius)
     {
-        using UIBezierPath pathMeasure = new()
-        {
-            CGPath = path,
-        };
+        nfloat w = rect.Width;
+        nfloat h = rect.Height;
+        nfloat r = radius;
 
-        return pathMeasure.CGPath?.IsEmpty == true ? 0f : pathMeasure.Bounds.Width + pathMeasure.Bounds.Height;
-    }
-
-    private void SetupStroke()
-    {
-        CGRect regionRect = _regionOfInterest.CalculateRegionOfInterest().ToRect();
-        UIBezierPath path = UIBezierPath.FromRoundedRect(regionRect, CornerRadius);
-
-        _baseLayer.Path = path.CGPath;
-        _highlightLayer.Path = path.CGPath;
-
-        float pathLength = (float)GetPathLength(path.CGPath);
-
-        _highlightLayer.LineDashPattern = [NSNumber.FromFloat(pathLength * 0.15f), NSNumber.FromFloat(pathLength)];
-        _highlightLayer.LineDashPhase = 0;
+        return (2 * (w - (2 * r) + h - (2 * r))) + (2 * (nfloat)Math.PI * r);
     }
 }

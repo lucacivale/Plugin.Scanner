@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.Models;
 
 namespace Plugin.Scanner.Uno.Tests.Presentation;
 
@@ -23,6 +24,8 @@ public partial record MainModel
             {
                 Formats = BarcodeFormat.All,
                 RecognizeMultiple = true,
+                IsHighlightingEnabled = true,
+                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
             };
             string barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
 

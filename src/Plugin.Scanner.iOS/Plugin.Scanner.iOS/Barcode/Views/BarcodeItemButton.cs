@@ -12,14 +12,12 @@ internal sealed class BarcodeItemButton : UIButton
     /// Represents a custom UIButton for displaying and interacting with a recognized barcode item.
     /// </summary>
     /// <param name="barcode">RecognizedItem instance representing the barcode associated with this button.</param>
-    public BarcodeItemButton(RecognizedItem barcode)
+    public BarcodeItemButton()
     {
-        Barcode = barcode;
-
+        Hidden = true;
         TranslatesAutoresizingMaskIntoConstraints = false;
 
         UIButtonConfiguration config = UIButtonConfiguration.FilledButtonConfiguration;
-        config.Title = barcode.Value;
         config.BaseBackgroundColor = UIColor.Yellow;
         config.BaseForegroundColor = UIColor.Black;
         config.CornerStyle = UIButtonConfigurationCornerStyle.Capsule;
@@ -31,7 +29,19 @@ internal sealed class BarcodeItemButton : UIButton
     }
 
     /// <summary>
-    /// Gets the RecognizedItem instance representing the barcode associated with this button.
+    /// Gets or sets the RecognizedItem instance representing the barcode associated with this button.
     /// </summary>
-    public RecognizedItem Barcode { get; }
+    public RecognizedItem? Barcode
+    {
+        get;
+        set
+        {
+            field = value;
+
+            UIButtonConfiguration? config = (UIButtonConfiguration?)Configuration?.Copy();
+            config?.Title = value?.Value;
+
+            Configuration = config;
+        }
+    }
 }
