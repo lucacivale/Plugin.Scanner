@@ -1,8 +1,10 @@
-﻿namespace Plugin.Scanner.Android.Extensions;
+﻿using System.Drawing;
 
-internal static class CoreRectExtensions
+namespace Plugin.Scanner.Android.Extensions;
+
+internal static class RectangleExtensions
 {
-    public static Rect ToRect(this Core.Models.Rect rect, Context context)
+    public static Rect ToRect(this Rectangle rect, Context context)
     {
         return new Rect(
             Convert.ToInt32(context.ToPixels(rect.X)),

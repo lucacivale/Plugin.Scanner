@@ -23,6 +23,8 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
     private RecognizedItem? _selectedRecognizedItem;
     private IReadOnlyList<RecognizedItem>? _recognizedItems;
 
+    private RegionOfInterest? _regionOfInterest;
+
     public DataScannerDialog(
         Activity context,
         IDataDetector detector,
@@ -121,6 +123,16 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         FlashButton flashButton = FindViewById<FlashButton>(_Microsoft.Android.Resource.Designer.Resource.Id.flashButton) ?? throw new ViewNotFoundException(nameof(FlashButton));
         flashButton.Toggled -= FlashButton_Toggled;
+
+        if (_regionOfInterest is not null
+            && _regionOfInterest.Parent is ViewGroup frame)
+        {
+            _regionOfInterest.StopStrokeAnimation();
+
+            frame.RemoveView(_regionOfInterest);
+
+            _regionOfInterest.Dispose();
+        }
     }
 
     private void SetContentView()
@@ -132,6 +144,7 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
         previewView.SetOnTouchListener(this);
 
         AddOverlay();
+        AddRegionOfInterest();
     }
 
     private void AddOverlay()
@@ -147,6 +160,49 @@ internal sealed class DataScannerDialog : AppCompatDialog, View.IOnTouchListener
 
         FlashButton flashButton = FindViewById<FlashButton>(_Microsoft.Android.Resource.Designer.Resource.Id.flashButton) ?? throw new ViewNotFoundException(nameof(FlashButton));
         flashButton.Toggled += FlashButton_Toggled;
+    }
+
+    private void AddRegionOfInterest()
+    {
+        if (_dataDetector.RegionOfInterest is null)
+        {
+            return;
+        }
+
+        if (Window is not null)
+        {
+            Window.DecorView.LayoutChange += DecorView_LayoutChange;
+        }
+
+        EventHandler @event = null!;
+        @event = (s, e) =>
+        {
+            FrameLayout frame = FindViewById<FrameLayout>(_Microsoft.Android.Resource.Designer.Resource.Id.dataScanner) ?? throw new ViewNotFoundException(nameof(FrameLayout));
+
+            _regionOfInterest = new(frame.Context, _dataDetector.RegionOfInterest);
+
+            frame.AddView(_regionOfInterest);
+
+            _regionOfInterest.StartStrokeAnimation();
+            ShowEvent -= @event;
+        };
+
+        ShowEvent += @event;
+    }
+
+    private void DecorView_LayoutChange(object? sender, View.LayoutChangeEventArgs e)
+    {
+        if (_dataDetector.RegionOfInterest is null)
+        {
+            return;
+        }
+
+        _dataDetector.RegionOfInterest.SetConstraints(Convert.ToInt32(Context.FromPixels(Window?.DecorView.Width ?? 0)), Convert.ToInt32(Context.FromPixels(Window?.DecorView.Height ?? 0)));
+
+        if (IsShowing)
+        {
+            _regionOfInterest?.Reset();
+        }
     }
 
     private void Detected(object? sender, IReadOnlyList<RecognizedItem> e)

@@ -4,6 +4,7 @@ using Java.Util;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Android.Models;
+using Plugin.Scanner.Core;
 using Xamarin.Google.MLKit.Vision.Interfaces;
 
 namespace Plugin.Scanner.Android.DataDetectors;
@@ -14,16 +15,21 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
     private const int MaxFrames = 5;
     private const int MinOccurrences = 3;
 
+    private readonly Context _context;
     private readonly IDetector _detector;
     private readonly IRecognizedItemFactory<TDetectedItemsType> _recognizedItemFactory;
-    private readonly List<RecognizedItem> _recognizedItems = new();
     private readonly Dictionary<RecognizedItem, int> _itemFrequencies = new();
-    private readonly Rect? _regionOfInterest;
+    private readonly IRegionOfInterest? _regionOfInterest;
 
     private int _frameCount;
 
-    public DefaultDataDetector(IDetector detector, IRecognizedItemFactory<TDetectedItemsType> recognizedItemFactory, Rect? regionOfInterest)
+    public DefaultDataDetector(
+        Context context,
+        IDetector detector,
+        IRecognizedItemFactory<TDetectedItemsType> recognizedItemFactory,
+        IRegionOfInterest? regionOfInterest)
     {
+        _context = context;
         _detector = detector;
         _recognizedItemFactory = recognizedItemFactory;
         _regionOfInterest = regionOfInterest;
@@ -31,7 +37,7 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
 
     public IDetector Detector => _detector;
 
-    public Rect RegionOfInterest => _regionOfInterest;
+    public IRegionOfInterest? RegionOfInterest => _regionOfInterest;
 
     public EventHandler<IReadOnlyList<RecognizedItem>>? Detected { get; set; }
 
@@ -79,7 +85,6 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
         {
             _frameCount = 0;
             Cleared?.Invoke(this, EventArgs.Empty);
-            _recognizedItems.Clear();
         }
         else
         {
@@ -105,10 +110,17 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
 
                 if (_regionOfInterest is not null)
                 {
+                    using Rect rect = _regionOfInterest.CalculateRegionOfInterest().ToRect(_context);
+
                     frequentItems = _itemFrequencies
-                        .Where(kv => kv.Value > MinOccurrences && _regionOfInterest.Contains(kv.Key.Bounds))
+                        .Where(kv => kv.Value > MinOccurrences && rect.Contains(kv.Key.Bounds))
                         .Select(kv => kv.Key)
                         .ToList();
+
+                    if (frequentItems.Count == 0)
+                    {
+                        Cleared?.Invoke(this, EventArgs.Empty);
+                    }
                 }
                 else
                 {

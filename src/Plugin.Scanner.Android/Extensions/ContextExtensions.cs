@@ -1,5 +1,6 @@
 ﻿using Android.Content.PM;
 using Android.Util;
+using System.Runtime.CompilerServices;
 
 namespace Plugin.Scanner.Android.Extensions;
 
@@ -15,6 +16,13 @@ internal static class ContextExtensions
         EnsureMetrics(self);
 
         return ToPixelsUsingMetrics(dp);
+    }
+
+    public static double FromPixels(this Context self, double pixels)
+    {
+        EnsureMetrics(self);
+
+        return FromPixelsUsingMetrics(pixels);
     }
 
     /// <summary>
@@ -44,8 +52,15 @@ internal static class ContextExtensions
         _displayDensity = metrics?.Density ?? 1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static float ToPixelsUsingMetrics(double dp)
     {
         return (float)Math.Ceiling((dp * _displayDensity) - 0.0000000001f);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double FromPixelsUsingMetrics(double pixels)
+    {
+        return pixels / _displayDensity;
     }
 }

@@ -1,5 +1,3 @@
-using Plugin.Scanner.Core.Models;
-
 namespace Plugin.Scanner.Core.Barcode;
 
 /// <summary>
@@ -49,5 +47,5 @@ public interface IBarcodeScanOptions
 
     bool IsPinchToZoomEnabled { get; }
 
-    Rect? RegionOfInterest { get; }
+    IRegionOfInterest? RegionOfInterest { get; }
 }

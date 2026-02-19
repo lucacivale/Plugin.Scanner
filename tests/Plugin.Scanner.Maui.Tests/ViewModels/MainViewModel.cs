@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.Models;
 using System.Diagnostics;
 
 namespace Plugin.Scanner.Maui.Tests.ViewModels;
@@ -23,23 +24,27 @@ public partial class MainViewModel : BaseViewModel
     {
         try
         {
+            /*
             DisplayInfo display = DeviceDisplay.Current.MainDisplayInfo;
 
-            double screenWidth = display.Width;     // raw pixels
-            double screenHeight = display.Height;   // raw pixels
+            double density = display.Density;
 
-            Plugin.Scanner.Core.Models.Rect centeredRect = new(
-                Convert.ToInt32((screenWidth - 200) / 2) - 200,
-                Convert.ToInt32((screenHeight - 200) / 2),
-                800,
-                400);
+            double screenWidthDp = display.Width / density;
+            double screenHeightDp = display.Height / density;
+
+            Rectangle centeredRect = new(
+                Convert.ToInt32((screenWidthDp / 2) - 125),
+                Convert.ToInt32((screenHeightDp / 2) - 125),
+                250,
+                200);
+            */
             
             BarcodeScanOptions options = new()
             {
                 Formats = BarcodeFormat.All,
                 RecognizeMultiple = true,
                 IsHighlightingEnabled = true,
-                RegionOfInterest = centeredRect,
+                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
             };
             Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
         }

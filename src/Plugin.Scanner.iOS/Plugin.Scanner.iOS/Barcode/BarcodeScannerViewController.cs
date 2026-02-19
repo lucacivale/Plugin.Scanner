@@ -1,4 +1,5 @@
 using AVFoundation;
+using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.iOS.Barcode.Views;
@@ -22,6 +23,7 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
     private readonly UIButton _cancelButton;
     private readonly DataScannerBarOverlay _topBar;
     private readonly DataScannerBarOverlay _bottomBar;
+    private readonly IRegionOfInterest? _regionOfInterest;
 
     private TaskCompletionSource<string>? _scanCompleteTaskSource;
     private DataScannerTorchButton? _torchButton;
@@ -44,7 +46,7 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
         bool isPinchToZoomEnabled = true,
         bool isGuidanceEnabled = true,
         bool isHighlightingEnabled = true,
-        CGRect? regionOfInterest = null)
+        IRegionOfInterest? regionOfInterest = null)
         : base(recognizedDataTypes, qualityLevel, recognizesMultipleItems, isHighFrameRateTrackingEnabled, isPinchToZoomEnabled, isGuidanceEnabled, isHighlightingEnabled)
     {
         _cancelButton = new(UIButtonType.Close);
@@ -52,10 +54,7 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
         _topBar = [];
         _bottomBar = [];
 
-        if (regionOfInterest is CGRect rect)
-        {
-            RegionOfInterest = rect;
-        }
+        _regionOfInterest = regionOfInterest;
     }
 
     public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)
@@ -102,6 +101,7 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
 
         AddOverlay();
         AddCancelButton();
+        AddRegionOfInterest();
 
         if (OperatingSystem.IsIOSVersionAtLeast(17))
         {
@@ -253,6 +253,23 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
             _torchButton.HeightAnchor.ConstraintEqualTo(TopBarButtonHeightAnchor),
             _torchButton.WidthAnchor.ConstraintEqualTo(TopBarButtonWidthAnchor),
         ]);
+    }
+
+    private void AddRegionOfInterest()
+    {
+        if (_regionOfInterest is null
+            || View is null)
+        {
+            return;
+        }
+
+        _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
+
+        DataScannerRegionOfInterest regionOfInterest = new(_regionOfInterest);
+
+        View.Add(regionOfInterest);
+        RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest();
+        regionOfInterest.StartStrokeAnimation();
     }
 
     private void OnAdded(object? sender, (RecognizedItem[] AddedItems, RecognizedItem[] AllItems) e)
