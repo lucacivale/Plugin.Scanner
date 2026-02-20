@@ -27,7 +27,6 @@ public partial class MainViewModel : BaseViewModel
             BarcodeScanOptions options = new()
             {
                 Formats = BarcodeFormat.All,
-                RecognizeMultiple = true,
                 IsHighlightingEnabled = true,
                 RegionOfInterest = new CenteredRegionOfInterest(250, 200),
             };

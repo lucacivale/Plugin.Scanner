@@ -18,8 +18,15 @@
 
 This plugin aims to enalbe *simple*, *fast* and *customizable* data scanning(barcodes, text, documents...) using native **Android** and **iOS** APIs [ML Kit](https://developers.google.com/ml-kit?hl=de) and [Vision Kit](https://developer.apple.com/documentation/visionkit?language=objc).
 - Platform support **iOS 16+** and **Android 23+**
-- One Shared API cross platforms and frameworks
-- Scan barcodes with only 2 lines of code
+- One shared API cross platforms and frameworks
+- Scan barcodes with only two lines of code
+
+  ![iOS](.screenshots/iOS/regionOfInterest.gif)
+  ![iOS](.screenshots/iOS/pinchToZoom.gif)
+  ![iOS](.screenshots/iOS/multipleRecognition.gif) </br> </br>
+  ![Android](.screenshots/Android/regionOfInterest.gif)
+  ![Android](.screenshots/Android/pinchToZoom.gif)
+  ![Android](.screenshots/Android/multipleRecognition.gif) </br> </br>
 
 ## 🚀 Get started
 
@@ -170,7 +177,7 @@ public class MainViewModel
     {
         try
         {
-            IBarcode barcode = (await _barcodeScanner.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            var barcode = await _barcodeScanner.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false);
         }
         catch(BarcodeScanException exception)
         {
@@ -198,7 +205,7 @@ public partial class MainViewModel
     {
         try
         {
-            IBarcode barcode = (await BarcodeScanner.Default.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            var barcode = await BarcodeScanner.Default.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false);
         }
         catch (BarcodeScanException exception)
         {
@@ -247,7 +254,7 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ RecognizeMultiple = true }))`
   - All detected barcodes are highlighted
-  - Tap on target barcode to display confirmation button and complete the scan</br> </br>
+  - Tap on the target barcode to display the confirmation button and complete the scan</br> </br>
 
   ![Android](.screenshots/Android/multipleRecognition.gif)
   ![iOS](.screenshots/iOS/multipleRecognition.gif)
@@ -262,8 +269,8 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
   - All detected barcodes are highlighted</br> </br>
 
-  <!-- ToDo ADD GIF -->
-
+  ![Android](.screenshots/Android/highlighting.gif)
+  ![iOS](.screenshots/iOS/highlighting.gif)
 
 </details>
 
@@ -273,8 +280,8 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ IsHighlightingEnabled = false }))`
   - No detected barcode is highlighted</br> </br>
 
-  <!-- ToDo ADD GIF -->
-
+  ![Android](.screenshots/Android/noHighlighting.gif)
+  ![iOS](.screenshots/iOS/noHighlighting.gif)
 
 </details>
 
@@ -285,7 +292,8 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
 
-  <!-- ToDo ADD GIF -->
+  ![Android](.screenshots/Android/pinchToZoom.gif)
+  ![iOS](.screenshots/iOS/pinchToZoom.gif)
 
 </details>
 
@@ -294,8 +302,6 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ IsPinchToZoomEnabled = false }))`
   - No zoom allowed</br> </br>
-
-  <!-- ToDo ADD GIF -->
 
 </details>
 
@@ -308,12 +314,13 @@ BarcodeScanOptions options = new()
 {
     RegionOfInterest = new CenteredRegionOfInterest(250, 200),
 };
-string barcode = (await _barcodeScanner.ScanAsync(options);`
+var barcode = (await _barcodeScanner.ScanAsync(options);
 ```
 - Adds a vertical and horizontal-centered 250x200 detection area
 - You can create your own area by implementing `IRegionOfInterest`
 - A region of interest will also add a visual overlay</br> </br>
- 
-<!-- ToDo ADD GIF -->
+
+  ![Android](.screenshots/Android/regionOfInterest.gif)
+  ![iOS](.screenshots/iOS/regionOfInterest.gif)
 
 </details>
