@@ -21,12 +21,12 @@ This plugin aims to enalbe *simple*, *fast* and *customizable* data scanning(bar
 - One shared API cross platforms and frameworks
 - Scan barcodes with only two lines of code
 
-  ![iOS](.screenshots/iOS/regionOfInterest.gif)
-  ![iOS](.screenshots/iOS/pinchToZoom.gif)
-  ![iOS](.screenshots/iOS/multipleRecognition.gif) </br> </br>
-  ![Android](.screenshots/Android/regionOfInterest.gif)
-  ![Android](.screenshots/Android/pinchToZoom.gif)
-  ![Android](.screenshots/Android/multipleRecognition.gif) </br> </br>
+![iOS](.screenshots/iOS/regionOfInterest.gif)
+![iOS](.screenshots/iOS/pinchToZoom.gif)
+![iOS](.screenshots/iOS/multipleRecognition.gif) </br> </br>
+![Android](.screenshots/Android/regionOfInterest.gif)
+![Android](.screenshots/Android/pinchToZoom.gif)
+![Android](.screenshots/Android/multipleRecognition.gif)
 
 ## 🚀 Get started
 
