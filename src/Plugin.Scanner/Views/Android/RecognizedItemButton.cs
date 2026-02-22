@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
+using System.Drawing;
 using Android.Util;
-using Plugin.Scanner.Android.Models;
+using Plugin.Scanner.Core.Models;
+using AColor = Android.Graphics.Color;
 
-namespace Plugin.Scanner.Android.Views;
+namespace Plugin.Scanner.Views.Android;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class RecognizedItemButton : Button
@@ -53,8 +55,8 @@ public sealed class RecognizedItemButton : Button
         Ellipsize = TextUtils.TruncateAt.Middle;
         SetSingleLine(true);
 
-        SetBackgroundColor(Color.Yellow);
-        SetTextColor(Color.Black);
+        SetBackgroundColor(AColor.Yellow);
+        SetTextColor(AColor.Black);
 
         SetPadding(36, 20, 36, 20);
 
@@ -62,7 +64,7 @@ public sealed class RecognizedItemButton : Button
 
         background.SetShape(ShapeType.Rectangle);
         background.SetCornerRadius(1000f);
-        background.SetColor(Color.Yellow);
+        background.SetColor(AColor.Yellow);
 
         Background = background;
 

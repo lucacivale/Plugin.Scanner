@@ -4,7 +4,7 @@ using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Core;
 using APath = Android.Graphics.Path;
 
-namespace Plugin.Scanner.Android.Views;
+namespace Plugin.Scanner.Views.Android;
 
 internal sealed class RegionOfInterest : View
 {
@@ -71,13 +71,6 @@ internal sealed class RegionOfInterest : View
         _animator?.Start();
     }
 
-    public void StopStrokeAnimation()
-    {
-        _animator?.Cancel();
-        _animator?.Dispose();
-        _animator = null;
-    }
-
     public void Reset()
     {
         StopStrokeAnimation();
@@ -125,6 +118,13 @@ internal sealed class RegionOfInterest : View
         canvas.DrawPath(_segmentPath, _highlightPaint);
     }
 
+    private void StopStrokeAnimation()
+    {
+        _animator?.Cancel();
+        _animator?.Dispose();
+        _animator = null;
+    }
+
     private void InitStroke()
     {
         if (Context is null)
@@ -132,10 +132,7 @@ internal sealed class RegionOfInterest : View
             return;
         }
 
-        using Rect rect = _regionOfInterest
-            .CalculateRegionOfInterest()
-            .ToRect(Context);
-
+        using Rect rect = _regionOfInterest.CalculateRegionOfInterest().ToRectPixel(Context);
         using RectF rectF = new(rect);
 
         _path?.Dispose();

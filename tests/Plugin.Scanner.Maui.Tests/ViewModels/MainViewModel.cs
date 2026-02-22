@@ -30,6 +30,10 @@ public partial class MainViewModel : BaseViewModel
                 IsHighlightingEnabled = true,
                 RegionOfInterest = new CenteredRegionOfInterest(250, 200),
             };
+            
+            #if ANDROID
+            options.Overlay = new Plugin.Scanner.Overlays.Barcode.DefaultBarcodeScannerOverlay();
+            #endif
             Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
         }
         catch(BarcodeScanException exception)

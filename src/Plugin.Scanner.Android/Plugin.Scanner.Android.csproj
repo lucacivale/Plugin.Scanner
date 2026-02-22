@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>$(NetVersion)-android</TargetFramework>
-        <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
     </PropertyGroup>
 
     <ItemGroup>

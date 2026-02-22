@@ -1,7 +1,9 @@
-﻿using Plugin.Scanner.Android.Models;
+﻿using Plugin.Scanner.Android.Extensions;
+using Plugin.Scanner.Core.Models;
+using AColor = Android.Graphics.Color;
 using Path = Android.Graphics.Path;
 
-namespace Plugin.Scanner.Android.Views;
+namespace Plugin.Scanner.Views.Android;
 
 internal sealed class RecognizedItemHighlight : Drawable
 {
@@ -11,29 +13,24 @@ internal sealed class RecognizedItemHighlight : Drawable
 
     private readonly Paint _boxPaint;
 
-    private RecognizedItem _item;
-    private Rect _box;
+    private readonly Rect _box;
 
     public RecognizedItemHighlight(RecognizedItem item)
     {
-        _item = item;
-
         _boxPaint = new Paint
         {
-            Color = Color.Yellow,
+            Color = AColor.Yellow,
             StrokeWidth = 10f,
             AntiAlias = true,
             Alpha = 200,
         };
         _boxPaint.SetStyle(Paint.Style.Stroke);
 
-        _box = new Rect(_item.Bounds);
+        _box = new Rect(item.Bounds.ToRect());
         _box.Inset(-30, -30);
     }
 
     public override int Opacity => (int)Format.Translucent;
-
-    public RecognizedItem RecognizedItem => _item;
 
     public override void Draw(Canvas canvas)
     {

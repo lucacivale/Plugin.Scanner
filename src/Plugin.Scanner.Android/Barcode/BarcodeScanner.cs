@@ -104,7 +104,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
                 using BarcodeScannerOptions scannerOptions = builder
                     .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
                     .Build();
-                using DefaultDataDetector<MLBarcode> barcodeDetector = new(_currentActivity.Activity, BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode(), options.RegionOfInterest);
+                using DefaultDataDetector<MLBarcode> barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode());
                 using MlKitAnalyzer analyzer = new([barcodeDetector.Detector], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, barcodeDetector);
 
                 using LifecycleCameraController cameraController = new(_currentActivity.Activity);
@@ -127,6 +127,8 @@ public sealed class BarcodeScanner : IBarcodeScanner
                     _currentActivity.Activity,
                     barcodeDetector,
                     cameraController,
+                    options.RegionOfInterest,
+                    options.Overlay,
                     options.RecognizeMultiple,
                     options.IsHighlightingEnabled);
 

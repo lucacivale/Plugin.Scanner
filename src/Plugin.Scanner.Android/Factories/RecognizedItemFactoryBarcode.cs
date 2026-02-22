@@ -1,4 +1,5 @@
-﻿using Plugin.Scanner.Android.Models;
+﻿using Plugin.Scanner.Android.Extensions;
+using Plugin.Scanner.Core.Models;
 
 namespace Plugin.Scanner.Android.Factories;
 
@@ -8,7 +9,7 @@ internal class RecognizedItemFactoryBarcode : IRecognizedItemFactory<Xamarin.Goo
     {
         return detectedItems
             .Where(x => x?.DisplayValue is not null && x?.BoundingBox is not null)
-            .Select(x => new RecognizedItem(x!.DisplayValue!, x!.BoundingBox!))
+            .Select(x => new RecognizedItem(x!.DisplayValue!, x!.BoundingBox!.ToRect()))
             .ToList();
     }
 }

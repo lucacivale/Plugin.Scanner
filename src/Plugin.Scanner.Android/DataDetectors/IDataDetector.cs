@@ -1,6 +1,6 @@
 ﻿using AndroidX.Core.Util;
-using Plugin.Scanner.Android.Models;
 using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Models;
 using Xamarin.Google.MLKit.Vision.Interfaces;
 
 namespace Plugin.Scanner.Android.DataDetectors;
@@ -13,7 +13,7 @@ internal interface IDataDetector : IConsumer
 
     IDetector Detector { get; }
 
-    IRegionOfInterest? RegionOfInterest { get; }
+    Rect? RegionOfInterest { get; set; }
 
     void Stop();
 }

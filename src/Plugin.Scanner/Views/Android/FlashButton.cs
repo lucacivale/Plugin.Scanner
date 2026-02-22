@@ -3,7 +3,7 @@ using Android.Util;
 using AndroidX.Camera.Core;
 using Java.Lang;
 
-namespace Plugin.Scanner.Android.Views;
+namespace Plugin.Scanner.Views.Android;
 
 /// <summary>
 /// Represents a toggleable flash button for camera controls that cycles through off, on, and auto modes.

@@ -11,7 +11,7 @@
         android:layout_gravity="top"
         android:background="#000000">
 
-		<Plugin.Scanner.Android.Views.FlashButton
+		<Plugin.Scanner.Views.Android.FlashButton
 			android:id="@+id/flashButton"
 			android:layout_width="48dp"
 			android:layout_height="48dp"
@@ -34,7 +34,7 @@
             android:tint="@android:color/white" />
 	</FrameLayout>
 
-	<Plugin.Scanner.Android.Views.RecognizedItemButton
+	<Plugin.Scanner.Views.Android.RecognizedItemButton
         android:id="@+id/recognizedItemButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

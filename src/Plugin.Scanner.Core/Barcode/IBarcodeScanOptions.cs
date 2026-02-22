@@ -48,4 +48,6 @@ public interface IBarcodeScanOptions
     bool IsPinchToZoomEnabled { get; }
 
     IRegionOfInterest? RegionOfInterest { get; }
+
+    IOverlay? Overlay { get; }
 }

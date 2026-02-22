@@ -39,4 +39,6 @@ public sealed class BarcodeScanOptions : IBarcodeScanOptions
     public bool IsPinchToZoomEnabled { get; set; } = true;
 
     public IRegionOfInterest? RegionOfInterest { get; set; }
+
+    public IOverlay? Overlay { get; set; }
 }

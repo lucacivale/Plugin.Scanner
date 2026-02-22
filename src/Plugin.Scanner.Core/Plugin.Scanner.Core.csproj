@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>$(NetVersion)</TargetFrameworks>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <TargetFrameworks>$(NetVersion);$(NetVersion)-ios;$(NetVersion)-android</TargetFrameworks>
     </PropertyGroup>
+
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <Using Include="Android.Views" />
+        <Using Include="Android.Graphics.Drawables" />
+    </ItemGroup>
 </Project>

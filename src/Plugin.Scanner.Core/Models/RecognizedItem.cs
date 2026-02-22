@@ -1,24 +1,31 @@
 using System.ComponentModel;
+using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Plugin.Scanner.Android.Models;
+namespace Plugin.Scanner.Core.Models;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class RecognizedItem : IEquatable<RecognizedItem>
 {
-    public RecognizedItem(string text, Rect bounds)
+    public RecognizedItem(string text, Rectangle bounds)
     {
         Text = text;
         Bounds = bounds;
         Id = GenerateIdFromText(text);
     }
 
+    public RecognizedItem(Guid id, string text, Rectangle bounds)
+    : this(text, bounds)
+    {
+        Id = id.ToString();
+    }
+
     public string Id { get; }
 
     public string Text { get; }
 
-    public Rect Bounds { get; }
+    public Rectangle Bounds { get; }
 
     public bool Equals(RecognizedItem? other)
     {
@@ -53,7 +60,7 @@ public sealed class RecognizedItem : IEquatable<RecognizedItem>
             && Bounds.Equals(other?.Bounds);
     }
 
-    public static RecognizedItem Empty => new(string.Empty, new Rect(0, 0, 0, 0));
+    public static RecognizedItem Empty => new(string.Empty, Rectangle.Empty);
 
     private static string GenerateIdFromText(string text)
     {

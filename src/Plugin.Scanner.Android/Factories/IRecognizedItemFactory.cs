@@ -1,9 +1,9 @@
-﻿using Plugin.Scanner.Android.Models;
+﻿using Plugin.Scanner.Core.Models;
 
 namespace Plugin.Scanner.Android.Factories;
 
 internal interface IRecognizedItemFactory<TDetectedItemsType>
     where TDetectedItemsType : class
 {
-    public IReadOnlyList<RecognizedItem> Create(IEnumerable<TDetectedItemsType?> detectedItems);
+    IReadOnlyList<RecognizedItem> Create(IEnumerable<TDetectedItemsType?> detectedItems);
 }
