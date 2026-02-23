@@ -27,7 +27,7 @@
       <ProjectReference Include="..\Plugin.Scanner.Core\Plugin.Scanner.Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
       <AndroidResource Update="Resources\layout\DataScannerOverlay.xml">
         <SubType>Designer</SubType>
         <Generator>MSBuild:UpdateGeneratedFiles</Generator>

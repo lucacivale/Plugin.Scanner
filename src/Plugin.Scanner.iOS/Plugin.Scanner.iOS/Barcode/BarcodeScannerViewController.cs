@@ -13,7 +13,7 @@ namespace Plugin.Scanner.iOS.Barcode;
 internal sealed class BarcodeScannerViewController : DataScannerViewController
 {
     private readonly IOverlay? _overlay;
-    private readonly IRegionOfInterest _regionOfInterest;
+    private readonly IRegionOfInterest? _regionOfInterest;
 
     private TaskCompletionSource<string>? _scanCompleteTaskSource;
 
@@ -46,6 +46,7 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
             isGuidanceEnabled,
             isHighlightingEnabled)
     {
+        _regionOfInterest = regionOfInterest;
         _overlay = overlay;
         _overlay?.Init(this);
     }
@@ -53,7 +54,7 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
     public void DismissViewController(string result)
     {
         StopScanning();
-        DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(string.Empty));
+        DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(result));
     }
 
     public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)
@@ -87,7 +88,6 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
         ModalInPresentation = true;
 
         _overlay?.AddOverlay();
-        _overlay?.AddRegionOfInterest(_regionOfInterest);
     }
 
     /// <summary>
@@ -104,6 +104,8 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
             _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
 
             RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
+
+            _overlay?.AddRegionOfInterest(_regionOfInterest);
         }
     }
 
@@ -119,6 +121,11 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
                 {
                     _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
                     RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
+
+                    foreach (UIView viewSubview in View.Subviews)
+                    {
+                        viewSubview.LayoutSubviews();
+                    }
                 }
             },
             null);

@@ -25,16 +25,4 @@ internal sealed class DataScannerBarOverlay : UIVisualEffectView
     {
         TranslatesAutoresizingMaskIntoConstraints = false;
     }
-
-    public override void WillMoveToWindow(UIWindow? window)
-    {
-        base.WillMoveToWindow(window);
-
-        Animate(
-            duration: 0.10,
-            animation: () =>
-        {
-            Alpha = 1;
-        });
-    }
 }

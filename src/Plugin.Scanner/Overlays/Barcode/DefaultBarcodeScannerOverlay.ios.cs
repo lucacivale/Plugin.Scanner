@@ -17,7 +17,7 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
 
     private readonly DataScannerBarOverlay _topBar = [];
     private readonly DataScannerBarOverlay _bottomBar = [];
-    private readonly DataScannerCancelButton _cancelButton = new(UIButtonType.Close);
+    private readonly UIButton _cancelButton = new(UIButtonType.Close);
     private readonly RecognizedItemButton _barcodeItemButton = [];
 
     private BarcodeScannerViewController? _dataScannerViewController;
@@ -48,6 +48,9 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
         _dataScannerRegionOfInterest = new(regionOfInterest);
 
         _dataScannerViewController.View.Add(_dataScannerRegionOfInterest);
+
+        _dataScannerRegionOfInterest.SetupStroke();
+        _dataScannerRegionOfInterest.StartStrokeAnimation();
     }
 
     public void Cleanup()
@@ -115,9 +118,6 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
     {
         _ = _dataScannerViewController?.OverlayContainerView ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
-        _topBar.Alpha = 0;
-        _bottomBar.Alpha = 0;
-
         _dataScannerViewController.OverlayContainerView.AddSubviews(_topBar, _bottomBar);
 
         NSLayoutConstraint.ActivateConstraints(
@@ -140,7 +140,6 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
 
         _ = _dataScannerViewController?.View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
-        _cancelButton.Alpha = 0;
         _cancelButton.TranslatesAutoresizingMaskIntoConstraints = false;
 
         UIButtonConfiguration config = UIButtonConfiguration.FilledButtonConfiguration;
@@ -201,7 +200,6 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
         _ = _dataScannerViewController?.View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
         _torchButton = new DataScannerTorchButton();
-        _torchButton.Alpha = 0;
         _torchButton.Toggled += TorchButtonToggled;
 
         _dataScannerViewController.View.Add(_torchButton);

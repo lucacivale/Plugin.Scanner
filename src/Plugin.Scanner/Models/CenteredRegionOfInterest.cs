@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace Plugin.Scanner.Models;
 
-public class CenteredRegionOfInterest : IRegionOfInterest
+public sealed class CenteredRegionOfInterest : IRegionOfInterest
 {
     private readonly int _width;
     private readonly int _height;

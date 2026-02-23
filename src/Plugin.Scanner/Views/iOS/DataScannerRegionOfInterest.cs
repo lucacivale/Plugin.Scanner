@@ -42,13 +42,6 @@ internal sealed class DataScannerRegionOfInterest : UIView
         Layer.AddSublayer(_highlightLayer);
     }
 
-    public override void MovedToWindow()
-    {
-        base.MovedToWindow();
-
-        SetupStroke();
-    }
-
     public override void LayoutSubviews()
     {
         base.LayoutSubviews();

@@ -51,18 +51,6 @@ internal sealed class DataScannerTorchButton : UIButton
     /// </value>
     public EventHandler<AVCaptureTorchMode>? Toggled { get; set; }
 
-    public override void WillMoveToWindow(UIWindow? window)
-    {
-        base.WillMoveToWindow(window);
-
-        Animate(
-            duration: 0.10,
-            animation: () =>
-            {
-                Alpha = 1;
-            });
-    }
-
     /// <summary>
     /// Releases the unmanaged resources used by the button and optionally releases the managed resources.
     /// </summary>
@@ -108,9 +96,8 @@ internal sealed class DataScannerTorchButton : UIButton
 
         string symbolName = _torchMode switch
         {
-            AVCaptureTorchMode.Off => OffSymbolName,
-            AVCaptureTorchMode.On => OnSymbolName,
-            AVCaptureTorchMode.Auto => AutoSymbolName,
+            AVCaptureTorchMode.Off => OnSymbolName,
+            AVCaptureTorchMode.On => AutoSymbolName,
             _ => OffSymbolName,
         };
 
