@@ -2,7 +2,7 @@
 using Plugin.Scanner.Core;
 using Plugin.Scanner.iOS.Extensions;
 
-namespace Plugin.Scanner.iOS.Views;
+namespace Plugin.Scanner.Views.iOS;
 
 internal sealed class DataScannerRegionOfInterest : UIView
 {
@@ -40,6 +40,20 @@ internal sealed class DataScannerRegionOfInterest : UIView
 
         Layer.AddSublayer(_baseLayer);
         Layer.AddSublayer(_highlightLayer);
+    }
+
+    public override void MovedToWindow()
+    {
+        base.MovedToWindow();
+
+        SetupStroke();
+    }
+
+    public override void LayoutSubviews()
+    {
+        base.LayoutSubviews();
+
+        Reset();
     }
 
     public void StartStrokeAnimation()

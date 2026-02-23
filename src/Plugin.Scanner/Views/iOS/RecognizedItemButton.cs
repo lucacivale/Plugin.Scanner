@@ -1,18 +1,16 @@
-using Plugin.Scanner.iOS.Binding;
-
-namespace Plugin.Scanner.iOS.Barcode.Views;
+namespace Plugin.Scanner.Views.iOS;
 
 /// <summary>
 /// Represents a custom UIButton for displaying and interacting with a recognized barcode item.
 /// </summary>
-internal sealed class BarcodeItemButton : UIButton
+internal sealed class RecognizedItemButton : UIButton
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="BarcodeItemButton"/> class.
+    /// Initializes a new instance of the <see cref="RecognizedItemButton"/> class.
     /// Represents a custom UIButton for displaying and interacting with a recognized barcode item.
     /// </summary>
     /// <param name="barcode">RecognizedItem instance representing the barcode associated with this button.</param>
-    public BarcodeItemButton()
+    public RecognizedItemButton()
     {
         Hidden = true;
         TranslatesAutoresizingMaskIntoConstraints = false;
@@ -31,7 +29,7 @@ internal sealed class BarcodeItemButton : UIButton
     /// <summary>
     /// Gets or sets the RecognizedItem instance representing the barcode associated with this button.
     /// </summary>
-    public RecognizedItem? Barcode
+    public Core.Models.RecognizedItem? Barcode
     {
         get;
         set
@@ -39,7 +37,7 @@ internal sealed class BarcodeItemButton : UIButton
             field = value;
 
             UIButtonConfiguration? config = (UIButtonConfiguration?)Configuration?.Copy();
-            config?.Title = value?.Value;
+            config?.Title = value?.Text;
 
             Configuration = config;
         }

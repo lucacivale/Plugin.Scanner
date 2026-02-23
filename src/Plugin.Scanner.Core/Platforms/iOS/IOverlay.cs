@@ -3,5 +3,5 @@ namespace Plugin.Scanner.Core;
 
 public partial interface IOverlay
 {
-    UIView Overlay();
+    void Init(UIViewController viewController);
 }

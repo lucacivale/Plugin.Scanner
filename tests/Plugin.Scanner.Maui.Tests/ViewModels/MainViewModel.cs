@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Models;
+using Plugin.Scanner.Overlays.Barcode;
 using System.Diagnostics;
 
 namespace Plugin.Scanner.Maui.Tests.ViewModels;
@@ -29,11 +30,9 @@ public partial class MainViewModel : BaseViewModel
                 Formats = BarcodeFormat.All,
                 IsHighlightingEnabled = true,
                 RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                Overlay = new DefaultBarcodeScannerOverlay(),
             };
-            
-            #if ANDROID
-            options.Overlay = new Plugin.Scanner.Overlays.Barcode.DefaultBarcodeScannerOverlay();
-            #endif
+
             Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
         }
         catch(BarcodeScanException exception)

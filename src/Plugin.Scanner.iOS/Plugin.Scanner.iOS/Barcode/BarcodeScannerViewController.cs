@@ -1,12 +1,8 @@
-using AVFoundation;
 using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
-using Plugin.Scanner.iOS.Barcode.Views;
 using Plugin.Scanner.iOS.Binding;
 using Plugin.Scanner.iOS.Exceptions;
-using Plugin.Scanner.iOS.Views;
-using System.Runtime.Versioning;
 using Plugin.Scanner.iOS.Extensions;
 
 namespace Plugin.Scanner.iOS.Barcode;
@@ -16,20 +12,10 @@ namespace Plugin.Scanner.iOS.Barcode;
 /// </summary>
 internal sealed class BarcodeScannerViewController : DataScannerViewController
 {
-    private const int TopBarButtonTopAnchorAdd = 25;
-    private const int TopBarButtonTrailingAnchorAdd = 20;
-    private const int TopBarButtonHeightAnchor = 50;
-    private const int TopBarButtonWidthAnchor = 50;
-
-    private readonly UIButton _cancelButton;
-    private readonly DataScannerBarOverlay _topBar;
-    private readonly DataScannerBarOverlay _bottomBar;
-    private readonly IRegionOfInterest? _regionOfInterest;
-    private readonly BarcodeItemButton _barcodeItemButton;
+    private readonly IOverlay? _overlay;
+    private readonly IRegionOfInterest _regionOfInterest;
 
     private TaskCompletionSource<string>? _scanCompleteTaskSource;
-    private DataScannerTorchButton? _torchButton;
-    private DataScannerRegionOfInterest? _dataScannerRegionOfInterest;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BarcodeScannerViewController"/> class.
@@ -49,7 +35,8 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
         bool isPinchToZoomEnabled = true,
         bool isGuidanceEnabled = true,
         bool isHighlightingEnabled = true,
-        IRegionOfInterest? regionOfInterest = null)
+        IRegionOfInterest? regionOfInterest = null,
+        IOverlay? overlay = null)
         : base(
             recognizedDataTypes,
             qualityLevel,
@@ -59,14 +46,14 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
             isGuidanceEnabled,
             isHighlightingEnabled)
     {
-        _cancelButton = new(UIButtonType.Close);
+        _overlay = overlay;
+        _overlay?.Init(this);
+    }
 
-        _topBar = [];
-        _bottomBar = [];
-
-        _barcodeItemButton = new();
-
-        _regionOfInterest = regionOfInterest;
+    public void DismissViewController(string result)
+    {
+        StopScanning();
+        DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(string.Empty));
     }
 
     public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)
@@ -77,27 +64,15 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
 
         _scanCompleteTaskSource = new();
 
-        Added += OnAdded;
-        Removed += OnRemoved;
         BecameUnavailable += OnBecameUnavailable;
-
-        if (RecognizesMultipleItems)
-        {
-            Tapped += OnTapped;
-        }
 
         await topViewController.PresentViewControllerAsync(this, true).ConfigureAwait(true);
 
         string barcode = await _scanCompleteTaskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
 
-        Added -= OnAdded;
-        Removed -= OnRemoved;
         BecameUnavailable -= OnBecameUnavailable;
 
-        if (RecognizesMultipleItems)
-        {
-            Tapped -= OnTapped;
-        }
+        _overlay?.Cleanup();
 
         return new Core.Barcode.Barcode(barcode);
     }
@@ -111,15 +86,8 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
 
         ModalInPresentation = true;
 
-        AddOverlay();
-        AddCancelButton();
-        AddBarcodeButton();
-        AddRegionOfInterest();
-
-        if (OperatingSystem.IsIOSVersionAtLeast(17))
-        {
-            AddTorchButton();
-        }
+        _overlay?.AddOverlay();
+        _overlay?.AddRegionOfInterest(_regionOfInterest);
     }
 
     /// <summary>
@@ -130,25 +98,12 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
     {
         base.ViewDidAppear(animated);
 
-        UIView.Animate(
-            duration: 0.10,
-            animation: () =>
-            {
-                _topBar.Alpha = 1;
-                _bottomBar.Alpha = 1;
-                _cancelButton.Alpha = 1;
-                _torchButton?.Alpha = 1;
-            });
-
         if (View is not null
             && _regionOfInterest is not null)
         {
             _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
 
             RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
-
-            _dataScannerRegionOfInterest?.SetupStroke();
-            _dataScannerRegionOfInterest?.StartStrokeAnimation();
         }
     }
 
@@ -164,223 +119,14 @@ internal sealed class BarcodeScannerViewController : DataScannerViewController
                 {
                     _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
                     RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
-
-                    _dataScannerRegionOfInterest?.Reset();
                 }
             },
             null);
-    }
-
-    /// <summary>
-    /// Releases the unmanaged resources used by the view controller and optionally releases the managed resources.
-    /// </summary>
-    /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _cancelButton.RemoveFromSuperview();
-            _cancelButton.Dispose();
-
-            _torchButton?.RemoveFromSuperview();
-            _torchButton?.Dispose();
-
-            _topBar.RemoveFromSuperview();
-            _topBar.Dispose();
-
-            _bottomBar.RemoveFromSuperview();
-            _bottomBar.Dispose();
-
-            _dataScannerRegionOfInterest?.StopStrokeAnimation();
-            _dataScannerRegionOfInterest?.RemoveFromSuperview();
-            _dataScannerRegionOfInterest?.Dispose();
-
-            _barcodeItemButton.TouchUpInside -= OnBarcodeItemTapped;
-            _barcodeItemButton.RemoveFromSuperview();
-            _barcodeItemButton.Dispose();
-        }
-
-        base.Dispose(disposing);
-    }
-
-    /// <summary>
-    /// Handles the torch button toggle event and sets the torch mode accordingly.
-    /// Available only on iOS 17.0 and later.
-    /// </summary>
-    /// <param name="sender">The event sender.</param>
-    /// <param name="e">The desired torch mode.</param>
-    [SupportedOSPlatform("ios17.0")]
-    private static void TorchButtonToggled(object? sender, AVCaptureTorchMode e)
-    {
-        SetTorchMode(e);
-    }
-
-    /// <summary>
-    /// Adds the top and bottom overlay bars to the scanner view.
-    /// </summary>
-    private void AddOverlay()
-    {
-        _topBar.Alpha = 0;
-        _bottomBar.Alpha = 0;
-
-        OverlayContainerView.AddSubviews(_topBar, _bottomBar);
-
-        NSLayoutConstraint.ActivateConstraints(
-        [
-            _topBar.TopAnchor.ConstraintEqualTo(OverlayContainerView.TopAnchor),
-            _topBar.LeadingAnchor.ConstraintEqualTo(OverlayContainerView.LeadingAnchor),
-            _topBar.TrailingAnchor.ConstraintEqualTo(OverlayContainerView.TrailingAnchor),
-            _topBar.HeightAnchor.ConstraintEqualTo(DataScannerBarOverlay.Height),
-
-            _bottomBar.BottomAnchor.ConstraintEqualTo(OverlayContainerView.BottomAnchor),
-            _bottomBar.LeadingAnchor.ConstraintEqualTo(OverlayContainerView.LeadingAnchor),
-            _bottomBar.TrailingAnchor.ConstraintEqualTo(OverlayContainerView.TrailingAnchor),
-            _bottomBar.HeightAnchor.ConstraintEqualTo(DataScannerBarOverlay.Height)
-        ]);
-    }
-
-    private void AddBarcodeButton()
-    {
-        const float buttonWidthAnchorAdd = 30f;
-        const float buttonBottomAnchorAdd = 25f;
-
-        _ = View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
-
-        _barcodeItemButton.TouchUpInside += OnBarcodeItemTapped;
-
-        View.Add(_barcodeItemButton);
-
-        NSLayoutConstraint.ActivateConstraints(
-        [
-            _barcodeItemButton.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor),
-            _barcodeItemButton.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, -(DataScannerBarOverlay.Height + buttonBottomAnchorAdd)),
-            _barcodeItemButton.WidthAnchor.ConstraintLessThanOrEqualTo(View.WidthAnchor, constant: -buttonWidthAnchorAdd),
-        ]);
-    }
-
-    /// <summary>
-    /// Adds the cancel button to the top-right corner of the view.
-    /// </summary>
-    /// <exception cref="DataScannerViewNullReferenceException">Thrown when the view is null.</exception>
-    private void AddCancelButton()
-    {
-        const int buttonCornerRadius = 100;
-
-        _ = View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
-
-        _cancelButton.Alpha = 0;
-        _cancelButton.TranslatesAutoresizingMaskIntoConstraints = false;
-
-        UIButtonConfiguration config = UIButtonConfiguration.FilledButtonConfiguration;
-        config.BaseBackgroundColor = UIColor.White;
-        config.BaseForegroundColor = UIColor.Black;
-        config.Background.CornerRadius = buttonCornerRadius;
-        _cancelButton.Configuration = config;
-
-        EventHandler @event = null!;
-        @event = (s, _) =>
-        {
-            ((UIButton)s!).TouchUpInside -= @event;
-
-            StopScanning();
-            DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(string.Empty));
-        };
-        _cancelButton.TouchUpInside += @event;
-
-        View.Add(_cancelButton);
-
-        NSLayoutConstraint.ActivateConstraints(
-        [
-            _cancelButton.TopAnchor.ConstraintEqualTo(View.TopAnchor, constant: TopBarButtonTopAnchorAdd),
-            _cancelButton.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor, constant: -TopBarButtonTrailingAnchorAdd),
-            _cancelButton.HeightAnchor.ConstraintEqualTo(TopBarButtonHeightAnchor),
-            _cancelButton.WidthAnchor.ConstraintEqualTo(TopBarButtonWidthAnchor),
-        ]);
-    }
-
-    /// <summary>
-    /// Adds the torch (flashlight) button to the top-left corner of the view.
-    /// Available only on iOS 17.0 and later.
-    /// </summary>
-    /// <exception cref="DataScannerViewNullReferenceException">Thrown when the view is null.</exception>
-    [SupportedOSPlatform("ios17.0")]
-    private void AddTorchButton()
-    {
-        _ = View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
-
-        _torchButton = new DataScannerTorchButton();
-        _torchButton.Alpha = 0;
-        _torchButton.Toggled += TorchButtonToggled;
-
-        View.Add(_torchButton);
-
-        NSLayoutConstraint.ActivateConstraints(
-        [
-            _torchButton.TopAnchor.ConstraintEqualTo(View.TopAnchor, constant: TopBarButtonTopAnchorAdd),
-            _torchButton.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor, constant: TopBarButtonTrailingAnchorAdd),
-            _torchButton.HeightAnchor.ConstraintEqualTo(TopBarButtonHeightAnchor),
-            _torchButton.WidthAnchor.ConstraintEqualTo(TopBarButtonWidthAnchor),
-        ]);
-    }
-
-    private void AddRegionOfInterest()
-    {
-        if (_regionOfInterest is null
-            || View is null)
-        {
-            return;
-        }
-
-        _dataScannerRegionOfInterest = new(_regionOfInterest);
-
-        View.Add(_dataScannerRegionOfInterest);
-    }
-
-    private void OnAdded(object? sender, (RecognizedItem[] AddedItems, RecognizedItem[] AllItems) e)
-    {
-        if (RecognizesMultipleItems == false)
-        {
-            _barcodeItemButton.Barcode = e.AddedItems[0];
-            _barcodeItemButton.Hidden = false;
-        }
-    }
-
-    /// <summary>
-    /// Handles the event when a barcode item is removed from the scanner view.
-    /// Cleans up the associated button UI element.
-    /// </summary>
-    /// <param name="sender">The <see cref="DataScannerViewController"/> that raised the event.</param>
-    /// <param name="e">A tuple containing the removed items and all currently recognized items.</param>
-    /// <exception cref="DataScannerViewNullReferenceException">Thrown when the scanner's view is null.</exception>
-    private void OnRemoved(object? sender, (RecognizedItem[] RemovedItems, RecognizedItem[] AllItems) e)
-    {
-        if (e.RemovedItems.Any(x => x.Id.Equals(_barcodeItemButton.Barcode?.Id)))
-        {
-            _barcodeItemButton.Hidden = true;
-            _barcodeItemButton.Barcode = null;
-        }
-    }
-
-    private void OnBarcodeItemTapped(object? sender, EventArgs e)
-    {
-        if (sender is not BarcodeItemButton barcodeItem)
-        {
-            throw new DataScannerEventSenderInvalidTypeException("sender must be of type BarcodeItemButton.");
-        }
-
-        StopScanning();
-        DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(barcodeItem.Barcode?.Value ?? string.Empty));
     }
 
     private void OnBecameUnavailable(object? sender, DataScannerUnavailableException e)
     {
         StopScanning();
         DismissViewController(true, () => throw e);
-    }
-
-    private void OnTapped(object? sender, RecognizedItem e)
-    {
-        _barcodeItemButton.Barcode = e;
-        _barcodeItemButton.Hidden = false;
     }
 }

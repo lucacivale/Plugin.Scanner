@@ -1,7 +1,7 @@
 using AVFoundation;
 using Plugin.Scanner.iOS.Exceptions;
 
-namespace Plugin.Scanner.iOS.Views;
+namespace Plugin.Scanner.Views.iOS;
 
 /// <summary>
 /// A button control that toggles the device's torch (flashlight) through different modes with animated visual feedback.
@@ -50,6 +50,18 @@ internal sealed class DataScannerTorchButton : UIButton
     /// An event handler that receives the new <see cref="AVCaptureTorchMode"/> value.
     /// </value>
     public EventHandler<AVCaptureTorchMode>? Toggled { get; set; }
+
+    public override void WillMoveToWindow(UIWindow? window)
+    {
+        base.WillMoveToWindow(window);
+
+        Animate(
+            duration: 0.10,
+            animation: () =>
+            {
+                Alpha = 1;
+            });
+    }
 
     /// <summary>
     /// Releases the unmanaged resources used by the button and optionally releases the managed resources.

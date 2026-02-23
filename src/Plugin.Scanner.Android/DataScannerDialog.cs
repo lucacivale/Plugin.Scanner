@@ -21,7 +21,6 @@ internal sealed class DataScannerDialog : AppCompatDialog
 
     private TaskCompletionSource<RecognizedItem>? _scanCompleteTaskSource;
 
-
     public DataScannerDialog(
         Activity context,
         IDataDetector detector,
@@ -100,7 +99,6 @@ internal sealed class DataScannerDialog : AppCompatDialog
 
         _scanCompleteTaskSource?.TrySetResult(RecognizedItem.Empty);
     }
-
 
     private void Cleanup()
     {

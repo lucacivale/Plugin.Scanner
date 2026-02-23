@@ -1,4 +1,4 @@
-namespace Plugin.Scanner.iOS.Views;
+namespace Plugin.Scanner.Views.iOS;
 
 /// <summary>
 /// A visual effect view that provides a blurred overlay bar for the data scanner interface.
@@ -24,5 +24,17 @@ internal sealed class DataScannerBarOverlay : UIVisualEffectView
         : base(UIBlurEffect.FromStyle(UIBlurEffectStyle.SystemUltraThinMaterialDark))
     {
         TranslatesAutoresizingMaskIntoConstraints = false;
+    }
+
+    public override void WillMoveToWindow(UIWindow? window)
+    {
+        base.WillMoveToWindow(window);
+
+        Animate(
+            duration: 0.10,
+            animation: () =>
+        {
+            Alpha = 1;
+        });
     }
 }

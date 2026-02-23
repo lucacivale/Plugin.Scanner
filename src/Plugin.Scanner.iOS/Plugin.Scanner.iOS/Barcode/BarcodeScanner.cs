@@ -40,7 +40,8 @@ public sealed class BarcodeScanner : IBarcodeScanner
                     recognizesMultipleItems: options.RecognizeMultiple,
                     isHighlightingEnabled: options.IsHighlightingEnabled,
                     isPinchToZoomEnabled: options.IsPinchToZoomEnabled,
-                    regionOfInterest: options.RegionOfInterest);
+                    regionOfInterest: options.RegionOfInterest,
+                    overlay: options.Overlay);
 
                 scanCompleteTaskSource.TrySetResult(await scanner.ScanAsync(cancellationToken).ConfigureAwait(true));
             }
