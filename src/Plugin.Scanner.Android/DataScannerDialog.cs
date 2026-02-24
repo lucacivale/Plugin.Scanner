@@ -43,6 +43,10 @@ internal sealed class DataScannerDialog : AppCompatDialog
         SetContentView();
     }
 
+    public EventHandler<IReadOnlyList<RecognizedItem>>? Detected { get; set; }
+
+    public EventHandler? Cleared { get; set; }
+
     public bool RecognizeMultiple => _recognizeMultiple;
 
     public bool IsHighlightingEnabled => _isHighlightingEnabled;
@@ -56,8 +60,8 @@ internal sealed class DataScannerDialog : AppCompatDialog
 
         Show();
 
-        _dataDetector.Detected += Detected;
-        _dataDetector.Cleared += Cleared;
+        _dataDetector.Detected += OnDetected;
+        _dataDetector.Cleared += OnCleared;
 
         _scanCompleteTaskSource = new();
 
@@ -103,8 +107,8 @@ internal sealed class DataScannerDialog : AppCompatDialog
     private void Cleanup()
     {
         _dataDetector.Stop();
-        _dataDetector.Detected -= Detected;
-        _dataDetector.Cleared -= Cleared;
+        _dataDetector.Detected -= OnDetected;
+        _dataDetector.Cleared -= OnCleared;
 
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Controller = null;
@@ -133,29 +137,21 @@ internal sealed class DataScannerDialog : AppCompatDialog
                 _dataDetector.RegionOfInterest = _regionOfInterest?.CalculateRegionOfInterest().ToRectPixel(Context);
 
                 _overlay?.AddRegionOfInterest(_regionOfInterest);
+
+                ShowEvent -= @event;
             };
 
             ShowEvent += @event;
         }
     }
 
-    private void Detected(object? sender, IReadOnlyList<RecognizedItem> e)
+    private void OnDetected(object? sender, IReadOnlyList<RecognizedItem> e)
     {
-        PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
-        previewView.Overlay?.Clear();
-
-        _overlay?.Detected(e);
-
-        previewView.Invalidate();
+        Detected?.Invoke(this, e);
     }
 
-    private void Cleared(object? sender, EventArgs e)
+    private void OnCleared(object? sender, EventArgs e)
     {
-        PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
-        previewView.Overlay?.Clear();
-
-        _overlay?.Cleared();
-
-        previewView.Invalidate();
+        Cleared?.Invoke(this, EventArgs.Empty);
     }
 }

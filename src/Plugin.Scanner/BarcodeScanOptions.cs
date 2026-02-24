@@ -1,4 +1,8 @@
-namespace Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Overlays.Barcode;
+
+namespace Plugin.Scanner;
 
 /// <summary>
 /// Provides configuration options for barcode scanning operations.
@@ -40,5 +44,10 @@ public sealed class BarcodeScanOptions : IBarcodeScanOptions
 
     public IRegionOfInterest? RegionOfInterest { get; set; }
 
-    public IOverlay? Overlay { get; set; }
+    public IOverlay Overlay { get; set; } = new DefaultBarcodeScannerOverlay();
+
+    public void Dispose()
+    {
+        Overlay.Dispose();
+    }
 }

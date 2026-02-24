@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Plugin.Scanner;
+namespace Plugin.Scanner.Hosting;
 
 /// <summary>
 /// Provides extension methods for registering barcode scanner services with the dependency injection container.

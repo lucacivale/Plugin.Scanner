@@ -1,10 +1,10 @@
 using AVFoundation;
 using Plugin.Scanner.Core;
-using Plugin.Scanner.iOS.Barcode;
 using Plugin.Scanner.iOS.Exceptions;
 using Plugin.Scanner.iOS.Extensions;
 using Plugin.Scanner.Views.iOS;
 using System.Runtime.Versioning;
+using Plugin.Scanner.iOS;
 
 namespace Plugin.Scanner.Overlays.Barcode;
 
@@ -20,7 +20,7 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
     private readonly UIButton _cancelButton = new(UIButtonType.Close);
     private readonly RecognizedItemButton _barcodeItemButton = [];
 
-    private BarcodeScannerViewController? _dataScannerViewController;
+    private DataScannerViewController? _dataScannerViewController;
     private DataScannerRegionOfInterest? _dataScannerRegionOfInterest;
     private DataScannerTorchButton? _torchButton;
 
@@ -94,7 +94,7 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
 
     public void Init(UIViewController viewController)
     {
-        if (viewController is BarcodeScannerViewController barcodeScannerViewController)
+        if (viewController is DataScannerViewController barcodeScannerViewController)
         {
             _dataScannerViewController = barcodeScannerViewController;
 
@@ -111,7 +111,7 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
     [SupportedOSPlatform("ios17.0")]
     private static void TorchButtonToggled(object? sender, AVCaptureTorchMode e)
     {
-        iOS.DataScannerViewController.SetTorchMode(e);
+        DataScannerViewController.SetTorchMode(e);
     }
 
     private void AddOverlayView()
@@ -180,7 +180,7 @@ public sealed class DefaultBarcodeScannerOverlay : IOverlay
         {
             ((RecognizedItemButton)s!).TouchUpInside -= @event;
 
-            _dataScannerViewController.DismissViewController(((RecognizedItemButton)s!).Barcode?.Text ?? string.Empty);
+            _dataScannerViewController.DismissViewController(((RecognizedItemButton)s).Barcode?.Text ?? string.Empty);
         };
         _barcodeItemButton.TouchUpInside += @event;
 

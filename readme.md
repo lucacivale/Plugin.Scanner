@@ -324,3 +324,26 @@ var barcode = (await _barcodeScanner.ScanAsync(options);
   ![iOS](.screenshots/iOS/regionOfInterest.gif)
 
 </details>
+
+### 🟢 You don't like the default overlay? Create your own!
+Keep in mind that when using a Custom Overlay, you are responsible for the entire overlay (you cannot mix and match custom elements with the default overlay).
+
+<details>
+<summary><b>Custom overlay</b></summary>
+
+Implement `Plugin.Scanner.Core.IOverlay` on each platform to create your own overlay.
+See [overlay](src/Plugin.Scanner/Overlays/Barcode) for an example implementation.
+
+A cross-platform example can be found [here](tests/Plugin.Scanner.Maui.Tests/BarcodeCustomOverlay.cs).</br>
+**This is just a showcase and not a production-ready implementation.**
+
+Create a new instance and pass it to the options
+
+```csharp
+BarcodeScanOptions options = new()
+{
+    Overlay = myAwesomeOverlay,
+};
+```
+
+</details>
