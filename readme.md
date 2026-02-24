@@ -3,10 +3,7 @@
 # EARLY ALPHA
 
 - Planned
-  - More options for IBarcodeScanner(Zoom, multiple recognition, enable/disable highlighting, recognition area)
   - Custom data scanner view with overlay etc.
-  - Custom overlay for IBarcodeScanner
-  - Custom behavior for IBarcodeScanner
   - TextScanner and DocumentScanner
 
 # 🚀 Mobile cross platform data scanner
