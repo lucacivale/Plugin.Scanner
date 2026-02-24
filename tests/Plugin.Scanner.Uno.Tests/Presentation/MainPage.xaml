@@ -19,7 +19,7 @@
                 Spacing="16"
                 VerticalAlignment="Center">
                 <Button Command="{Binding ScanBarcode}" Content="San barcode" />
-                <TextBlock Text="{Binding Barcode, Mode=TwoWay}" />
+                <TextBlock Text="{Binding RecognizedItem, Mode=TwoWay}" />
             </StackPanel>
         </Grid>
     </ScrollViewer>

@@ -1,7 +1,11 @@
 using System.Runtime.Versioning;
 using AVFoundation;
+using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.iOS.Binding;
 using Plugin.Scanner.iOS.Exceptions;
+using Plugin.Scanner.iOS.Extensions;
 
 namespace Plugin.Scanner.iOS;
 
@@ -11,6 +15,10 @@ namespace Plugin.Scanner.iOS;
 internal class DataScannerViewController : Binding.DataScannerViewController
 {
     private readonly DataScannerViewControllerDelegate _dataScannerViewControllerDelegate;
+    private readonly IOverlay? _overlay;
+    private readonly IRegionOfInterest? _regionOfInterest;
+
+    private TaskCompletionSource<string>? _scanCompleteTaskSource;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataScannerViewController"/> class.
@@ -29,11 +37,17 @@ internal class DataScannerViewController : Binding.DataScannerViewController
         bool isHighFrameRateTrackingEnabled = true,
         bool isPinchToZoomEnabled = true,
         bool isGuidanceEnabled = true,
-        bool isHighlightingEnabled = true)
+        bool isHighlightingEnabled = true,
+        IRegionOfInterest? regionOfInterest = null,
+        IOverlay? overlay = null)
         : base(recognizedDataTypes, qualityLevel, recognizesMultipleItems, isHighFrameRateTrackingEnabled, isPinchToZoomEnabled, isGuidanceEnabled, isHighlightingEnabled)
     {
         _dataScannerViewControllerDelegate = new DataScannerViewControllerDelegate();
         Delegate = _dataScannerViewControllerDelegate;
+
+        _regionOfInterest = regionOfInterest;
+        _overlay = overlay;
+        _overlay?.Init(this);
     }
 
     /// <summary>
@@ -60,11 +74,6 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     /// Gets or sets the event handler invoked when items are removed from the scanner's recognition results.
     /// </summary>
     public EventHandler<(RecognizedItem[] RemovedItems, RecognizedItem[] AllItems)>? Removed { get; set; }
-
-    /// <summary>
-    /// Gets or sets the event handler invoked when the scanner becomes unavailable.
-    /// </summary>
-    public EventHandler<DataScannerUnavailableException>? BecameUnavailable { get; set; }
 
     /// <summary>
     /// Sets the device's torch (flashlight) mode.
@@ -162,6 +171,82 @@ internal class DataScannerViewController : Binding.DataScannerViewController
         base.StopScanning();
     }
 
+    public void DismissViewController(string result)
+    {
+        StopScanning();
+        DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(result));
+    }
+
+    public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)
+    {
+        UIViewController topViewController = WindowUtils.GetTopViewController() ?? throw new BarcodeScanException("Failed to find top UIViewController.");
+
+        StartScanning();
+
+        _scanCompleteTaskSource = new();
+
+        await topViewController.PresentViewControllerAsync(this, true).ConfigureAwait(true);
+
+        string barcode = await _scanCompleteTaskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
+
+        _overlay?.Cleanup();
+
+        return new Core.Barcode.Barcode(barcode);
+    }
+
+    /// <summary>
+    /// Sets up the overlay bars, cancel button, and torch button (iOS 17+).
+    /// </summary>
+    public override void ViewDidLoad()
+    {
+        base.ViewDidLoad();
+
+        ModalInPresentation = true;
+
+        _overlay?.AddOverlay();
+    }
+
+    /// <summary>
+    /// Animates the UI elements to fade in.
+    /// </summary>
+    /// <param name="animated">If <c>true</c>, the appearance is animated.</param>
+    public override void ViewDidAppear(bool animated)
+    {
+        base.ViewDidAppear(animated);
+
+        if (View is not null
+            && _regionOfInterest is not null)
+        {
+            _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
+
+            RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
+
+            _overlay?.AddRegionOfInterest(_regionOfInterest);
+        }
+    }
+
+    public override void ViewWillTransitionToSize(CGSize toSize, IUIViewControllerTransitionCoordinator coordinator)
+    {
+        base.ViewWillTransitionToSize(toSize, coordinator);
+
+        coordinator.AnimateAlongsideTransition(
+            _ =>
+            {
+                if (View is not null
+                    && _regionOfInterest is not null)
+                {
+                    _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
+                    RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
+
+                    foreach (UIView viewSubview in View.Subviews)
+                    {
+                        viewSubview.LayoutSubviews();
+                    }
+                }
+            },
+            null);
+    }
+
     /// <summary>
     /// Releases the unmanaged resources used by the view controller and optionally releases the managed resources.
     /// </summary>
@@ -227,13 +312,9 @@ internal class DataScannerViewController : Binding.DataScannerViewController
         Removed?.Invoke(this, args);
     }
 
-    /// <summary>
-    /// Handles the delegate unavailable event and forwards it to the public <see cref="BecameUnavailable"/> event.
-    /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="error">The <see cref="DataScannerUnavailableException"/> containing details about why the scanner became unavailable.</param>
     private void BecameUnavailableWithError(object? sender, DataScannerUnavailableException error)
     {
-        BecameUnavailable?.Invoke(this, error);
+        StopScanning();
+        DismissViewController(true, () => throw error);
     }
 }

@@ -3,13 +3,10 @@
 # EARLY ALPHA
 
 - Planned
-  - More options for IBarcodeScanner(Zoom, multiple recognition, enable/disable highlighting, recognition area)
   - Custom data scanner view with overlay etc.
-  - Custom overlay for IBarcodeScanner
-  - Custom behavior for IBarcodeScanner
   - TextScanner and DocumentScanner
 
-**🚀 Mobile cross platform data scanner**
+# 🚀 Mobile cross platform data scanner
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.Scanner.svg?style=flat-square&label=NuGet)](https://www.nuget.org/packages/Plugin.Scanner)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -18,9 +15,15 @@
 
 This plugin aims to enalbe *simple*, *fast* and *customizable* data scanning(barcodes, text, documents...) using native **Android** and **iOS** APIs [ML Kit](https://developers.google.com/ml-kit?hl=de) and [Vision Kit](https://developer.apple.com/documentation/visionkit?language=objc).
 - Platform support **iOS 16+** and **Android 23+**
-- Native AI supported detection
-- One Shared API cross platforms and frameworks
-- Scan barcodes with only 2 lines of code
+- One shared API cross platforms and frameworks
+- Scan barcodes with only two lines of code
+
+![iOS](.screenshots/iOS/regionOfInterest.gif)
+![iOS](.screenshots/iOS/pinchToZoom.gif)
+![iOS](.screenshots/iOS/multipleRecognition.gif) </br> </br>
+![Android](.screenshots/Android/regionOfInterest.gif)
+![Android](.screenshots/Android/pinchToZoom.gif)
+![Android](.screenshots/Android/multipleRecognition.gif)
 
 ## 🚀 Get started
 
@@ -171,7 +174,7 @@ public class MainViewModel
     {
         try
         {
-            IBarcode barcode = (await _barcodeScanner.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            var barcode = await _barcodeScanner.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false);
         }
         catch(BarcodeScanException exception)
         {
@@ -199,7 +202,7 @@ public partial class MainViewModel
     {
         try
         {
-            IBarcode barcode = (await BarcodeScanner.Default.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            var barcode = await BarcodeScanner.Default.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false);
         }
         catch (BarcodeScanException exception)
         {
@@ -208,10 +211,13 @@ public partial class MainViewModel
     }
 }
 ```
+
 </details>
 
-You want to detect only specific format(s)?
-Create options and set the target formats(s)
+### 🟢 Detect only specific format(s)?
+
+<details>
+<summary><b>Create options and set the target formats(s)</b></summary>
 
 ```csharp
 var options = new BarcodeScanOptions
@@ -223,3 +229,118 @@ using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
 var barcode = await scanner.ScanAsync(options, cts.Token);
 Console.WriteLine($"Scanned: {barcode.RawValue}");
 ```
+
+</details>
+
+### 🟢 There are multiple barcodes in the frame? 
+
+<details>
+<summary><b>Single recognition(default)</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
+  - First detected barcode is highlighted
+  - Tap on target barcode to highlight it, display confirmation button and complete the scan</br> </br>
+    
+  ![Android](.screenshots/Android/singleRecognition.gif)
+  ![iOS](.screenshots/iOS/singleRecognition.gif)
+  
+</details>
+
+<details>
+<summary><b>Multiple recognition</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ RecognizeMultiple = true }))`
+  - All detected barcodes are highlighted
+  - Tap on the target barcode to display the confirmation button and complete the scan</br> </br>
+
+  ![Android](.screenshots/Android/multipleRecognition.gif)
+  ![iOS](.screenshots/iOS/multipleRecognition.gif)
+  
+</details>
+
+### 🟢 You don't want to highlight detected barcodes? 
+
+<details>
+<summary><b>Highlighting enabled(default)</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
+  - All detected barcodes are highlighted</br> </br>
+
+  ![Android](.screenshots/Android/highlighting.gif)
+  ![iOS](.screenshots/iOS/highlighting.gif)
+
+</details>
+
+<details>
+<summary><b>Highlighting disabled</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ IsHighlightingEnabled = false }))`
+  - No detected barcode is highlighted</br> </br>
+
+  ![Android](.screenshots/Android/noHighlighting.gif)
+  ![iOS](.screenshots/iOS/noHighlighting.gif)
+
+</details>
+
+### 🟢 Allow a two-finger pinch-to-zoom gesture? 
+
+<details>
+<summary><b>Pinch to zoom enabled(default)</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
+
+  ![Android](.screenshots/Android/pinchToZoom.gif)
+  ![iOS](.screenshots/iOS/pinchToZoom.gif)
+
+</details>
+
+<details>
+<summary><b>Pinch to zoom disabled</b></summary>
+
+- `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ IsPinchToZoomEnabled = false }))`
+  - No zoom allowed</br> </br>
+
+</details>
+
+### 🟢 Detect barcodes only in a specific area?
+<details>
+<summary><b>Specify region of interest</b></summary>
+
+```csharp
+BarcodeScanOptions options = new()
+{
+    RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+};
+var barcode = (await _barcodeScanner.ScanAsync(options);
+```
+- Adds a vertical and horizontal-centered 250x200 detection area
+- You can create your own area by implementing `IRegionOfInterest`
+- A region of interest will also add a visual overlay</br> </br>
+
+  ![Android](.screenshots/Android/regionOfInterest.gif)
+  ![iOS](.screenshots/iOS/regionOfInterest.gif)
+
+</details>
+
+### 🟢 You don't like the default overlay? Create your own!
+Keep in mind that when using a Custom Overlay, you are responsible for the entire overlay (you cannot mix and match custom elements with the default overlay).
+
+<details>
+<summary><b>Custom overlay</b></summary>
+
+Implement `Plugin.Scanner.Core.IOverlay` on each platform to create your own overlay.
+See [overlay](src/Plugin.Scanner/Overlays/Barcode) for an example implementation.
+
+A cross-platform example can be found [here](tests/Plugin.Scanner.Maui.Tests/BarcodeCustomOverlay.cs).</br>
+**This is just a showcase and not a production-ready implementation.**
+
+Create a new instance and pass it to the options
+
+```csharp
+BarcodeScanOptions options = new()
+{
+    Overlay = myAwesomeOverlay,
+};
+```
+
+</details>

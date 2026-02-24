@@ -35,7 +35,13 @@ public sealed class BarcodeScanner : IBarcodeScanner
             try
             {
                 using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
-                using SingleBarcodeScannerViewController scanner = new([barcodeType]);
+                using DataScannerViewController scanner = new(
+                    [barcodeType],
+                    recognizesMultipleItems: options.RecognizeMultiple,
+                    isHighlightingEnabled: options.IsHighlightingEnabled,
+                    isPinchToZoomEnabled: options.IsPinchToZoomEnabled,
+                    regionOfInterest: options.RegionOfInterest,
+                    overlay: options.Overlay);
 
                 scanCompleteTaskSource.TrySetResult(await scanner.ScanAsync(cancellationToken).ConfigureAwait(true));
             }
@@ -57,7 +63,6 @@ public sealed class BarcodeScanner : IBarcodeScanner
                       or DataScannerTorchUnavailableException
                       or DataScannerUnavailableException
                       or DataScannerUnsupportedException
-                      or DataScannerViewControllerNotFoundException
                       or DataScannerViewNullReferenceException)
         {
             throw new BarcodeScanException(e.Message, e);

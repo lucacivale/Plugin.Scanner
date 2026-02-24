@@ -1,4 +1,5 @@
 ﻿using Plugin.Scanner.Uno.Android;
+using Plugin.Scanner.Hosting;
 
 namespace Plugin.Scanner.Uno.Hosting;
 
@@ -27,8 +28,7 @@ public static partial class UnoBuilderExtensions
         {
             host.ConfigureServices((_, services) =>
             {
-                services
-                    .AddBarcodeScanner()
+                services.AddBarcodeScanner()
                     .AddCurrentActivity<CurrentActivity>();
             });
         });

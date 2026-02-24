@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.Models;
+using Plugin.Scanner.Overlays.Barcode;
 
 namespace Plugin.Scanner.Uno.Tests.Presentation;
 
@@ -19,7 +21,16 @@ public partial record MainModel
     {
         try
         {
-            string barcode = (await _barcodeScanner.ScanAsync(new BarcodeScanOptions { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            BarcodeScanOptions options = new()
+            {
+                Formats = BarcodeFormat.All,
+                IsHighlightingEnabled = true,
+                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                Overlay = new DefaultBarcodeScannerOverlay(),
+            };
+
+            string barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
+
             await Barcode.SetAsync(barcode);
         }
         catch (BarcodeScanException exception)

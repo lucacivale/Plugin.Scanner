@@ -1,10 +1,23 @@
-using System.Diagnostics.CodeAnalysis;
 using Android.OS;
+using AndroidX.Camera.Core;
+using AndroidX.Camera.Core.ResolutionSelector;
+using AndroidX.Camera.MLKit.Vision;
+using AndroidX.Camera.View;
+using AndroidX.Core.Content;
+using AndroidX.Lifecycle;
+using Java.Util.Concurrent;
+using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
+using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using System.Diagnostics.CodeAnalysis;
+using Xamarin.Google.MLKit.Vision.BarCode;
+using ASize = Android.Util.Size;
 using Exception = System.Exception;
+using IBarcodeScanner = Plugin.Scanner.Core.Barcode.IBarcodeScanner;
+using MLBarcode = Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode;
 
 namespace Plugin.Scanner.Android.Barcode;
 
@@ -13,7 +26,7 @@ namespace Plugin.Scanner.Android.Barcode;
 /// </summary>
 /// <remarks>
 /// <para>
-/// This class implements <see cref="IBarcodeScanner"/> for Android devices and uses Google ML Kit's
+/// This class implements <see cref="Core.Barcode.IBarcodeScanner"/> for Android devices and uses Google ML Kit's
 /// barcode scanning capabilities through a camera dialog interface.
 /// </para>
 /// <para>
@@ -58,7 +71,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// </exception>
     /// <remarks>
     /// <para>
-    /// This method creates and displays a <see cref="SingleBarcodeScannerDialog"/> that handles
+    /// This method creates and displays a <see cref="DataScannerDialog"/> that handles
     /// the camera preview, barcode detection, and user interaction.
     /// </para>
     /// <para>
@@ -79,10 +92,51 @@ public sealed class BarcodeScanner : IBarcodeScanner
         {
             try
             {
-                using SingleBarcodeScannerDialog scannerDialog = new(_currentActivity.Activity, options.Formats.ToBarcodeFormats());
+                if (_currentActivity.Activity is not ILifecycleOwner owner)
+                {
+                    throw new ActivityMustBeILifecycleOwnerException("Activity must implement ILifecycleOwner");
+                }
 
-                IBarcode barcode = await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true);
+                IExecutor mainExecutor = ContextCompat.GetMainExecutor(_currentActivity.Activity) ?? throw new MainExecutorNotAvailableException("Main executor not available.");
+                List<int> formats = options.Formats.ToBarcodeFormats().ToList();
+
+                using BarcodeScannerOptions.Builder builder = new();
+                using BarcodeScannerOptions scannerOptions = builder
+                    .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
+                    .Build();
+                using DefaultDataDetector<MLBarcode> barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode());
+                using MlKitAnalyzer analyzer = new([barcodeDetector.Detector], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, barcodeDetector);
+
+                using LifecycleCameraController cameraController = new(_currentActivity.Activity);
+                cameraController.BindToLifecycle(owner);
+                cameraController.SetImageAnalysisAnalyzer(mainExecutor, analyzer);
+                cameraController.ImageAnalysisBackpressureStrategy = ImageAnalysis.StrategyKeepOnlyLatest;
+                cameraController.PinchToZoomEnabled = options.IsPinchToZoomEnabled;
+
+                // As google recommends https://developers.google.com/ml-kit/vision/barcode-scanning/android?hl=de 2 mp
+                using ResolutionSelector.Builder resolutionBuilder = new();
+                using ResolutionStrategy resolutionStrategy = new(new ASize(1920, 1080), ResolutionStrategy.FallbackRuleClosestHigherThenLower);
+                using AspectRatioStrategy aspectRatioStrategy = new(AspectRatio.Ratio169, AspectRatio.RatioDefault);
+
+                cameraController.ImageAnalysisResolutionSelector = resolutionBuilder
+                    .SetResolutionStrategy(resolutionStrategy)
+                    .SetAspectRatioStrategy(aspectRatioStrategy)
+                    .Build();
+
+                using DataScannerDialog scannerDialog = new(
+                    _currentActivity.Activity,
+                    barcodeDetector,
+                    cameraController,
+                    options.RegionOfInterest,
+                    options.Overlay,
+                    options.RecognizeMultiple,
+                    options.IsHighlightingEnabled);
+
+                IBarcode barcode = new Core.Barcode.Barcode((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);
                 scanCompleteTaskSource.TrySetResult(barcode);
+
+                cameraController.ClearImageAnalysisAnalyzer();
+                cameraController.Unbind();
             }
             catch (Exception e)
             {
@@ -96,7 +150,6 @@ public sealed class BarcodeScanner : IBarcodeScanner
         }
         catch (Exception e)
             when (e is MainExecutorNotAvailableException
-                or MlKitAnalyzerResultNotBarcodeException
                 or NoCameraException
                 or ViewNotFoundException)
         {

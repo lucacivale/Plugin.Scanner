@@ -15,7 +15,7 @@ namespace Plugin.Scanner.Core.Barcode;
 /// </remarks>
 /// <seealso cref="BarcodeScanOptions"/>
 /// <seealso cref="IBarcodeScanner"/>
-public interface IBarcodeScanOptions
+public interface IBarcodeScanOptions : IDisposable
 {
     /// <summary>
     /// Gets the barcode formats to be recognized during scanning.
@@ -40,4 +40,14 @@ public interface IBarcodeScanOptions
     /// </para>
     /// </remarks>
     BarcodeFormat Formats { get; }
+
+    bool RecognizeMultiple { get; }
+
+    bool IsHighlightingEnabled { get; }
+
+    bool IsPinchToZoomEnabled { get; }
+
+    IRegionOfInterest? RegionOfInterest { get; }
+
+    IOverlay Overlay { get; }
 }

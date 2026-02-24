@@ -1,4 +1,6 @@
-﻿namespace Plugin.Scanner.Uno.Hosting;
+﻿using Plugin.Scanner.Hosting;
+
+namespace Plugin.Scanner.Uno.Hosting;
 
 /// <summary>
 /// Provides extension methods for configuring barcode scanner services in Uno Platform applications.
@@ -25,8 +27,7 @@ public static partial class UnoBuilderExtensions
         {
             host.ConfigureServices((_, services) =>
             {
-                services
-                    .AddBarcodeScanner();
+                services.AddBarcodeScanner();
             });
         });
     }

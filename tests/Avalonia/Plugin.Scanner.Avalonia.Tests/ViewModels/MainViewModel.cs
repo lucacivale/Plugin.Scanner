@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using System.Diagnostics;
+using Plugin.Scanner.Models;
+using Plugin.Scanner.Overlays.Barcode;
 
 namespace Plugin.Scanner.Avalonia.Tests.ViewModels;
 
@@ -16,7 +18,15 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            Barcode = (await BarcodeScanner.Default.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false)).RawValue;
+            BarcodeScanOptions options = new()
+            {
+                Formats = BarcodeFormat.All,
+                IsHighlightingEnabled = true,
+                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                Overlay = new DefaultBarcodeScannerOverlay(),
+            };
+
+            Barcode = (await BarcodeScanner.Default.ScanAsync(options).ConfigureAwait(false)).RawValue;
         }
         catch (BarcodeScanException exception)
         {

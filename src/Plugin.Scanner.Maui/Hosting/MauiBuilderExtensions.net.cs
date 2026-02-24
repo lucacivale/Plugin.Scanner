@@ -1,4 +1,6 @@
-﻿namespace Plugin.Scanner.Maui.Hosting;
+﻿using Plugin.Scanner.Hosting;
+
+namespace Plugin.Scanner.Maui.Hosting;
 
 /// <summary>
 /// Provides extension methods for configuring the Plugin.Scanner library within a .NET MAUI application.
@@ -26,8 +28,7 @@ public static partial class MauiBuilderExtensions
     /// </example>
     public static partial MauiAppBuilder UseScanner(this MauiAppBuilder app)
     {
-        app.Services
-            .AddBarcodeScanner();
+        app.Services.AddBarcodeScanner();
 
         return app;
     }
