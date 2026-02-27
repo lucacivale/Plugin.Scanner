@@ -1,6 +1,6 @@
 using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Options;
-using Plugin.Scanner.Overlays.Barcode;
+using Plugin.Scanner.Overlays.Text;
 
 namespace Plugin.Scanner.Options;
 
@@ -14,7 +14,7 @@ public sealed class TextScanOptions : ITextScanOptions
 
     public IRegionOfInterest? RegionOfInterest { get; set; }
 
-    public IOverlay Overlay { get; set; } = new DefaultBarcodeScannerOverlay();
+    public IOverlay Overlay { get; set; } = new TextScannerOverlay();
 
     public void Dispose()
     {

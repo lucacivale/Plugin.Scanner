@@ -38,7 +38,7 @@ internal sealed class TextScanner : ITextScanner
                 using RecognizedDataType barcodeType = RecognizedDataType.Text(Binding.DataScannerViewController.SupportedTextRecognitionLanguages, TextContentType.Default);
                 using DataScannerViewController scanner = new(
                     [barcodeType],
-                    recognizesMultipleItems: options.RecognizeMultiple,
+                    recognizesMultipleItems: true,
                     isHighlightingEnabled: options.IsHighlightingEnabled,
                     isPinchToZoomEnabled: options.IsPinchToZoomEnabled,
                     regionOfInterest: options.RegionOfInterest,

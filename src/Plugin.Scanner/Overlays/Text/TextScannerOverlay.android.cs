@@ -1,4 +1,4 @@
-using AndroidX.Camera.Core;
+﻿using AndroidX.Camera.Core;
 using AndroidX.Camera.View;
 using Plugin.Scanner.Android;
 using Plugin.Scanner.Android.Exceptions;
@@ -9,12 +9,11 @@ using Plugin.Scanner.Extensions;
 using Plugin.Scanner.Views.Android;
 using Orientation = Android.Content.Res.Orientation;
 
-namespace Plugin.Scanner.Overlays.Barcode;
+namespace Plugin.Scanner.Overlays.Text;
 
-internal sealed class DefaultBarcodeScannerOverlay : Java.Lang.Object, IOverlay, View.IOnTouchListener
+internal sealed partial class TextScannerOverlay : Java.Lang.Object, IOverlay, View.IOnTouchListener
 {
     private IReadOnlyList<RecognizedItem>? _recognizedItems;
-    private RecognizedItem? _selectedRecognizedItem;
 
     private Orientation? _orientation;
 
@@ -104,7 +103,9 @@ internal sealed class DefaultBarcodeScannerOverlay : Java.Lang.Object, IOverlay,
         if (e?.Action == MotionEventActions.Down
             && _recognizedItems?.FirstOrDefault(x => x.Bounds.ContainsWithTolerance((int)e.GetX(), (int)e.GetY(), 30)) is RecognizedItem item)
         {
-            _selectedRecognizedItem = item;
+            RecognizedItemButton itemButton = _root?.FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
+            itemButton.RecognizedItem = item;
+            itemButton.Visibility = ViewStates.Visible;
         }
 
         return false;
@@ -178,38 +179,17 @@ internal sealed class DefaultBarcodeScannerOverlay : Java.Lang.Object, IOverlay,
         previewView.Overlay?.Clear();
 
         _recognizedItems = e;
-        RecognizedItem? recognizedItem;
 
-        if (_dialog?.RecognizeMultiple == false)
+        if (_dialog?.IsHighlightingEnabled == true
+            && _dialog?.RecognizeMultiple == true)
         {
-            _selectedRecognizedItem ??= e.First();
+            Color baseColor = Color.Yellow;
 
-            recognizedItem = e.FirstOrDefault(x => x.Equals(_selectedRecognizedItem)) ?? e.First();
-        }
-        else
-        {
-            recognizedItem = e.FirstOrDefault(x => x.Equals(_selectedRecognizedItem)) ?? null;
-        }
-
-        RecognizedItemButton itemButton = _root?.FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-        itemButton.RecognizedItem = recognizedItem;
-        itemButton.Visibility = recognizedItem is null ? ViewStates.Gone : ViewStates.Visible;
-
-        if (_dialog?.IsHighlightingEnabled == true)
-        {
-            if (_dialog?.RecognizeMultiple == false)
+            for (int i = 0; i < e.Count; i++)
             {
-                if (recognizedItem is not null)
-                {
-                    previewView.Overlay?.Add(new RecognizedItemHighlight(recognizedItem));
-                }
-            }
-            else
-            {
-                foreach (RecognizedItem item in e)
-                {
-                    previewView.Overlay?.Add(new RecognizedItemHighlight(item));
-                }
+                float hueOffset = 360f / e.Count * i;
+
+                previewView.Overlay?.Add(new TextBlockHighlight(e[i].Bounds.ToRect(), baseColor, hueOffset));
             }
         }
 

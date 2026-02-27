@@ -6,9 +6,9 @@ using Plugin.Scanner.Views.iOS;
 using System.Runtime.Versioning;
 using Plugin.Scanner.iOS;
 
-namespace Plugin.Scanner.Overlays.Barcode;
+namespace Plugin.Scanner.Overlays.Text;
 
-internal sealed class DefaultBarcodeScannerOverlay : IOverlay
+internal sealed class TextScannerOverlay : IOverlay
 {
     private const int TopBarButtonTopAnchorAdd = 25;
     private const int TopBarButtonTrailingAnchorAdd = 20;

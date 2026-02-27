@@ -43,4 +43,6 @@ public interface IBarcodeScanOptions : IDisposable, IScanOptions
     /// </para>
     /// </remarks>
     BarcodeFormat Formats { get; }
+
+    bool RecognizeMultiple { get; }
 }

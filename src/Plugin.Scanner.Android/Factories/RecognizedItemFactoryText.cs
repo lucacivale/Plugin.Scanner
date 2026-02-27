@@ -8,12 +8,9 @@ internal sealed class RecognizedItemFactoryText : IRecognizedItemFactory<Text>
 {
     public IReadOnlyList<RecognizedItem>? Create(Text? detectedItems)
     {
-        if (detectedItems?.GetText() is null
-            || detectedItems.TextBlocks.FirstOrDefault()?.BoundingBox is not Rect box)
-        {
-            return null;
-        }
-
-        return [new RecognizedItem(detectedItems.GetText(), box.ToRect())];
+        return detectedItems?.TextBlocks
+            .Where(x => x.Text is not null && x.BoundingBox is not null)
+            .Select(x => new RecognizedItem(x.Text!, x.BoundingBox!.ToRect()))
+            .ToList();
     }
 }

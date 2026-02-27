@@ -77,7 +77,7 @@ internal sealed class TextScanner : ITextScanner
                     cameraController,
                     options.RegionOfInterest,
                     options.Overlay,
-                    options.RecognizeMultiple,
+                    true,
                     options.IsHighlightingEnabled);
 
                 IScanResult barcode = new ScanResult((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);

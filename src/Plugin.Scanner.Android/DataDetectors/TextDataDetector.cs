@@ -1,11 +1,10 @@
 using AndroidX.Camera.MLKit.Vision;
 using Java.Interop;
-using Java.Util;
+using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Models;
 using Xamarin.Google.MLKit.Vision.Interfaces;
 using Xamarin.Google.MLKit.Vision.Text;
-using MLBarcode = Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode;
 
 namespace Plugin.Scanner.Android.DataDetectors;
 
@@ -16,14 +15,52 @@ internal sealed class TextDataDetector : DataDetector<Text>
     {
     }
 
-    protected override IReadOnlyList<RecognizedItem>? MlKitResultToRecognizedItems(MlKitAnalyzer.Result result)
+    public override void Accept(Java.Lang.Object? t)
     {
-        Text? text = null;
-        result.GetValue(Detector)?.TryJavaCast(out text);
-
-        using (text)
+        if (t is not MlKitAnalyzer.Result result)
         {
-            return RecognizedItemFactory.Create(text);
+            return;
+        }
+
+        using (result)
+        {
+            Text? text = null;
+            result.GetValue(Detector)?.TryJavaCast(out text);
+
+            using (text)
+            {
+                ProcessResults(RecognizedItemFactory.Create(text));
+            }
+        }
+    }
+
+    private void ProcessResults(IReadOnlyList<RecognizedItem>? recognizedItems)
+    {
+        if (recognizedItems is null
+            || recognizedItems.Count == 0)
+        {
+            Cleared?.Invoke(this, EventArgs.Empty);
+        }
+        else
+        {
+            IReadOnlyList<RecognizedItem> frequentItems = recognizedItems;
+
+            if (RegionOfInterest is not null)
+            {
+                frequentItems = recognizedItems
+                    .Where(kv => RegionOfInterest.Contains(kv.Bounds.ToRect()))
+                    .ToList();
+
+                if (frequentItems.Count == 0)
+                {
+                    Cleared?.Invoke(this, EventArgs.Empty);
+                }
+            }
+
+            if (frequentItems.Count != 0)
+            {
+                Detected?.Invoke(this, frequentItems);
+            }
         }
     }
 }
