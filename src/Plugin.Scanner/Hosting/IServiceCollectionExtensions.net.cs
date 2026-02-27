@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Scanners;
 
 namespace Plugin.Scanner.Hosting;
 
@@ -17,6 +18,7 @@ public static partial class IServiceCollectionExtensions
     public static partial IServiceCollection AddBarcodeScanner(this IServiceCollection serviceCollection)
     {
         serviceCollection.TryAddSingleton<IBarcodeScanner, BarcodeScanner>();
+        serviceCollection.TryAddSingleton<ITextScanner, TextScanner>();
 
         return serviceCollection;
     }

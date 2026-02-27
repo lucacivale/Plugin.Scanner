@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Android.OS;
 using AndroidX.Camera.Core;
 using AndroidX.Camera.Core.ResolutionSelector;
@@ -10,16 +11,17 @@ using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
-using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Exceptions;
-using System.Diagnostics.CodeAnalysis;
+using Plugin.Scanner.Core.Models;
+using Plugin.Scanner.Core.Options;
 using Xamarin.Google.MLKit.Vision.BarCode;
 using ASize = Android.Util.Size;
 using Exception = System.Exception;
-using IBarcodeScanner = Plugin.Scanner.Core.Barcode.IBarcodeScanner;
+using IBarcodeScanner = Plugin.Scanner.Core.Scanners.IBarcodeScanner;
 using MLBarcode = Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode;
 
-namespace Plugin.Scanner.Android.Barcode;
+namespace Plugin.Scanner.Android.Scanners;
 
 /// <summary>
 /// Provides Android-specific implementation of the barcode scanner interface using Google ML Kit.
@@ -34,7 +36,7 @@ namespace Plugin.Scanner.Android.Barcode;
 /// requires the <c>CAMERA</c> permission to be granted.
 /// </para>
 /// </remarks>
-public sealed class BarcodeScanner : IBarcodeScanner
+internal sealed class BarcodeScanner : IBarcodeScanner
 {
     private readonly ICurrentActivity _currentActivity;
 
@@ -56,7 +58,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// A task that represents the asynchronous scan operation. The task result contains
     /// the scanned barcode with its decoded value.
     /// </returns>
-    /// <exception cref="BarcodeScanException">
+    /// <exception cref="ScanException">
     /// Thrown when the scan operation fails due to one of the following reasons:
     /// <list type="bullet">
     /// <item><description>The device has no camera available</description></item>
@@ -80,11 +82,11 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// </remarks>
     [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
-    public async Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
+    public async Task<IScanResult> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
     {
-        _ = _currentActivity.Activity.MainLooper ?? throw new BarcodeScanException("MainLooper can't be null here");
+        _ = _currentActivity.Activity.MainLooper ?? throw new ScanException("MainLooper can't be null here");
 
-        TaskCompletionSource<IBarcode> scanCompleteTaskSource = new();
+        TaskCompletionSource<IScanResult> scanCompleteTaskSource = new();
 
         using Handler handler = new(_currentActivity.Activity.MainLooper);
 
@@ -104,7 +106,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
                 using BarcodeScannerOptions scannerOptions = builder
                     .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
                     .Build();
-                using DefaultDataDetector<MLBarcode> barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode());
+                using BarcodeDataDetector barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode());
                 using MlKitAnalyzer analyzer = new([barcodeDetector.Detector], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, barcodeDetector);
 
                 using LifecycleCameraController cameraController = new(_currentActivity.Activity);
@@ -132,7 +134,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
                     options.RecognizeMultiple,
                     options.IsHighlightingEnabled);
 
-                IBarcode barcode = new Core.Barcode.Barcode((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);
+                IScanResult barcode = new ScanResult((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);
                 scanCompleteTaskSource.TrySetResult(barcode);
 
                 cameraController.ClearImageAnalysisAnalyzer();
@@ -153,7 +155,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
                 or NoCameraException
                 or ViewNotFoundException)
         {
-            throw new BarcodeScanException(e.Message, e);
+            throw new ScanException(e.Message, e);
         }
     }
 }

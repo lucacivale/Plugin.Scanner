@@ -7,4 +7,19 @@
         <Using Include="Android.Views" />
         <Using Include="Android.Graphics.Drawables" />
     </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Plugin.Scanner.Android</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Plugin.Scanner.iOS</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Plugin.Scanner</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Plugin.Scanner.Avalonia</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 </Project>

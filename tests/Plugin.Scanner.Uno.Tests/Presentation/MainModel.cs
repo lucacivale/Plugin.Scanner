@@ -1,7 +1,10 @@
 using System.Diagnostics;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.Core.Extensions;
+using Plugin.Scanner.Core.Scanners;
 using Plugin.Scanner.Models;
+using Plugin.Scanner.Options;
 using Plugin.Scanner.Overlays.Barcode;
 
 namespace Plugin.Scanner.Uno.Tests.Presentation;
@@ -29,11 +32,11 @@ public partial record MainModel
                 Overlay = new DefaultBarcodeScannerOverlay(),
             };
 
-            string barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
+            string barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).Value;
 
             await Barcode.SetAsync(barcode);
         }
-        catch (BarcodeScanException exception)
+        catch (ScanException exception)
         {
             Debug.WriteLine(exception);
 

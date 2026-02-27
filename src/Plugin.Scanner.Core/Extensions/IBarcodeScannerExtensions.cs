@@ -1,4 +1,8 @@
-namespace Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Options;
+using Plugin.Scanner.Core.Scanners;
+
+namespace Plugin.Scanner.Core.Extensions;
 
 /// <summary>
 /// Provides extension methods for <see cref="IBarcodeScanner"/> to simplify common scanning operations.
@@ -38,7 +42,7 @@ public static class IBarcodeScannerExtensions
     /// Console.WriteLine($"Scanned: {barcode.RawValue}");
     /// </code>
     /// </example>
-    public static Task<IBarcode> ScanAsync(this IBarcodeScanner scanner, IBarcodeScanOptions options)
+    public static Task<IScanResult> ScanAsync(this IBarcodeScanner scanner, IBarcodeScanOptions options)
     {
         return scanner.ScanAsync(options, CancellationToken.None);
     }

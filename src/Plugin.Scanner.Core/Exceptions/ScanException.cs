@@ -1,21 +1,21 @@
 namespace Plugin.Scanner.Core.Exceptions;
 
 /// <inheritdoc />
-public sealed class BarcodeScanException : Exception
+public sealed class ScanException : Exception
 {
     /// <inheritdoc />
-    public BarcodeScanException(string message)
+    public ScanException(string message)
         : base(message)
     {
     }
 
     /// <inheritdoc />
-    public BarcodeScanException()
+    public ScanException()
     {
     }
 
     /// <inheritdoc />
-    public BarcodeScanException(string message, Exception innerException)
+    public ScanException(string message, Exception innerException)
         : base(message, innerException)
     {
     }

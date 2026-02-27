@@ -5,19 +5,27 @@ using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Models;
 using Plugin.Scanner.Overlays.Barcode;
 using System.Diagnostics;
+using Plugin.Scanner.Core.Extensions;
+using Plugin.Scanner.Core.Scanners;
+using Plugin.Scanner.Options;
 
 namespace Plugin.Scanner.Maui.Tests.ViewModels;
 
 public partial class MainViewModel : BaseViewModel
 {
     private readonly IBarcodeScanner _barcodeScanner;
+    private readonly ITextScanner _textScanner;
 
     [ObservableProperty]
     private string _barcode = string.Empty;
+    
+    [ObservableProperty]
+    private string _text = string.Empty;
 
-    public MainViewModel(IBarcodeScanner barcodeScanner)
+    public MainViewModel(IBarcodeScanner barcodeScanner, ITextScanner textScanner)
     {
         _barcodeScanner = barcodeScanner;
+        _textScanner = textScanner;
     }
 
     [RelayCommand]
@@ -30,12 +38,31 @@ public partial class MainViewModel : BaseViewModel
                 Formats = BarcodeFormat.All,
                 IsHighlightingEnabled = true,
                 RegionOfInterest = new CenteredRegionOfInterest(250, 200),
-                Overlay = new DefaultBarcodeScannerOverlay(),
             };
 
-            Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).RawValue;
+            Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).Value;
         }
-        catch(BarcodeScanException exception)
+        catch(ScanException exception)
+        {
+            Debug.WriteLine(exception);
+
+            Barcode = "Something went wrong.";
+        }
+    }
+
+    [RelayCommand]
+    public async Task ScanText()
+    {
+        try
+        {
+            TextScanOptions options = new()
+            {
+                IsHighlightingEnabled = true,
+            };
+
+            Text = (await _textScanner.ScanAsync(options).ConfigureAwait(false)).Value;
+        }
+        catch(ScanException exception)
         {
             Debug.WriteLine(exception);
 

@@ -1,4 +1,7 @@
-namespace Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Scanners;
+
+namespace Plugin.Scanner.Core.Options;
 
 /// <summary>
 /// Defines configuration options for barcode scanning operations.
@@ -15,7 +18,7 @@ namespace Plugin.Scanner.Core.Barcode;
 /// </remarks>
 /// <seealso cref="BarcodeScanOptions"/>
 /// <seealso cref="IBarcodeScanner"/>
-public interface IBarcodeScanOptions : IDisposable
+public interface IBarcodeScanOptions : IDisposable, IScanOptions
 {
     /// <summary>
     /// Gets the barcode formats to be recognized during scanning.
@@ -40,14 +43,4 @@ public interface IBarcodeScanOptions : IDisposable
     /// </para>
     /// </remarks>
     BarcodeFormat Formats { get; }
-
-    bool RecognizeMultiple { get; }
-
-    bool IsHighlightingEnabled { get; }
-
-    bool IsPinchToZoomEnabled { get; }
-
-    IRegionOfInterest? RegionOfInterest { get; }
-
-    IOverlay Overlay { get; }
 }

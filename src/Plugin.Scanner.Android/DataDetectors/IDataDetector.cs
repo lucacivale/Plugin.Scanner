@@ -1,5 +1,4 @@
 ﻿using AndroidX.Core.Util;
-using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Models;
 using Xamarin.Google.MLKit.Vision.Interfaces;
 

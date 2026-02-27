@@ -1,0 +1,23 @@
+using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Options;
+using Plugin.Scanner.Overlays.Barcode;
+
+namespace Plugin.Scanner.Options;
+
+public sealed class TextScanOptions : ITextScanOptions
+{
+    public bool RecognizeMultiple { get; set; }
+
+    public bool IsHighlightingEnabled { get; set; } = true;
+
+    public bool IsPinchToZoomEnabled { get; set; } = true;
+
+    public IRegionOfInterest? RegionOfInterest { get; set; }
+
+    public IOverlay Overlay { get; set; } = new DefaultBarcodeScannerOverlay();
+
+    public void Dispose()
+    {
+        Overlay.Dispose();
+    }
+}

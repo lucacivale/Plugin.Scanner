@@ -1,4 +1,6 @@
-namespace Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Options;
+
+namespace Plugin.Scanner.Core.Scanners;
 
 /// <summary>
 /// Defines the contract for barcode scanning functionality across different platforms.
@@ -55,5 +57,5 @@ public interface IBarcodeScanner
     /// Console.WriteLine($"Scanned: {barcode.RawValue}");
     /// </code>
     /// </example>
-    Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken);
+    Task<IScanResult> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken);
 }

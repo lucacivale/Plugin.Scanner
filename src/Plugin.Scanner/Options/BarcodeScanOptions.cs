@@ -1,8 +1,9 @@
 using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Options;
 using Plugin.Scanner.Overlays.Barcode;
 
-namespace Plugin.Scanner;
+namespace Plugin.Scanner.Options;
 
 /// <summary>
 /// Provides configuration options for barcode scanning operations.

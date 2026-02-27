@@ -1,18 +1,19 @@
 using System.Runtime.Versioning;
 using AVFoundation;
 using Plugin.Scanner.Core;
-using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.Core.Models;
 using Plugin.Scanner.iOS.Binding;
 using Plugin.Scanner.iOS.Exceptions;
 using Plugin.Scanner.iOS.Extensions;
+using RecognizedItem = Plugin.Scanner.iOS.Binding.RecognizedItem;
 
 namespace Plugin.Scanner.iOS;
 
 /// <summary>
 /// Provides a managed wrapper around the native data scanner view controller with enhanced event handling and error management.
 /// </summary>
-internal class DataScannerViewController : Binding.DataScannerViewController
+internal sealed class DataScannerViewController : Binding.DataScannerViewController
 {
     private readonly DataScannerViewControllerDelegate _dataScannerViewControllerDelegate;
     private readonly IOverlay? _overlay;
@@ -177,9 +178,9 @@ internal class DataScannerViewController : Binding.DataScannerViewController
         DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(result));
     }
 
-    public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)
+    public async Task<IScanResult> ScanAsync(CancellationToken cancellationToken)
     {
-        UIViewController topViewController = WindowUtils.GetTopViewController() ?? throw new BarcodeScanException("Failed to find top UIViewController.");
+        UIViewController topViewController = WindowUtils.GetTopViewController() ?? throw new ScanException("Failed to find top UIViewController.");
 
         StartScanning();
 
@@ -191,7 +192,7 @@ internal class DataScannerViewController : Binding.DataScannerViewController
 
         _overlay?.Cleanup();
 
-        return new Core.Barcode.Barcode(barcode);
+        return new ScanResult(barcode);
     }
 
     /// <summary>

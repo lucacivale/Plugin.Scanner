@@ -1,17 +1,18 @@
 using System.Diagnostics.CodeAnalysis;
 using CoreFoundation;
-using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.Core.Options;
+using Plugin.Scanner.Core.Scanners;
 using Plugin.Scanner.iOS.Binding;
 using Plugin.Scanner.iOS.Exceptions;
-using Plugin.Scanner.iOS.Extensions;
 
-namespace Plugin.Scanner.iOS.Barcode;
+namespace Plugin.Scanner.iOS.Scanners;
 
 /// <summary>
 /// Provides barcode scanning functionality using the device camera.
 /// </summary>
-public sealed class BarcodeScanner : IBarcodeScanner
+internal sealed class TextScanner : ITextScanner
 {
     /// <summary>
     /// Asynchronously scans for a barcode using the device camera.
@@ -19,22 +20,22 @@ public sealed class BarcodeScanner : IBarcodeScanner
     /// <param name="options">The <see cref="IBarcodeScanOptions"/> specifying which barcode formats to recognize.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> token to cancel the scan operation.</param>
     /// <returns>A <see cref="Task{IBarcode}"/> that represents the asynchronous operation. The task result contains the scanned barcode.</returns>
-    /// <exception cref="BarcodeScanException">
+    /// <exception cref="ScanException">
     /// Thrown when a scanner-related error occurs, including
     /// camera configuration issues, invalid event types, scanner start failures,
     /// torch mode problems, scanner availability issues, or view controller errors.
     /// </exception>
     [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
-    public async Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
+    public async Task<IScanResult> ScanAsync(ITextScanOptions options, CancellationToken cancellationToken)
     {
-        TaskCompletionSource<IBarcode> scanCompleteTaskSource = new();
+        TaskCompletionSource<IScanResult> scanCompleteTaskSource = new();
 
         DispatchQueue.MainQueue.DispatchAsync(async () =>
         {
             try
             {
-                using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
+                using RecognizedDataType barcodeType = RecognizedDataType.Text(Binding.DataScannerViewController.SupportedTextRecognitionLanguages, TextContentType.Default);
                 using DataScannerViewController scanner = new(
                     [barcodeType],
                     recognizesMultipleItems: options.RecognizeMultiple,
@@ -65,7 +66,7 @@ public sealed class BarcodeScanner : IBarcodeScanner
                       or DataScannerUnsupportedException
                       or DataScannerViewNullReferenceException)
         {
-            throw new BarcodeScanException(e.Message, e);
+            throw new ScanException(e.Message, e);
         }
     }
 }

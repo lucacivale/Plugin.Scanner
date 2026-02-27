@@ -1,4 +1,5 @@
 ﻿using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Scanners;
 
 namespace Plugin.Scanner.Avalonia;
 
@@ -51,7 +52,7 @@ public static class BarcodeScanner
     /// <item><description>iOS: Uses native DataScannerViewController with camera access</description></item>
     /// </list>
     /// </remarks>
-    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new iOS.Barcode.BarcodeScanner();
+    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new iOS.Scanners.BarcodeScanner();
 #endif
 
 #if ANDROID
@@ -68,6 +69,6 @@ public static class BarcodeScanner
     /// <item><description>Android: Uses Googles ML-Kit camera-based scanner with activity context</description></item>
     /// </list>
     /// </remarks>
-    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new Scanner.Android.Barcode.BarcodeScanner(new Android.CurrentActivity());
+    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new Scanner.Android.Scanners.BarcodeScanner(new Android.CurrentActivity());
 #endif
 }

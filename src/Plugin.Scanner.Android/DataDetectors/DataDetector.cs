@@ -3,13 +3,12 @@ using Java.Interop;
 using Java.Util;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
-using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Models;
 using Xamarin.Google.MLKit.Vision.Interfaces;
 
 namespace Plugin.Scanner.Android.DataDetectors;
 
-internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object, IDataDetector
+internal abstract class DataDetector<TDetectedItemsType> : Java.Lang.Object, IDataDetector
     where TDetectedItemsType : class
 {
     private const int MaxFrames = 5;
@@ -21,7 +20,7 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
 
     private int _frameCount;
 
-    public DefaultDataDetector(IDetector detector, IRecognizedItemFactory<TDetectedItemsType> recognizedItemFactory)
+    public DataDetector(IDetector detector, IRecognizedItemFactory<TDetectedItemsType> recognizedItemFactory)
     {
         _detector = detector;
         _recognizedItemFactory = recognizedItemFactory;
@@ -35,6 +34,8 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
 
     public EventHandler? Cleared { get; set; }
 
+    protected IRecognizedItemFactory<TDetectedItemsType> RecognizedItemFactory => _recognizedItemFactory;
+
     public void Accept(Java.Lang.Object? t)
     {
         if (t is not MlKitAnalyzer.Result result)
@@ -44,13 +45,7 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
 
         using (result)
         {
-            ArrayList? results = null;
-            result.GetValue(Detector)?.TryJavaCast(out results);
-
-            using (results)
-            {
-                ProcessResults(results);
-            }
+            ProcessResults(MlKitResultToRecognizedItems(result));
         }
     }
 
@@ -70,10 +65,12 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
         base.Dispose(disposing);
     }
 
-    private void ProcessResults(ArrayList? results)
+    protected abstract IReadOnlyList<RecognizedItem>? MlKitResultToRecognizedItems(MlKitAnalyzer.Result result);
+
+    private void ProcessResults(IReadOnlyList<RecognizedItem>? recognizedItems)
     {
-        if (results is null
-             || results.IsEmpty)
+        if (recognizedItems is null
+            || recognizedItems.Count == 0)
         {
             _frameCount = 0;
             Cleared?.Invoke(this, EventArgs.Empty);
@@ -81,8 +78,6 @@ internal sealed class DefaultDataDetector<TDetectedItemsType> : Java.Lang.Object
         else
         {
             _frameCount++;
-
-            IReadOnlyList<RecognizedItem> recognizedItems = _recognizedItemFactory.Create(results.ToEnumerable().OfType<TDetectedItemsType>());
 
             foreach (RecognizedItem item in recognizedItems)
             {

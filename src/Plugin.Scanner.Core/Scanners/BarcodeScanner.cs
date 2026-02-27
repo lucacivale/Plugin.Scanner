@@ -1,3 +1,7 @@
+using Plugin.Scanner.Core.Models;
+using Plugin.Scanner.Core.Options;
+using Plugin.Scanner.Core.Scanners;
+
 namespace Plugin.Scanner.Core.Barcode;
 
 /// <summary>
@@ -15,7 +19,7 @@ namespace Plugin.Scanner.Core.Barcode;
 /// </list>
 /// </para>
 /// </remarks>
-public class BarcodeScanner : IBarcodeScanner
+internal sealed class BarcodeScanner : IBarcodeScanner
 {
     /// <summary>
     /// Asynchronously scans for a barcode using the device camera.
@@ -30,8 +34,8 @@ public class BarcodeScanner : IBarcodeScanner
     /// This is a placeholder implementation that always returns an empty barcode.
     /// Platform-specific implementations should override this behavior to provide actual scanning functionality.
     /// </remarks>
-    public Task<IBarcode> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
+    public Task<IScanResult> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)
     {
-        return Task.FromResult<IBarcode>(new Barcode(string.Empty));
+        return Task.FromResult<IScanResult>(new ScanResult(string.Empty));
     }
 }

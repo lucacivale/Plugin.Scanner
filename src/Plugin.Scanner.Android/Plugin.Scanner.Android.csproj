@@ -8,6 +8,7 @@
 		<PackageReference Include="Xamarin.AndroidX.Camera.MLKit.Vision" />
 		<PackageReference Include="Xamarin.Google.Android.Material" />
 		<PackageReference Include="Xamarin.Google.MlKit.BarcodeScanning" />
+		<PackageReference Include="Xamarin.Google.MLKit.TextRecognition" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +18,9 @@
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>Plugin.Scanner</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Plugin.Scanner.Avalonia</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
 
