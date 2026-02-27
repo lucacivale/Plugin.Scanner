@@ -2,7 +2,7 @@
 
 namespace Plugin.Scanner.Overlays.Barcode;
 
-internal sealed partial class DefaultBarcodeScannerOverlay : IOverlay
+internal sealed partial class BarcodeScannerOverlay : IOverlay
 {
     public void AddOverlay()
     {

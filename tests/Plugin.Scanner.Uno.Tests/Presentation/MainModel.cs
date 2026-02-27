@@ -29,7 +29,6 @@ public partial record MainModel
                 Formats = BarcodeFormat.All,
                 IsHighlightingEnabled = true,
                 RegionOfInterest = new CenteredRegionOfInterest(250, 200),
-                Overlay = new DefaultBarcodeScannerOverlay(),
             };
 
             string barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).Value;

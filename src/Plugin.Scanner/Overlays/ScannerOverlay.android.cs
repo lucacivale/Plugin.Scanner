@@ -5,16 +5,14 @@ using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Models;
-using Plugin.Scanner.Extensions;
 using Plugin.Scanner.Views.Android;
 using Orientation = Android.Content.Res.Orientation;
 
-namespace Plugin.Scanner.Overlays.Barcode;
+namespace Plugin.Scanner.Overlays;
 
-internal sealed class DefaultBarcodeScannerOverlay : Java.Lang.Object, IOverlay, View.IOnTouchListener
+internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, View.IOnTouchListener
 {
     private IReadOnlyList<RecognizedItem>? _recognizedItems;
-    private RecognizedItem? _selectedRecognizedItem;
 
     private Orientation? _orientation;
 
@@ -22,6 +20,12 @@ internal sealed class DefaultBarcodeScannerOverlay : Java.Lang.Object, IOverlay,
     private View? _root;
     private RegionOfInterest? _regionOfInterestView;
     private IRegionOfInterest? _regionOfInterest;
+
+    protected DataScannerDialog? Dialog => _dialog;
+
+    protected View? Root => _root;
+
+    protected IReadOnlyList<RecognizedItem>? RecognizedItems => _recognizedItems;
 
     public void Init(Dialog dialog, View root)
     {
@@ -99,16 +103,7 @@ internal sealed class DefaultBarcodeScannerOverlay : Java.Lang.Object, IOverlay,
         _dialog?.Cleared -= OnCleared;
     }
 
-    public bool OnTouch(View? v, MotionEvent? e)
-    {
-        if (e?.Action == MotionEventActions.Down
-            && _recognizedItems?.FirstOrDefault(x => x.Bounds.ContainsWithTolerance((int)e.GetX(), (int)e.GetY(), 30)) is RecognizedItem item)
-        {
-            _selectedRecognizedItem = item;
-        }
-
-        return false;
-    }
+    public abstract bool OnTouch(View? v, MotionEvent? e);
 
     protected override void Dispose(bool disposing)
     {
@@ -172,47 +167,11 @@ internal sealed class DefaultBarcodeScannerOverlay : Java.Lang.Object, IOverlay,
         previewView.Invalidate();
     }
 
-    private void OnDetected(object? sender, IReadOnlyList<RecognizedItem> e)
+    protected virtual void OnDetected(object? sender, IReadOnlyList<RecognizedItem> e)
     {
-        PreviewView previewView = _dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        PreviewView previewView = Dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Overlay?.Clear();
 
         _recognizedItems = e;
-        RecognizedItem? recognizedItem;
-
-        if (_dialog?.RecognizeMultiple == false)
-        {
-            _selectedRecognizedItem ??= e.First();
-
-            recognizedItem = e.FirstOrDefault(x => x.Equals(_selectedRecognizedItem)) ?? e.First();
-        }
-        else
-        {
-            recognizedItem = e.FirstOrDefault(x => x.Equals(_selectedRecognizedItem)) ?? null;
-        }
-
-        RecognizedItemButton itemButton = _root?.FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-        itemButton.RecognizedItem = recognizedItem;
-        itemButton.Visibility = recognizedItem is null ? ViewStates.Gone : ViewStates.Visible;
-
-        if (_dialog?.IsHighlightingEnabled == true)
-        {
-            if (_dialog?.RecognizeMultiple == false)
-            {
-                if (recognizedItem is not null)
-                {
-                    previewView.Overlay?.Add(new RecognizedItemHighlight(recognizedItem));
-                }
-            }
-            else
-            {
-                foreach (RecognizedItem item in e)
-                {
-                    previewView.Overlay?.Add(new RecognizedItemHighlight(item));
-                }
-            }
-        }
-
-        previewView.Invalidate();
     }
 }

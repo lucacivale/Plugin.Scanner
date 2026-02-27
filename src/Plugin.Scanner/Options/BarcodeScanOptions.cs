@@ -45,7 +45,7 @@ public sealed class BarcodeScanOptions : IBarcodeScanOptions
 
     public IRegionOfInterest? RegionOfInterest { get; set; }
 
-    public IOverlay Overlay { get; set; } = new DefaultBarcodeScannerOverlay();
+    public IOverlay Overlay { get; set; } = new BarcodeScannerOverlay();
 
     public void Dispose()
     {

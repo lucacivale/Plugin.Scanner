@@ -6,8 +6,6 @@ namespace Plugin.Scanner.Options;
 
 public sealed class TextScanOptions : ITextScanOptions
 {
-    public bool RecognizeMultiple { get; set; }
-
     public bool IsHighlightingEnabled { get; set; } = true;
 
     public bool IsPinchToZoomEnabled { get; set; } = true;

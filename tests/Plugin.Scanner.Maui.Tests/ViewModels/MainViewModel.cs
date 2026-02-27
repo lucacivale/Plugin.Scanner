@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Models;
-using Plugin.Scanner.Overlays.Barcode;
 using System.Diagnostics;
 using Plugin.Scanner.Core.Extensions;
 using Plugin.Scanner.Core.Scanners;

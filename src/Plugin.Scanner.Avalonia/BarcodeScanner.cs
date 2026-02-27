@@ -1,5 +1,4 @@
-﻿using Plugin.Scanner.Core.Barcode;
-using Plugin.Scanner.Core.Scanners;
+﻿using Plugin.Scanner.Core.Scanners;
 
 namespace Plugin.Scanner.Avalonia;
 

@@ -6,7 +6,6 @@ using System.Diagnostics;
 using Plugin.Scanner.Core.Extensions;
 using Plugin.Scanner.Models;
 using Plugin.Scanner.Options;
-using Plugin.Scanner.Overlays.Barcode;
 
 namespace Plugin.Scanner.Avalonia.Tests.ViewModels;
 
@@ -14,6 +13,9 @@ public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
     private string _barcode = string.Empty;
+    
+    [ObservableProperty]
+    private string _text = string.Empty;
 
     [RelayCommand]
     public async Task ScanBarcode()
@@ -25,10 +27,29 @@ public partial class MainViewModel : ViewModelBase
                 Formats = BarcodeFormat.All,
                 IsHighlightingEnabled = true,
                 RegionOfInterest = new CenteredRegionOfInterest(250, 200),
-                Overlay = new DefaultBarcodeScannerOverlay(),
             };
 
             Barcode = (await BarcodeScanner.Default.ScanAsync(options).ConfigureAwait(false)).Value;
+        }
+        catch (ScanException exception)
+        {
+            Debug.WriteLine(exception);
+
+            Barcode = "Something went wrong.";
+        }
+    }
+    
+    [RelayCommand]
+    public async Task ScanText()
+    {
+        try
+        {
+            TextScanOptions options = new()
+            {
+                IsHighlightingEnabled = true,
+            };
+
+            Text = (await TextScanner.Default.ScanAsync(options).ConfigureAwait(false)).Value;
         }
         catch (ScanException exception)
         {

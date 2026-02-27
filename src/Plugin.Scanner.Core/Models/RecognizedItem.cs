@@ -16,7 +16,7 @@ public sealed class RecognizedItem : IEquatable<RecognizedItem>
     }
 
     public RecognizedItem(Guid id, string text, Rectangle bounds)
-    : this(text, bounds)
+        : this(text, bounds)
     {
         Id = id.ToString();
     }
@@ -52,12 +52,6 @@ public sealed class RecognizedItem : IEquatable<RecognizedItem>
     public override int GetHashCode()
     {
         return Id.GetHashCode(StringComparison.Ordinal);
-    }
-
-    public bool Compare(RecognizedItem? other)
-    {
-        return Text.Equals(other?.Text, StringComparison.Ordinal)
-            && Bounds.Equals(other?.Bounds);
     }
 
     public static RecognizedItem Empty => new(string.Empty, Rectangle.Empty);

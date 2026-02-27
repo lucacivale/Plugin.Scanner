@@ -4,7 +4,7 @@
 
 - Planned
   - Custom data scanner view with overlay etc.
-  - TextScanner and DocumentScanner
+  - DocumentScanner
 
 # 🚀 Mobile cross platform data scanner
 
@@ -13,10 +13,10 @@
 [![Platform Support](https://img.shields.io/badge/platforms-iOS%20%7C%20Android%20-lightgrey.svg?style=flat-square)](#platforms)
 [![Framework Support](https://img.shields.io/badge/frameworks-MAUI%20%7C%20Uno%20%7C%20Avalonia-lightgrey.svg?style=flat-square)](#platforms)
 
-This plugin aims to enalbe *simple*, *fast* and *customizable* data scanning(barcodes, text, documents...) using native **Android** and **iOS** APIs [ML Kit](https://developers.google.com/ml-kit?hl=de) and [Vision Kit](https://developer.apple.com/documentation/visionkit?language=objc).
+This plugin aims to enable *simple*, *fast* and *customizable* data scanning(barcodes, text, documents...) using native **Android** and **iOS** APIs [ML Kit](https://developers.google.com/ml-kit?hl=de) and [Vision Kit](https://developer.apple.com/documentation/visionkit?language=objc).
 - Platform support **iOS 16+** and **Android 23+**
 - One shared API cross platforms and frameworks
-- Scan barcodes with only two lines of code
+- Scan barcodes, texts and documents with only two lines of code
 
 ![iOS](.screenshots/iOS/regionOfInterest.gif)
 ![iOS](.screenshots/iOS/pinchToZoom.gif)
@@ -148,7 +148,7 @@ protected override void OnCreate(Bundle? savedInstanceState)
 <summary><b>Implementation details</b></summary>
 
 - On iOS the scanner uses VisionKits [DataScannerViewController](https://developer.apple.com/documentation/visionkit/datascannerviewcontroller?language=objc)
-- On Android the scanner uses Googles [BarcodeScanner](https://developers.google.com/android/reference/com/google/mlkit/vision/barcode/BarcodeScanner)
+- On Android the scanner uses Googles [BarcodeScanner](https://developers.google.com/ml-kit/vision/barcode-scanning)
 
 </details>
 
@@ -158,9 +158,6 @@ protected override void OnCreate(Bundle? savedInstanceState)
 Resolve the registered IBarcodeScanner service and scan a single barcode in all supported formats
 
 ```csharp
-using Plugin.Scanner.Core.Barcode;
-using Plugin.Scanner.Core.Exceptions;
-
 public class MainViewModel
 {
     private readonly IBarcodeScanner _barcodeScanner;
@@ -176,7 +173,7 @@ public class MainViewModel
         {
             var barcode = await _barcodeScanner.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false);
         }
-        catch(BarcodeScanException exception)
+        catch(ScanException exception)
         {
             Debug.WriteLine(exception);
         }
@@ -190,12 +187,9 @@ public class MainViewModel
 <summary><b>Avalonia</b></summary>
 
 Since dependency injection is not available out of the box a static implementation of the scanner must be used.
-If you use dependency injection register the IBarcodeScanner serivce with the `IServiceCollection.AddBarcodeScanner()` extension method. See Maui and Uno examples.
+If you use dependency injection register the IBarcodeScanner serivce with the `IServiceCollection.AddScanner()` extension method. See Maui and Uno examples.
 
 ```csharp
-using Plugin.Scanner.Core.Barcode;
-using Plugin.Scanner.Core.Exceptions;
-
 public partial class MainViewModel
 {
     public async Task ScanBarcode()
@@ -204,7 +198,7 @@ public partial class MainViewModel
         {
             var barcode = await BarcodeScanner.Default.ScanAsync(new BarcodeScanOptions() { Formats = BarcodeFormat.All }).ConfigureAwait(false);
         }
-        catch (BarcodeScanException exception)
+        catch (ScanException exception)
         {
             Debug.WriteLine(exception);
         }
@@ -329,7 +323,7 @@ Keep in mind that when using a Custom Overlay, you are responsible for the entir
 <summary><b>Custom overlay</b></summary>
 
 Implement `Plugin.Scanner.Core.IOverlay` on each platform to create your own overlay.
-See [overlay](src/Plugin.Scanner/Overlays/Barcode) for an example implementation.
+See [overlay](src/Plugin.Scanner/Overlays) for an example implementation.
 
 A cross-platform example can be found [here](tests/Plugin.Scanner.Maui.Tests/BarcodeCustomOverlay.cs).</br>
 **This is just a showcase and not a production-ready implementation.**
@@ -338,6 +332,161 @@ Create a new instance and pass it to the options
 
 ```csharp
 BarcodeScanOptions options = new()
+{
+    Overlay = myAwesomeOverlay,
+};
+```
+
+</details>
+
+## 🔎 Text scanning
+
+Scan text blocks. Tap a highlighted block to select it, then tap the button at the bottom of the screen to finish.
+
+<details>
+<summary><b>Implementation details</b></summary>
+
+- On iOS the scanner uses VisionKits [DataScannerViewController](https://developer.apple.com/documentation/visionkit/datascannerviewcontroller?language=objc)
+- On Android the scanner uses Googles [TextRecognition](https://developers.google.com/ml-kit/vision/text-recognition/v2/android)
+
+</details>
+
+<details>
+<summary><b>MAUI & Uno</b></summary>
+
+Resolve the registered ITextScanner service and scan a single text block in all supported supported languaged.
+
+```csharp
+public class MainViewModel
+{
+    private readonly ITextScanner _textScanner;;
+
+    public MainViewModel(ITextScanner textScanner)
+    {
+        _textScanner = textScanner;
+    }
+
+    public async Task ScanText()
+    {
+        try
+        {
+            var text = await _textScanner.ScanAsync(new TextScanOptions()).ConfigureAwait(false);
+        }
+        catch(ScanException exception)
+        {
+            Debug.WriteLine(exception);
+        }
+    }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Avalonia</b></summary>
+
+Since dependency injection is not available out of the box a static implementation of the scanner must be used.
+If you use dependency injection register the ITextScanner serivce with the `IServiceCollection.AddScanner()` extension method. See Maui and Uno examples.
+
+```csharp
+public partial class MainViewModel
+{
+    public async Task ScanText()
+    {
+        try
+        {
+            var text = await TextScanner.Default.ScanAsync(new TextScanOptions()).ConfigureAwait(false);
+        }
+        catch (ScanException exception)
+        {
+            Debug.WriteLine(exception);
+        }
+    }
+}
+```
+
+</details>
+
+### 🟡 You don't want to highlight text blocks?
+
+<details>
+<summary><b>Highlighting enabled(default)</b></summary>
+
+- `_textScanner.ScanAsync(new TextScanOptions())`
+    - All detected barcodes are highlighted</br> </br>
+
+  ![Android](.screenshots/Android/highlighting.gif)
+  ![iOS](.screenshots/iOS/highlighting.gif)
+
+</details>
+
+<details>
+<summary><b>Highlighting disabled</b></summary>
+
+- `_textScanner.ScanAsync(new TextScanOptions({ IsHighlightingEnabled = false }))`
+    - No detected text block is highlighted</br> </br>
+
+  ![Android](.screenshots/Android/noHighlighting.gif)
+  ![iOS](.screenshots/iOS/noHighlighting.gif)
+
+</details>
+
+### 🟡 Allow a two-finger pinch-to-zoom gesture?
+
+<details>
+<summary><b>Pinch to zoom enabled(default)</b></summary>
+
+- `_textScanner.ScanAsync(new TextScanOptions())`
+
+  ![Android](.screenshots/Android/pinchToZoom.gif)
+  ![iOS](.screenshots/iOS/pinchToZoom.gif)
+
+</details>
+
+<details>
+<summary><b>Pinch to zoom disabled</b></summary>
+
+- `_textScanner.ScanAsync(new TextScanOptions({ IsPinchToZoomEnabled = false }))`
+    - No zoom allowed</br> </br>
+
+</details>
+
+### 🟡 Detect text only in a specific area?
+<details>
+<summary><b>Specify region of interest</b></summary>
+
+```csharp
+TextScanOptions options = new()
+{
+    RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+};
+var barcode = await _textScanner.ScanAsync(options);
+```
+- Adds a vertical and horizontal-centered 250x200 detection area
+- You can create your own area by implementing `IRegionOfInterest`
+- A region of interest will also add a visual overlay</br> </br>
+
+  ![Android](.screenshots/Android/regionOfInterest.gif)
+  ![iOS](.screenshots/iOS/regionOfInterest.gif)
+
+</details>
+
+### 🟡 You don't like the default overlay? Create your own!
+Keep in mind that when using a Custom Overlay, you are responsible for the entire overlay (you cannot mix and match custom elements with the default overlay).
+
+<details>
+<summary><b>Custom overlay</b></summary>
+
+Implement `Plugin.Scanner.Core.IOverlay` on each platform to create your own overlay.
+See [overlay](src/Plugin.Scanner/Overlays) for an example implementation.
+
+A cross-platform example can be found [here](tests/Plugin.Scanner.Maui.Tests/BarcodeCustomOverlay.cs).</br>
+**This is just a showcase and not a production-ready implementation.**
+
+Create a new instance and pass it to the options
+
+```csharp
+TextScanOptions options = new()
 {
     Overlay = myAwesomeOverlay,
 };

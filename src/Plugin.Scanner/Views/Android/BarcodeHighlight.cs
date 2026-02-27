@@ -5,7 +5,7 @@ using Path = Android.Graphics.Path;
 
 namespace Plugin.Scanner.Views.Android;
 
-internal sealed class RecognizedItemHighlight : Drawable
+internal sealed class BarcodeHighlight : Drawable
 {
     private const float CornerRadius = 25f;
 
@@ -15,7 +15,7 @@ internal sealed class RecognizedItemHighlight : Drawable
 
     private readonly Rect _box;
 
-    public RecognizedItemHighlight(RecognizedItem item)
+    public BarcodeHighlight(RecognizedItem item)
     {
         _boxPaint = new Paint
         {
