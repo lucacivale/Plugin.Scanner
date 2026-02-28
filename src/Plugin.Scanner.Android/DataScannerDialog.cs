@@ -69,7 +69,9 @@ internal sealed class DataScannerDialog : AppCompatDialog
 
         // Wait here because MLKit won't stop analyzing until the pipeline is finished.
         // If we dispose of the dialog before MLKit finishes, it will throw an exception.
-        await Task.Delay(250, cancellationToken).ConfigureAwait(true);
+        await Task.Delay(450, cancellationToken).ConfigureAwait(true);
+
+        base.Dismiss();
 
         return result;
     }
@@ -85,23 +87,14 @@ internal sealed class DataScannerDialog : AppCompatDialog
     {
         Cleanup();
 
-        base.Dismiss();
-
         _scanCompleteTaskSource?.TrySetResult(RecognizedItem.Empty);
     }
 
     public void Dismiss(RecognizedItem item)
     {
+        Cleanup();
+
         _scanCompleteTaskSource?.TrySetResult(item);
-
-        Dismiss();
-    }
-
-    public override void Cancel()
-    {
-        base.Cancel();
-
-        _scanCompleteTaskSource?.TrySetResult(RecognizedItem.Empty);
     }
 
     private void Cleanup()

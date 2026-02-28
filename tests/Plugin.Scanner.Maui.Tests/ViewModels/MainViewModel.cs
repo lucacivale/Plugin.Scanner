@@ -57,6 +57,7 @@ public partial class MainViewModel : BaseViewModel
             TextScanOptions options = new()
             {
                 IsHighlightingEnabled = true,
+                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
             };
 
             Text = (await _textScanner.ScanAsync(options).ConfigureAwait(false)).Value;
