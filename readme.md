@@ -18,12 +18,17 @@ This plugin aims to enable *simple*, *fast* and *customizable* data scanning(bar
 - One shared API cross platforms and frameworks
 - Scan barcodes, texts and documents with only two lines of code
 
-![iOS](.screenshots/iOS/regionOfInterest.gif)
-![iOS](.screenshots/iOS/pinchToZoom.gif)
-![iOS](.screenshots/iOS/multipleRecognition.gif) </br> </br>
-![Android](.screenshots/Android/regionOfInterest.gif)
-![Android](.screenshots/Android/pinchToZoom.gif)
-![Android](.screenshots/Android/multipleRecognition.gif)
+# 🔳  Barcode scanning
+|                                                              |                                                         |                                                                 |
+|--------------------------------------------------------------|---------------------------------------------------------|-----------------------------------------------------------------|
+| ![iOS](.screenshots/iOS/barcodescanner/regionOfInterest.gif) | ![iOS](.screenshots/iOS/barcodescanner/pinchToZoom.gif) | ![iOS](.screenshots/iOS/barcodescanner/multipleRecognition.gif) | </br> </br>
+| ![Android](.screenshots/Android/regionOfInterest.gif)        | ![Android](.screenshots/Android/pinchToZoom.gif)        | ![Android](.screenshots/Android/multipleRecognition.gif)        |
+
+# 🔎 Text scanning
+|                                                           |                                                      |                                                          |
+|-----------------------------------------------------------|------------------------------------------------------|----------------------------------------------------------|
+| ![iOS](.screenshots/iOS/textscanner/regionOfInterest.gif) | ![iOS](.screenshots/iOS/textscanner/pinchToZoom.gif) | ![iOS](.screenshots/iOS/textscanner/highlighting.gif)    |
+| ![Android](.screenshots/Android/regionOfInterest.gif)     | ![Android](.screenshots/Android/pinchToZoom.gif)     | ![Android](.screenshots/Android/multipleRecognition.gif) |
 
 ## 🚀 Get started
 
@@ -234,9 +239,10 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
   - First detected barcode is highlighted
   - Tap on target barcode to highlight it, display confirmation button and complete the scan</br> </br>
-    
-  ![Android](.screenshots/Android/singleRecognition.gif)
-  ![iOS](.screenshots/iOS/singleRecognition.gif)
+
+| Android                                                | iOS                                                           |
+|--------------------------------------------------------|---------------------------------------------------------------|
+| ![Android](.screenshots/Android/singleRecognition.gif) | ![iOS](.screenshots/iOS/barcodescanner/singleRecognition.gif) |
   
 </details>
 
@@ -247,8 +253,9 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
   - All detected barcodes are highlighted
   - Tap on the target barcode to display the confirmation button and complete the scan</br> </br>
 
-  ![Android](.screenshots/Android/multipleRecognition.gif)
-  ![iOS](.screenshots/iOS/multipleRecognition.gif)
+| Android                                                  | iOS                                                             |
+|----------------------------------------------------------|-----------------------------------------------------------------|
+| ![Android](.screenshots/Android/multipleRecognition.gif) | ![iOS](.screenshots/iOS/barcodescanner/multipleRecognition.gif) |
   
 </details>
 
@@ -260,8 +267,9 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
   - All detected barcodes are highlighted</br> </br>
 
-  ![Android](.screenshots/Android/highlighting.gif)
-  ![iOS](.screenshots/iOS/highlighting.gif)
+| Android                                           | iOS                                                      |
+|---------------------------------------------------|----------------------------------------------------------|
+| ![Android](.screenshots/Android/highlighting.gif) | ![iOS](.screenshots/iOS/barcodescanner/highlighting.gif) |
 
 </details>
 
@@ -271,8 +279,9 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions({ IsHighlightingEnabled = false }))`
   - No detected barcode is highlighted</br> </br>
 
-  ![Android](.screenshots/Android/noHighlighting.gif)
-  ![iOS](.screenshots/iOS/noHighlighting.gif)
+| Android                                             | iOS                                                        |
+|-----------------------------------------------------|------------------------------------------------------------|
+| ![Android](.screenshots/Android/noHighlighting.gif) | ![iOS](.screenshots/iOS/barcodescanner/noHighlighting.gif) |
 
 </details>
 
@@ -283,8 +292,9 @@ Console.WriteLine($"Scanned: {barcode.RawValue}");
 
 - `_barcodeScanner.ScanAsync(new BarcodeScanOptions())`
 
-  ![Android](.screenshots/Android/pinchToZoom.gif)
-  ![iOS](.screenshots/iOS/pinchToZoom.gif)
+| Android                                          | iOS                                                     |
+|--------------------------------------------------|---------------------------------------------------------|
+| ![Android](.screenshots/Android/pinchToZoom.gif) | ![iOS](.screenshots/iOS/barcodescanner/pinchToZoom.gif) |
 
 </details>
 
@@ -311,8 +321,9 @@ var barcode = (await _barcodeScanner.ScanAsync(options);
 - You can create your own area by implementing `IRegionOfInterest`
 - A region of interest will also add a visual overlay</br> </br>
 
-  ![Android](.screenshots/Android/regionOfInterest.gif)
-  ![iOS](.screenshots/iOS/regionOfInterest.gif)
+| Android                                               | iOS                                                          |
+|-------------------------------------------------------|--------------------------------------------------------------|
+| ![Android](.screenshots/Android/regionOfInterest.gif) | ![iOS](.screenshots/iOS/barcodescanner/regionOfInterest.gif) |
 
 </details>
 
@@ -341,7 +352,7 @@ BarcodeScanOptions options = new()
 
 ## 🔎 Text scanning
 
-Scan text blocks. Tap a highlighted block to select it, then tap the button at the bottom of the screen to finish.
+Scan text blocks. Tap a text block to select it, then tap the button at the bottom of the screen to finish.
 
 <details>
 <summary><b>Implementation details</b></summary>
@@ -415,8 +426,9 @@ public partial class MainViewModel
 - `_textScanner.ScanAsync(new TextScanOptions())`
     - All detected barcodes are highlighted</br> </br>
 
-  ![Android](.screenshots/Android/highlighting.gif)
-  ![iOS](.screenshots/iOS/highlighting.gif)
+| Android | iOS |
+|----------|------|
+| ![Android](.screenshots/Android/highlighting.gif) | ![iOS](.screenshots/iOS/textscanner/highlighting.gif) |
 
 </details>
 
@@ -426,8 +438,9 @@ public partial class MainViewModel
 - `_textScanner.ScanAsync(new TextScanOptions({ IsHighlightingEnabled = false }))`
     - No detected text block is highlighted</br> </br>
 
-  ![Android](.screenshots/Android/noHighlighting.gif)
-  ![iOS](.screenshots/iOS/noHighlighting.gif)
+| Android                                             | iOS                                                     |
+|-----------------------------------------------------|---------------------------------------------------------|
+| ![Android](.screenshots/Android/noHighlighting.gif) | ![iOS](.screenshots/iOS/textscanner/noHighlighting.gif) |
 
 </details>
 
@@ -438,8 +451,9 @@ public partial class MainViewModel
 
 - `_textScanner.ScanAsync(new TextScanOptions())`
 
-  ![Android](.screenshots/Android/pinchToZoom.gif)
-  ![iOS](.screenshots/iOS/pinchToZoom.gif)
+| Android                                          | iOS                                                  |
+|--------------------------------------------------|------------------------------------------------------|
+| ![Android](.screenshots/Android/pinchToZoom.gif) | ![iOS](.screenshots/iOS/textscanner/pinchToZoom.gif) |
 
 </details>
 
@@ -466,8 +480,9 @@ var barcode = await _textScanner.ScanAsync(options);
 - You can create your own area by implementing `IRegionOfInterest`
 - A region of interest will also add a visual overlay</br> </br>
 
-  ![Android](.screenshots/Android/regionOfInterest.gif)
-  ![iOS](.screenshots/iOS/regionOfInterest.gif)
+| Android                                               | iOS                                                       |
+|-------------------------------------------------------|-----------------------------------------------------------|
+| ![Android](.screenshots/Android/regionOfInterest.gif) | ![iOS](.screenshots/iOS/textscanner/regionOfInterest.gif) |
 
 </details>
 
