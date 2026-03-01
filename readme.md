@@ -1,12 +1,4 @@
-﻿# 📱 Plugin.Scanner
-
-# EARLY ALPHA
-
-- Planned
-  - Custom data scanner view with overlay etc.
-  - DocumentScanner
-
-# 🚀 Mobile cross platform data scanner
+﻿# 🚀 Mobile cross platform data scanner
 
 [![NuGet](https://img.shields.io/nuget/v/Plugin.Scanner.svg?style=flat-square&label=NuGet)](https://www.nuget.org/packages/Plugin.Scanner)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -25,10 +17,10 @@ This plugin aims to enable *simple*, *fast* and *customizable* data scanning(bar
 | ![Android](.screenshots/Android/barcodescanner/regionOfInterest.gif) | ![Android](.screenshots/Android/barcodescanner/pinchToZoom.gif) | ![Android](.screenshots/Android/barcodescanner/multipleRecognition.gif) |
 
 # 🔎 Text scanning
-|                                                                      |                                                                 |                                                                         |
-|----------------------------------------------------------------------|-----------------------------------------------------------------|-------------------------------------------------------------------------|
-| ![iOS](.screenshots/iOS/textscanner/regionOfInterest.gif)            | ![iOS](.screenshots/iOS/textscanner/pinchToZoom.gif)            | ![iOS](.screenshots/iOS/textscanner/highlighting.gif)                   |
-| ![Android](.screenshots/Android/barcodescanner/regionOfInterest.gif) | ![Android](.screenshots/Android/barcodescanner/pinchToZoom.gif) | ![Android](.screenshots/Android/barcodescanner/multipleRecognition.gif) |
+|                                                                   |                                                              |                                                               |
+|-------------------------------------------------------------------|--------------------------------------------------------------|---------------------------------------------------------------|
+| ![iOS](.screenshots/iOS/textscanner/regionOfInterest.gif)         | ![iOS](.screenshots/iOS/textscanner/pinchToZoom.gif)         | ![iOS](.screenshots/iOS/textscanner/highlighting.gif)         |
+| ![Android](.screenshots/Android/textscanner/regionOfInterest.gif) | ![Android](.screenshots/Android/textscanner/pinchToZoom.gif) | ![Android](.screenshots/Android/textscanner/highlighting.gif) |
 
 ## 🚀 Get started
 
@@ -426,9 +418,9 @@ public partial class MainViewModel
 - `_textScanner.ScanAsync(new TextScanOptions())`
     - All detected barcodes are highlighted</br> </br>
 
-| Android                                                          | iOS                                                   |
-|------------------------------------------------------------------|-------------------------------------------------------|
-| ![Android](.screenshots/Android/barcodescanner/highlighting.gif) | ![iOS](.screenshots/iOS/textscanner/highlighting.gif) |
+| Android                                                       | iOS                                                   |
+|---------------------------------------------------------------|-------------------------------------------------------|
+| ![Android](.screenshots/Android/textscanner/highlighting.gif) | ![iOS](.screenshots/iOS/textscanner/highlighting.gif) |
 
 </details>
 
@@ -438,9 +430,9 @@ public partial class MainViewModel
 - `_textScanner.ScanAsync(new TextScanOptions({ IsHighlightingEnabled = false }))`
     - No detected text block is highlighted</br> </br>
 
-| Android                                                            | iOS                                                     |
-|--------------------------------------------------------------------|---------------------------------------------------------|
-| ![Android](.screenshots/Android/barcodescanner/noHighlighting.gif) | ![iOS](.screenshots/iOS/textscanner/noHighlighting.gif) |
+| Android                                                         | iOS                                                     |
+|-----------------------------------------------------------------|---------------------------------------------------------|
+| ![Android](.screenshots/Android/textscanner/noHighlighting.gif) | ![iOS](.screenshots/iOS/textscanner/noHighlighting.gif) |
 
 </details>
 
@@ -451,9 +443,9 @@ public partial class MainViewModel
 
 - `_textScanner.ScanAsync(new TextScanOptions())`
 
-| Android                                                         | iOS                                                  |
-|-----------------------------------------------------------------|------------------------------------------------------|
-| ![Android](.screenshots/Android/barcodescanner/pinchToZoom.gif) | ![iOS](.screenshots/iOS/textscanner/pinchToZoom.gif) |
+| Android                                                      | iOS                                                  |
+|--------------------------------------------------------------|------------------------------------------------------|
+| ![Android](.screenshots/Android/textscanner/pinchToZoom.gif) | ![iOS](.screenshots/iOS/textscanner/pinchToZoom.gif) |
 
 </details>
 
@@ -480,9 +472,9 @@ var barcode = await _textScanner.ScanAsync(options);
 - You can create your own area by implementing `IRegionOfInterest`
 - A region of interest will also add a visual overlay</br> </br>
 
-| Android                                                              | iOS                                                       |
-|----------------------------------------------------------------------|-----------------------------------------------------------|
-| ![Android](.screenshots/Android/barcodescanner/regionOfInterest.gif) | ![iOS](.screenshots/iOS/textscanner/regionOfInterest.gif) |
+| Android                                                           | iOS                                                       |
+|-------------------------------------------------------------------|-----------------------------------------------------------|
+| ![Android](.screenshots/Android/textscanner/regionOfInterest.gif) | ![iOS](.screenshots/iOS/textscanner/regionOfInterest.gif) |
 
 </details>
 
