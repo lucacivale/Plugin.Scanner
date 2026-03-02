@@ -22,7 +22,7 @@ internal sealed class DocumentScanner : VNDocumentCameraViewControllerDelegate, 
         {
             try
             {
-                using VNDocumentCameraViewController scanner = new();
+                using VNDocumentCameraViewController scanner = [];
                 scanner.Delegate = this;
                 scanner.ModalInPresentation = true;
 
@@ -50,21 +50,21 @@ internal sealed class DocumentScanner : VNDocumentCameraViewControllerDelegate, 
     {
         List<IDocument> documents = [];
 
-        for (nuint i = 0; i <= scan.PageCount; i++)
+        for (nuint i = 0; i < scan.PageCount; i++)
         {
             documents.Add(new Document(scan.GetImage(i).AsPNG()?.ToArray() ?? []));
         }
 
-        _scanCompleteTaskSource?.TrySetResult(documents);
+        controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(documents));
     }
 
     public override void DidCancel(VNDocumentCameraViewController controller)
     {
-        _scanCompleteTaskSource?.TrySetResult([]);
+        controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult([]));
     }
 
     public override void DidFail(VNDocumentCameraViewController controller, NSError error)
     {
-        _scanCompleteTaskSource?.TrySetException(new ScanException(error.Description));
+        controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetException(new ScanException(error.Description)));
     }
 }

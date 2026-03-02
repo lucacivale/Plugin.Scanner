@@ -47,6 +47,18 @@ The CAMERA permission is required and must be configured in the Android project.
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.FLASHLIGHT" />
 ```
+You may encounter build error `JAVA0000 java` this is a known [.NET Android issue ](https://github.com/dotnet/android-libraries/issues/1341).</br>
+You can fix this by adding the following workaround to your `.csproj`
+
+```xml
+<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
+    <!-- workaround
+      https://github.com/dotnet/android-libraries/issues/1341
+      https://learn.microsoft.com/en-us/answers/questions/5689593/build-error-net-maui-app-upgrade-net-9-0-to-net-10
+    -->
+    <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" ExcludeAssets="all"/>
+</ItemGroup>
+```
 
 </details>
 

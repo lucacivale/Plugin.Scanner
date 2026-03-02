@@ -67,9 +67,11 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
     public async void OnActivityResult(Java.Lang.Object? result)
     {
         if (result is not ActivityResult aResult
+            || aResult.ResultCode != (int)Result.Ok
             || GmsDocumentScanningResult.FromActivityResultIntent(aResult.Data) is not GmsDocumentScanningResult scanResult
             || scanResult.Pages is not IList<GmsDocumentScanningResult.Page> pages)
         {
+            _taskCompletionSource.TrySetResult([]);
             return;
         }
 

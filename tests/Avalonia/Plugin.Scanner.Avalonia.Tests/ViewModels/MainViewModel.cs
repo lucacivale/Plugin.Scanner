@@ -6,6 +6,7 @@ using Plugin.Scanner.Core.Extensions;
 using Plugin.Scanner.Models;
 using Plugin.Scanner.Options;
 using System.Diagnostics;
+using Plugin.Scanner.Core;
 
 namespace Plugin.Scanner.Avalonia.Tests.ViewModels;
 
@@ -67,7 +68,7 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            var document = await DocumentScanner.Default.ScanAsync().ConfigureAwait(false);
+            IReadOnlyList<IDocument> document = await DocumentScanner.Default.ScanAsync().ConfigureAwait(false);
 
             ScannedDocuments = $"You scanned {document.Count} documents";
         }

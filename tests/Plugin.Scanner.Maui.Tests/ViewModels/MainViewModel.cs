@@ -4,6 +4,7 @@ using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Models;
 using System.Diagnostics;
+using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Extensions;
 using Plugin.Scanner.Core.Scanners;
 using Plugin.Scanner.Options;
@@ -80,7 +81,7 @@ public partial class MainViewModel : BaseViewModel
     {
         try
         {
-            var document = await _documentScanner.ScanAsync().ConfigureAwait(false);
+            IReadOnlyList<IDocument> document = await _documentScanner.ScanAsync().ConfigureAwait(false);
 
             ScannedDocuments = $"You scanned {document.Count} documents";
         }

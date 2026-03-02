@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Core.Extensions;
@@ -76,7 +77,7 @@ public partial record MainModel
     {
         try
         {
-            var document = await _documentScanner.ScanAsync().ConfigureAwait(false);
+            IReadOnlyList<IDocument> document = await _documentScanner.ScanAsync().ConfigureAwait(false);
 
             await ScannedDocuments.SetAsync($"You scanned {document.Count} documents").ConfigureAwait(false);
         }
