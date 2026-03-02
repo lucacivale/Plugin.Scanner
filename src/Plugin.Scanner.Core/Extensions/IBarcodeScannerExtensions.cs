@@ -1,4 +1,3 @@
-using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Options;
 using Plugin.Scanner.Core.Scanners;
 

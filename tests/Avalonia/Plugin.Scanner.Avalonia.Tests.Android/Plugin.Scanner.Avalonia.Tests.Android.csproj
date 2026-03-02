@@ -25,7 +25,7 @@
       https://github.com/dotnet/android-libraries/issues/1341
       https://learn.microsoft.com/en-us/answers/questions/5689593/build-error-net-maui-app-upgrade-net-9-0-to-net-10
      -->
-      <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" ExcludeAssets="all"/>
+      <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" ExcludeAssets="all"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -2,10 +2,10 @@
 using CommunityToolkit.Mvvm.Input;
 using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
-using System.Diagnostics;
 using Plugin.Scanner.Core.Extensions;
 using Plugin.Scanner.Models;
 using Plugin.Scanner.Options;
+using System.Diagnostics;
 
 namespace Plugin.Scanner.Avalonia.Tests.ViewModels;
 
@@ -16,6 +16,9 @@ public partial class MainViewModel : ViewModelBase
     
     [ObservableProperty]
     private string _text = string.Empty;
+
+    [ObservableProperty]
+    private string _scannedDocuments = string.Empty;
 
     [RelayCommand]
     public async Task ScanBarcode()
@@ -56,6 +59,21 @@ public partial class MainViewModel : ViewModelBase
             Debug.WriteLine(exception);
 
             Barcode = "Something went wrong.";
+        }
+    }
+
+    [RelayCommand]
+    public async Task ScanDocument()
+    {
+        try
+        {
+            var document = await DocumentScanner.Default.ScanAsync().ConfigureAwait(false);
+
+            ScannedDocuments = $"You scanned {document.Count} documents";
+        }
+        catch (ScanException exception)
+        {
+            Debug.WriteLine(exception);
         }
     }
 }

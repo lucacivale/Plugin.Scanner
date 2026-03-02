@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Plugin.Scanner.Uno.Hosting;
 using Plugin.Scanner.Uno.Tests.Presentation;
 

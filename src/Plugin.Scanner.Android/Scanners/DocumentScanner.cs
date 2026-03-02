@@ -6,12 +6,13 @@ using Google.MLKit.Vision.Documentscanner;
 using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Core.Models;
+using Plugin.Scanner.Core.Scanners;
 using CancellationToken = System.Threading.CancellationToken;
 using GmsTask = Android.Gms.Tasks.Task;
 
 namespace Plugin.Scanner.Android.Scanners;
 
-internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IOnFailureListener, IActivityResultCallback
+internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IOnFailureListener, IActivityResultCallback, IDocumentScanner
 {
     private readonly ICurrentActivity _currentActivity;
     private readonly ActivityResultLauncher _scannerLauncher;
@@ -37,7 +38,7 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
         using GmsDocumentScannerOptions.Builder builder = new();
         using GmsDocumentScannerOptions options = builder
           .SetGalleryImportAllowed(false)
-          .SetResultFormats(GmsDocumentScannerOptions.ResultFormatPdf)
+          .SetResultFormats(GmsDocumentScannerOptions.ResultFormatJpeg)
           .SetScannerMode(GmsDocumentScannerOptions.ScannerModeFull)
           .Build();
 
@@ -66,11 +67,9 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
     public async void OnActivityResult(Java.Lang.Object? result)
     {
         if (result is not ActivityResult aResult
-            || aResult.ResultCode != (int)Result.Ok
             || GmsDocumentScanningResult.FromActivityResultIntent(aResult.Data) is not GmsDocumentScanningResult scanResult
             || scanResult.Pages is not IList<GmsDocumentScanningResult.Page> pages)
         {
-            _taskCompletionSource.TrySetException(new ScanException("Something went wrong during scanning."));
             return;
         }
 

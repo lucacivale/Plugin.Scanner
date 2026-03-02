@@ -4,6 +4,7 @@ using Plugin.Scanner.Android;
 using System.Diagnostics.CodeAnalysis;
 using Plugin.Scanner.Core.Scanners;
 using BarcodeScanner = Plugin.Scanner.Android.Scanners.BarcodeScanner;
+using DocumentScanner = Plugin.Scanner.Android.Scanners.DocumentScanner;
 using TextScanner = Plugin.Scanner.Android.Scanners.TextScanner;
 
 namespace Plugin.Scanner.Hosting;
@@ -22,6 +23,7 @@ public static partial class IServiceCollectionExtensions
     {
         serviceCollection.TryAddSingleton<IBarcodeScanner, BarcodeScanner>();
         serviceCollection.TryAddSingleton<ITextScanner, TextScanner>();
+        serviceCollection.TryAddSingleton<IDocumentScanner, DocumentScanner>();
 
         return serviceCollection;
     }

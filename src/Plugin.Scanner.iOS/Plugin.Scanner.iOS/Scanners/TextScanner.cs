@@ -54,7 +54,7 @@ internal sealed class TextScanner : ITextScanner
 
         try
         {
-            return await scanCompleteTaskSource.Task.WaitAsync(CancellationToken.None).ConfigureAwait(true);
+            return await scanCompleteTaskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
         }
         catch (Exception e)
             when (e is DataScannerCameraConfigurationLockException

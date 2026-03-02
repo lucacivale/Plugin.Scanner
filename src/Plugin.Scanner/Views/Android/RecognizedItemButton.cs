@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Drawing;
 using Android.Util;
 using Plugin.Scanner.Core.Models;
 using AColor = Android.Graphics.Color;

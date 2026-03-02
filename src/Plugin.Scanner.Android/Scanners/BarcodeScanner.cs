@@ -19,7 +19,6 @@ using Xamarin.Google.MLKit.Vision.BarCode;
 using ASize = Android.Util.Size;
 using Exception = System.Exception;
 using IBarcodeScanner = Plugin.Scanner.Core.Scanners.IBarcodeScanner;
-using MLBarcode = Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode;
 
 namespace Plugin.Scanner.Android.Scanners;
 

@@ -1,5 +1,4 @@
 ﻿using Foundation;
-
 namespace Plugin.Scanner.Maui.Tests;
 
 [Register("AppDelegate")]

@@ -1,5 +1,4 @@
 ﻿using UIKit;
-
 namespace Plugin.Scanner.Maui.Tests;
 
 public class Program

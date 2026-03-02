@@ -14,6 +14,7 @@ public partial class MainViewModel : BaseViewModel
 {
     private readonly IBarcodeScanner _barcodeScanner;
     private readonly ITextScanner _textScanner;
+    private readonly IDocumentScanner _documentScanner;
 
     [ObservableProperty]
     private string _barcode = string.Empty;
@@ -21,10 +22,14 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty]
     private string _text = string.Empty;
 
-    public MainViewModel(IBarcodeScanner barcodeScanner, ITextScanner textScanner)
+    [ObservableProperty]
+    private string _scannedDocuments = string.Empty;
+
+    public MainViewModel(IBarcodeScanner barcodeScanner, ITextScanner textScanner, IDocumentScanner documentScanner)
     {
         _barcodeScanner = barcodeScanner;
         _textScanner = textScanner;
+        _documentScanner = documentScanner;
     }
 
     [RelayCommand]
@@ -67,6 +72,23 @@ public partial class MainViewModel : BaseViewModel
             Debug.WriteLine(exception);
 
             Barcode = "Something went wrong.";
+        }
+    }
+
+    [RelayCommand]
+    public async Task ScanDocument()
+    {
+        try
+        {
+            var document = await _documentScanner.ScanAsync().ConfigureAwait(false);
+
+            ScannedDocuments = $"You scanned {document.Count} documents";
+        }
+        catch (ScanException exception)
+        {
+            Debug.WriteLine(exception);
+
+            ScannedDocuments = "Something went wrong.";
         }
     }
 }

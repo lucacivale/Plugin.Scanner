@@ -1,7 +1,3 @@
-using AndroidX.Camera.MLKit.Vision;
-using Java.Interop;
-using Java.Util;
-using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Models;
 using Xamarin.Google.MLKit.Vision.Interfaces;
