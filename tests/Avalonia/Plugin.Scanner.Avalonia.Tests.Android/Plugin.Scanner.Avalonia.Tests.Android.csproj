@@ -21,6 +21,11 @@
   <ItemGroup>
     <PackageReference Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
+    <!-- workaround
+      https://github.com/dotnet/android-libraries/issues/1341
+      https://learn.microsoft.com/en-us/answers/questions/5689593/build-error-net-maui-app-upgrade-net-9-0-to-net-10
+     -->
+      <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" ExcludeAssets="all"/>
   </ItemGroup>
 
   <ItemGroup>
