@@ -18,7 +18,7 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
     private readonly ActivityResultLauncher _scannerLauncher;
     private readonly ActivityResultContracts.StartIntentSenderForResult _startIntentSenderForResult;
 
-    private TaskCompletionSource<IReadOnlyList<IDocument>> _taskCompletionSource;
+    private TaskCompletionSource<IDocument> _taskCompletionSource;
 
     public DocumentScanner(ICurrentActivity currentActivity)
     {
@@ -31,9 +31,9 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
         }
     }
 
-    public async Task<IReadOnlyList<IDocument>> ScanAsync(CancellationToken cancellationToken)
+    public async Task<IDocument> ScanAsync(CancellationToken cancellationToken)
     {
-        _taskCompletionSource = new TaskCompletionSource<IReadOnlyList<IDocument>>();
+        _taskCompletionSource = new TaskCompletionSource<IDocument>();
 
         using GmsDocumentScannerOptions.Builder builder = new();
         using GmsDocumentScannerOptions options = builder
@@ -71,11 +71,11 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
             || GmsDocumentScanningResult.FromActivityResultIntent(aResult.Data) is not GmsDocumentScanningResult scanResult
             || scanResult.Pages is not IList<GmsDocumentScanningResult.Page> pages)
         {
-            _taskCompletionSource.TrySetResult([]);
+            _taskCompletionSource.TrySetResult(new Document(Enumerable.Empty<IDocumentPage>()));
             return;
         }
 
-        List<IDocument> documents = [];
+        List<IDocumentPage> documentPages = [];
 
         foreach (GmsDocumentScanningResult.Page page in pages)
         {
@@ -86,11 +86,11 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
                 using MemoryStream memoryStream = new();
                 await stream.CopyToAsync(memoryStream).ConfigureAwait(true);
 
-                documents.Add(new Document(memoryStream.ToArray()));
+                documentPages.Add(new DocumentPage(memoryStream.ToArray()));
             }
         }
 
-        _taskCompletionSource.TrySetResult(documents);
+        _taskCompletionSource.TrySetResult(new Document(documentPages));
     }
 
     protected override void Dispose(bool disposing)

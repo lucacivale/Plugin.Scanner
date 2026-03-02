@@ -1,11 +1,12 @@
+
 namespace Plugin.Scanner.Core.Models;
 
 internal sealed class Document : IDocument
 {
-    public Document(byte[] data)
+    public Document(IEnumerable<IDocumentPage> pages)
     {
-        Data = data;
+        Pages = pages.ToList();
     }
 
-    public byte[] Data { get; }
+    public IReadOnlyList<IDocumentPage> Pages { get; }
 }

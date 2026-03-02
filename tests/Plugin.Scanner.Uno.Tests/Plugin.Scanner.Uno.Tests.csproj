@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>$(NetVersion)-android;$(NetVersion)-ios;$(NetVersion)</TargetFrameworks>
+    <TargetFrameworks>$(NetVersion)-android;$(NetVersion)-ios</TargetFrameworks>
 
     <OutputType Condition="'$(TargetFramework)' != '$(NetVersion)'">Exe</OutputType>
     <UnoSingleProject>true</UnoSingleProject>

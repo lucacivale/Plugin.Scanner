@@ -2,5 +2,5 @@
 
 public interface IDocumentScanner
 {
-    Task<IReadOnlyList<IDocument>> ScanAsync(CancellationToken cancellationToken);
+    Task<IDocument> ScanAsync(CancellationToken cancellationToken);
 }

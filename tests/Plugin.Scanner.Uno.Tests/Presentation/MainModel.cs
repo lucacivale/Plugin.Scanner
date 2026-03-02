@@ -77,9 +77,9 @@ public partial record MainModel
     {
         try
         {
-            IReadOnlyList<IDocument> document = await _documentScanner.ScanAsync().ConfigureAwait(false);
+            IDocument document = await _documentScanner.ScanAsync().ConfigureAwait(false);
 
-            await ScannedDocuments.SetAsync($"You scanned {document.Count} documents").ConfigureAwait(false);
+            await ScannedDocuments.SetAsync($"You scanned a document with {document.Pages.Count} pages").ConfigureAwait(false);
         }
         catch (ScanException exception)
         {

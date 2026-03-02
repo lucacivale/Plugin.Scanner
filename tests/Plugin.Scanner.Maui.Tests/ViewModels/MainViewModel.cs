@@ -81,9 +81,10 @@ public partial class MainViewModel : BaseViewModel
     {
         try
         {
-            IReadOnlyList<IDocument> document = await _documentScanner.ScanAsync().ConfigureAwait(false);
+            IDocument document = await _documentScanner.ScanAsync().ConfigureAwait(false);
 
-            ScannedDocuments = $"You scanned {document.Count} documents";
+            ScannedDocuments = $"You scanned a document with {document.Pages.Count} pages";
+
         }
         catch (ScanException exception)
         {

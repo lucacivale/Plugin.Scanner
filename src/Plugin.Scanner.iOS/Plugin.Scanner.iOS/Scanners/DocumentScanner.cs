@@ -10,11 +10,11 @@ namespace Plugin.Scanner.iOS.Scanners;
 
 internal sealed class DocumentScanner : VNDocumentCameraViewControllerDelegate, IDocumentScanner
 {
-    private TaskCompletionSource<IReadOnlyList<IDocument>>? _scanCompleteTaskSource;
+    private TaskCompletionSource<IDocument>? _scanCompleteTaskSource;
 
     [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
-    public async Task<IReadOnlyList<IDocument>> ScanAsync(CancellationToken cancellationToken)
+    public async Task<IDocument> ScanAsync(CancellationToken cancellationToken)
     {
         _scanCompleteTaskSource = new();
 
@@ -48,19 +48,19 @@ internal sealed class DocumentScanner : VNDocumentCameraViewControllerDelegate, 
 
     public override void DidFinish(VNDocumentCameraViewController controller, VNDocumentCameraScan scan)
     {
-        List<IDocument> documents = [];
+        List<IDocumentPage> pages = [];
 
         for (nuint i = 0; i < scan.PageCount; i++)
         {
-            documents.Add(new Document(scan.GetImage(i).AsPNG()?.ToArray() ?? []));
+            pages.Add(new DocumentPage(scan.GetImage(i).AsPNG()?.ToArray() ?? []));
         }
 
-        controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(documents));
+        controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(new Document(pages)));
     }
 
     public override void DidCancel(VNDocumentCameraViewController controller)
     {
-        controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult([]));
+        controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(new Document(Enumerable.Empty<IDocumentPage>())));
     }
 
     public override void DidFail(VNDocumentCameraViewController controller, NSError error)

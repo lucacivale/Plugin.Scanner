@@ -2,8 +2,8 @@
 
 internal sealed class DocumentScanner : IDocumentScanner
 {
-    public Task<IReadOnlyList<IDocument>> ScanAsync(CancellationToken cancellationToken)
+    public Task<IDocument> ScanAsync(CancellationToken cancellationToken)
     {
-        return Task.FromResult<IReadOnlyList<IDocument>>([]);
+        return Task.FromResult<IDocument>(new Models.Document([]));
     }
 }
