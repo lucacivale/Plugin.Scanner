@@ -1,4 +1,4 @@
-namespace Plugin.Scanner.Core.Barcode;
+namespace Plugin.Scanner.Core.Models.Enums;
 
 /// <summary>
 /// Specifies the barcode formats that can be recognized by the scanner.

@@ -6,6 +6,9 @@ using APath = Android.Graphics.Path;
 
 namespace Plugin.Scanner.Views.Android;
 
+/// <summary>
+/// Displays an animated border around the scanner's region of interest.
+/// </summary>
 internal sealed class RegionOfInterest : View
 {
     private const float CornerRadius = 30f;
@@ -26,6 +29,11 @@ internal sealed class RegionOfInterest : View
     private float _phase;
     private ValueAnimator? _animator;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RegionOfInterest"/> class.
+    /// </summary>
+    /// <param name="context">The Android context.</param>
+    /// <param name="regionOfInterest">The region of interest configuration.</param>
     public RegionOfInterest(Context? context, IRegionOfInterest regionOfInterest)
         : base(context)
     {
@@ -49,6 +57,9 @@ internal sealed class RegionOfInterest : View
         _linearInterpolator = new LinearInterpolator();
     }
 
+    /// <summary>
+    /// Starts the animated highlight stroke around the border.
+    /// </summary>
     public void StartStrokeAnimation()
     {
         if (_pathLength <= 0)
@@ -64,13 +75,16 @@ internal sealed class RegionOfInterest : View
 
         _animator?.Update += (_, e) =>
         {
-            _phase = (float)e.Animation!.AnimatedValue!;
+            _phase = (float)e.Animation.AnimatedValue!;
             Invalidate();
         };
 
         _animator?.Start();
     }
 
+    /// <summary>
+    /// Resets and restarts the stroke animation.
+    /// </summary>
     public void Reset()
     {
         StopStrokeAnimation();
@@ -78,12 +92,14 @@ internal sealed class RegionOfInterest : View
         StartStrokeAnimation();
     }
 
+    /// <inheritdoc/>
     protected override void OnAttachedToWindow()
     {
         base.OnAttachedToWindow();
         InitStroke();
     }
 
+    /// <inheritdoc/>
     protected override void OnDraw(Canvas canvas)
     {
         base.OnDraw(canvas);
@@ -118,6 +134,27 @@ internal sealed class RegionOfInterest : View
         canvas.DrawPath(_segmentPath, _highlightPaint);
     }
 
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            StopStrokeAnimation();
+
+            _basePaint.Dispose();
+            _highlightPaint.Dispose();
+            _path?.Dispose();
+            _segmentPath?.Dispose();
+            _pathMeasure?.Dispose();
+            _linearInterpolator.Dispose();
+        }
+
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Stops and disposes the stroke animation.
+    /// </summary>
     private void StopStrokeAnimation()
     {
         _animator?.Cancel();
@@ -125,6 +162,9 @@ internal sealed class RegionOfInterest : View
         _animator = null;
     }
 
+    /// <summary>
+    /// Initializes the border path and measurement for animation.
+    /// </summary>
     private void InitStroke()
     {
         if (Context is null)
@@ -142,22 +182,5 @@ internal sealed class RegionOfInterest : View
         _pathMeasure?.Dispose();
         _pathMeasure = new PathMeasure(_path, true);
         _pathLength = _pathMeasure.Length;
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            StopStrokeAnimation();
-
-            _basePaint.Dispose();
-            _highlightPaint.Dispose();
-            _path?.Dispose();
-            _segmentPath?.Dispose();
-            _pathMeasure?.Dispose();
-            _linearInterpolator.Dispose();
-        }
-
-        base.Dispose(disposing);
     }
 }

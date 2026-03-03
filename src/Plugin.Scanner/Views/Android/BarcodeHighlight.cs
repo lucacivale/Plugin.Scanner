@@ -5,6 +5,9 @@ using Path = Android.Graphics.Path;
 
 namespace Plugin.Scanner.Views.Android;
 
+/// <summary>
+/// Draws a rounded corner highlight box around a recognized barcode item.
+/// </summary>
 internal sealed class BarcodeHighlight : Drawable
 {
     private const float CornerRadius = 25f;
@@ -15,6 +18,10 @@ internal sealed class BarcodeHighlight : Drawable
 
     private readonly Rect _box;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BarcodeHighlight"/> class.
+    /// </summary>
+    /// <param name="item">The recognized item to highlight.</param>
     public BarcodeHighlight(RecognizedItem item)
     {
         _boxPaint = new Paint
@@ -30,8 +37,15 @@ internal sealed class BarcodeHighlight : Drawable
         _box.Inset(-30, -30);
     }
 
+    /// <summary>
+    /// Gets the opacity of the drawable.
+    /// </summary>
     public override int Opacity => (int)Format.Translucent;
 
+    /// <summary>
+    /// Draws rounded corner brackets around the barcode bounds on the canvas.
+    /// </summary>
+    /// <param name="canvas">The canvas to draw on.</param>
     public override void Draw(Canvas canvas)
     {
         using Path path = new();
@@ -73,16 +87,28 @@ internal sealed class BarcodeHighlight : Drawable
         canvas.DrawPath(path, _boxPaint);
     }
 
+    /// <summary>
+    /// Sets the alpha transparency value for the highlight.
+    /// </summary>
+    /// <param name="alpha">The alpha value (0-255).</param>
     public override void SetAlpha(int alpha)
     {
         _boxPaint.Alpha = alpha;
     }
 
+    /// <summary>
+    /// Sets the color filter for the highlight paint.
+    /// </summary>
+    /// <param name="colorFilter">The color filter to apply.</param>
     public override void SetColorFilter(ColorFilter? colorFilter)
     {
         _boxPaint.SetColorFilter(colorFilter);
     }
 
+    /// <summary>
+    /// Releases the unmanaged resources used by the <see cref="BarcodeHighlight"/> and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">True to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
     protected override void Dispose(bool disposing)
     {
         if (disposing)

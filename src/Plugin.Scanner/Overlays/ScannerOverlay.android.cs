@@ -10,7 +10,10 @@ using Orientation = Android.Content.Res.Orientation;
 
 namespace Plugin.Scanner.Overlays;
 
-internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, View.IOnTouchListener
+/// <summary>
+/// Provides Android-specific base scanner overlay implementation with common UI elements and event handling.
+/// </summary>
+internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouchListener
 {
     private IReadOnlyList<RecognizedItem>? _recognizedItems;
 
@@ -21,12 +24,26 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
     private RegionOfInterest? _regionOfInterestView;
     private IRegionOfInterest? _regionOfInterest;
 
+    /// <summary>
+    /// Gets the data scanner dialog containing the overlay.
+    /// </summary>
     protected DataScannerDialog? Dialog => _dialog;
 
+    /// <summary>
+    /// Gets the root view of the scanner.
+    /// </summary>
     protected View? Root => _root;
 
+    /// <summary>
+    /// Gets the list of currently recognized items.
+    /// </summary>
     protected IReadOnlyList<RecognizedItem>? RecognizedItems => _recognizedItems;
 
+    /// <summary>
+    /// Initializes the overlay with the specified dialog and root view.
+    /// </summary>
+    /// <param name="dialog">The dialog containing the overlay.</param>
+    /// <param name="root">The root view to attach the overlay to.</param>
     public void Init(Dialog dialog, View root)
     {
         _root = root;
@@ -39,6 +56,9 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
         }
     }
 
+    /// <summary>
+    /// Adds the overlay UI elements including buttons and touch listeners to the scanner view.
+    /// </summary>
     public void AddOverlay()
     {
         PreviewView previewView = _root?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
@@ -57,6 +77,10 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
         flashButton.Toggled += FlashButton_Toggled;
     }
 
+    /// <summary>
+    /// Adds a region of interest overlay to restrict scanning to a specific area.
+    /// </summary>
+    /// <param name="regionOfInterest">The region of interest, or <c>null</c> to scan the entire view.</param>
     public void AddRegionOfInterest(IRegionOfInterest? regionOfInterest)
     {
         if (regionOfInterest is null)
@@ -77,6 +101,9 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
         _regionOfInterestView.StartStrokeAnimation();
     }
 
+    /// <summary>
+    /// Cleans up overlay resources, removes event handlers, and detaches UI elements.
+    /// </summary>
     public void Cleanup()
     {
         PreviewView previewView = _root?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
@@ -103,8 +130,18 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
         _dialog?.Cleared -= OnCleared;
     }
 
+    /// <summary>
+    /// Handles touch events on the scanner view.
+    /// </summary>
+    /// <param name="v">The view that was touched.</param>
+    /// <param name="e">The motion event containing touch data.</param>
+    /// <returns><c>true</c> if the event was handled; otherwise, <c>false</c>.</returns>
     public abstract bool OnTouch(View? v, MotionEvent? e);
 
+    /// <summary>
+    /// Releases resources used by the overlay.
+    /// </summary>
+    /// <param name="disposing">Whether to dispose managed resources.</param>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -119,16 +156,61 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
         base.Dispose(disposing);
     }
 
+    /// <summary>
+    /// Handles the detection event when items are recognized and clears previous highlights.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The list of recognized items.</param>
+    protected virtual void OnDetected(object? sender, IReadOnlyList<RecognizedItem> e)
+    {
+        PreviewView previewView = Dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        previewView.Overlay?.Clear();
+
+        _recognizedItems = e;
+    }
+
+    /// <summary>
+    /// Handles the cleared event when no items are detected and hides the recognition UI.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The event arguments.</param>
+    protected virtual void OnCleared(object? sender, EventArgs e)
+    {
+        PreviewView previewView = _dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        previewView.Overlay?.Clear();
+
+        RecognizedItemButton itemButton = _root?.FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
+        itemButton.RecognizedItem = null;
+        itemButton.Visibility = ViewStates.Gone;
+
+        previewView.Invalidate();
+    }
+
+    /// <summary>
+    /// Handles the recognized item button click and dismisses the dialog with the selected item.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The recognized item that was clicked.</param>
     private void RecognizedItemClicked(object? sender, RecognizedItem e)
     {
         _dialog?.Dismiss(e);
     }
 
+    /// <summary>
+    /// Handles the close button click and cancels the scanning operation.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The event arguments.</param>
     private void CloseButtonClicked(object? sender, EventArgs e)
     {
         _dialog?.Cancel();
     }
 
+    /// <summary>
+    /// Handles the flash button toggle and enables or disables the camera flash.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The flash mode value.</param>
     private void FlashButton_Toggled(object? sender, int e)
     {
         PreviewView previewView = _root?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
@@ -136,6 +218,11 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
         previewView.Controller?.EnableTorch(e != ImageCapture.FlashModeOff);
     }
 
+    /// <summary>
+    /// Handles layout changes and updates the region of interest when device orientation changes.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The layout change event arguments.</param>
     private void DecorView_LayoutChange(object? sender, View.LayoutChangeEventArgs e)
     {
         if (_regionOfInterestView is null)
@@ -153,25 +240,5 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, IOverlay, Vie
 
             _regionOfInterestView.Reset();
         }
-    }
-
-    private void OnCleared(object? sender, EventArgs e)
-    {
-        PreviewView previewView = _dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
-        previewView.Overlay?.Clear();
-
-        RecognizedItemButton itemButton = _root?.FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
-        itemButton.RecognizedItem = null;
-        itemButton.Visibility = ViewStates.Gone;
-
-        previewView.Invalidate();
-    }
-
-    protected virtual void OnDetected(object? sender, IReadOnlyList<RecognizedItem> e)
-    {
-        PreviewView previewView = Dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
-        previewView.Overlay?.Clear();
-
-        _recognizedItems = e;
     }
 }

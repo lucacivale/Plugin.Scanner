@@ -21,16 +21,29 @@ using ASize = Android.Util.Size;
 
 namespace Plugin.Scanner.Android.Scanners;
 
+/// <summary>
+/// Provides Android-specific text recognition (OCR) using Google ML Kit.
+/// </summary>
 internal sealed class TextScanner : ITextScanner
 {
     private readonly ICurrentActivity _currentActivity;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TextScanner"/> class.
+    /// </summary>
+    /// <param name="currentActivity">The current activity provider.</param>
     public TextScanner(ICurrentActivity currentActivity)
     {
         _currentActivity = currentActivity;
     }
 
-
+    /// <summary>
+    /// Scans for text using the device camera with ML Kit text recognition.
+    /// </summary>
+    /// <param name="options">The text scan configuration options.</param>
+    /// <param name="cancellationToken">A token to cancel the scan operation.</param>
+    /// <returns>A task containing the recognized text result.</returns>
+    /// <exception cref="ScanException">Thrown when the scan operation fails.</exception>
     [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
     public async Task<IScanResult> ScanAsync(ITextScanOptions options, CancellationToken cancellationToken)

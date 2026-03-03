@@ -8,10 +8,19 @@ using VisionKit;
 
 namespace Plugin.Scanner.iOS.Scanners;
 
+/// <summary>
+/// Provides document scanning functionality for iOS using the VisionKit framework.
+/// </summary>
 internal sealed class DocumentScanner : VNDocumentCameraViewControllerDelegate, IDocumentScanner
 {
     private TaskCompletionSource<IDocument>? _scanCompleteTaskSource;
 
+    /// <summary>
+    /// Scans a document using the device camera.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the scan operation.</param>
+    /// <returns>A task that represents the asynchronous scan operation, containing the scanned document with its pages.</returns>
+    /// <exception cref="ScanException">Thrown when the scan operation fails.</exception>
     [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
     public async Task<IDocument> ScanAsync(CancellationToken cancellationToken)
@@ -46,6 +55,11 @@ internal sealed class DocumentScanner : VNDocumentCameraViewControllerDelegate, 
         }
     }
 
+    /// <summary>
+    /// Called when the document scanning completes successfully.
+    /// </summary>
+    /// <param name="controller">The document camera view controller.</param>
+    /// <param name="scan">The scanned document containing the captured pages.</param>
     public override void DidFinish(VNDocumentCameraViewController controller, VNDocumentCameraScan scan)
     {
         List<IDocumentPage> pages = [];
@@ -58,11 +72,20 @@ internal sealed class DocumentScanner : VNDocumentCameraViewControllerDelegate, 
         controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(new Document(pages)));
     }
 
+    /// <summary>
+    /// Called when the user cancels the document scanning operation.
+    /// </summary>
+    /// <param name="controller">The document camera view controller.</param>
     public override void DidCancel(VNDocumentCameraViewController controller)
     {
         controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(new Document(Enumerable.Empty<IDocumentPage>())));
     }
 
+    /// <summary>
+    /// Called when the document scanning operation fails with an error.
+    /// </summary>
+    /// <param name="controller">The document camera view controller.</param>
+    /// <param name="error">The error that caused the failure.</param>
     public override void DidFail(VNDocumentCameraViewController controller, NSError error)
     {
         controller.DismissViewController(true, () => _scanCompleteTaskSource?.TrySetException(new ScanException(error.Description)));

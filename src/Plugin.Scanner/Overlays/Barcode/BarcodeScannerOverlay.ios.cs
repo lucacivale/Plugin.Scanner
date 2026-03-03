@@ -1,3 +1,6 @@
 namespace Plugin.Scanner.Overlays.Barcode;
 
-internal sealed class BarcodeScannerOverlay : ScannerOverlay;
+/// <summary>
+/// Provides iOS-specific barcode scanner overlay implementation.
+/// </summary>
+internal sealed partial class BarcodeScannerOverlay : ScannerOverlay;

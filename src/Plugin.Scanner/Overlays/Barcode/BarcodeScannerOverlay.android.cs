@@ -6,10 +6,21 @@ using Plugin.Scanner.Views.Android;
 
 namespace Plugin.Scanner.Overlays.Barcode;
 
-internal sealed class BarcodeScannerOverlay : ScannerOverlay
+/// <summary>
+/// Provides Android-specific barcode scanner overlay implementation with touch interaction and visual highlighting.
+/// </summary>
+internal sealed partial class BarcodeScannerOverlay : ScannerOverlay
 {
+    private readonly List<BarcodeHighlight> _barcodeHighlights = [];
+
     private RecognizedItem? _selectedRecognizedItem;
 
+    /// <summary>
+    /// Handles touch events on the scanner view to select barcodes.
+    /// </summary>
+    /// <param name="v">The view that was touched.</param>
+    /// <param name="e">The motion event containing touch data.</param>
+    /// <returns><c>true</c> if the event was handled; otherwise, <c>false</c>.</returns>
     public override bool OnTouch(View? v, MotionEvent? e)
     {
         if (e?.Action == MotionEventActions.Down
@@ -21,6 +32,11 @@ internal sealed class BarcodeScannerOverlay : ScannerOverlay
         return false;
     }
 
+    /// <summary>
+    /// Handles the detection of barcodes and updates the overlay UI with highlights and selection button.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The list of recognized barcode items.</param>
     protected override void OnDetected(object? sender, IReadOnlyList<RecognizedItem> e)
     {
         base.OnDetected(sender, e);
@@ -50,18 +66,35 @@ internal sealed class BarcodeScannerOverlay : ScannerOverlay
             {
                 if (recognizedItem is not null)
                 {
-                    previewView.Overlay?.Add(new BarcodeHighlight(recognizedItem));
+                    BarcodeHighlight highlight = new(recognizedItem);
+                    _barcodeHighlights.Add(highlight);
+                    previewView.Overlay?.Add(highlight);
                 }
             }
             else
             {
                 foreach (RecognizedItem item in e)
                 {
-                    previewView.Overlay?.Add(new BarcodeHighlight(item));
+                    BarcodeHighlight highlight = new(item);
+                    _barcodeHighlights.Add(highlight);
+                    previewView.Overlay?.Add(highlight);
                 }
             }
         }
 
         previewView.Invalidate();
+    }
+
+    /// <summary>
+    /// Handles the cleared event when no items are detected and hides the recognition UI.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The event arguments.</param>
+    protected override void OnCleared(object? sender, EventArgs e)
+    {
+        base.OnCleared(sender, e);
+
+        _barcodeHighlights.ForEach(x => x.Dispose());
+        _barcodeHighlights.Clear();
     }
 }

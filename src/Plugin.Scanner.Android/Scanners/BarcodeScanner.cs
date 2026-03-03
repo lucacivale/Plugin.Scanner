@@ -23,18 +23,8 @@ using IBarcodeScanner = Plugin.Scanner.Core.Scanners.IBarcodeScanner;
 namespace Plugin.Scanner.Android.Scanners;
 
 /// <summary>
-/// Provides Android-specific implementation of the barcode scanner interface using Google ML Kit.
+/// Provides Android-specific barcode scanning using Google ML Kit.
 /// </summary>
-/// <remarks>
-/// <para>
-/// This class implements <see cref="Core.Barcode.IBarcodeScanner"/> for Android devices and uses Google ML Kit's
-/// barcode scanning capabilities through a camera dialog interface.
-/// </para>
-/// <para>
-/// The scanner presents a full-screen camera interface with visual barcode highlighting and
-/// requires the <c>CAMERA</c> permission to be granted.
-/// </para>
-/// </remarks>
 internal sealed class BarcodeScanner : IBarcodeScanner
 {
     private readonly ICurrentActivity _currentActivity;
@@ -42,43 +32,19 @@ internal sealed class BarcodeScanner : IBarcodeScanner
     /// <summary>
     /// Initializes a new instance of the <see cref="BarcodeScanner"/> class.
     /// </summary>
-    /// <param name="currentActivity">The current activity provider for accessing the Android activity context.</param>
+    /// <param name="currentActivity">The current activity provider.</param>
     public BarcodeScanner(ICurrentActivity currentActivity)
     {
         _currentActivity = currentActivity;
     }
 
     /// <summary>
-    /// Asynchronously scans for a barcode using the device camera with ML Kit barcode detection.
+    /// Scans for barcodes using the device camera with ML Kit barcode detection.
     /// </summary>
-    /// <param name="options">The scan options specifying which barcode formats to recognize.</param>
-    /// <param name="cancellationToken">A cancellation token to cancel the scan operation.</param>
-    /// <returns>
-    /// A task that represents the asynchronous scan operation. The task result contains
-    /// the scanned barcode with its decoded value.
-    /// </returns>
-    /// <exception cref="ScanException">
-    /// Thrown when the scan operation fails due to one of the following reasons:
-    /// <list type="bullet">
-    /// <item><description>The device has no camera available</description></item>
-    /// <item><description>The main executor is not available</description></item>
-    /// <item><description>Required UI views cannot be found</description></item>
-    /// <item><description>ML Kit analyzer returns an unexpected result type</description></item>
-    /// </list>
-    /// </exception>
-    /// <exception cref="System.OperationCanceledException">
-    /// Thrown when the operation is canceled via the <paramref name="cancellationToken"/>
-    /// or by the user dismissing the scanner dialog.
-    /// </exception>
-    /// <remarks>
-    /// <para>
-    /// This method creates and displays a <see cref="DataScannerDialog"/> that handles
-    /// the camera preview, barcode detection, and user interaction.
-    /// </para>
-    /// <para>
-    /// The dialog is automatically disposed after the scan completes or is canceled.
-    /// </para>
-    /// </remarks>
+    /// <param name="options">The barcode scan configuration options.</param>
+    /// <param name="cancellationToken">A token to cancel the scan operation.</param>
+    /// <returns>A task containing the scanned barcode result.</returns>
+    /// <exception cref="ScanException">Thrown when the scan operation fails.</exception>
     [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
     public async Task<IScanResult> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)

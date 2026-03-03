@@ -11,21 +11,17 @@ using Plugin.Scanner.iOS.Extensions;
 namespace Plugin.Scanner.iOS.Scanners;
 
 /// <summary>
-/// Provides barcode scanning functionality using the device camera.
+/// Provides barcode scanning functionality for iOS using the DataScanner framework.
 /// </summary>
 internal sealed class BarcodeScanner : IBarcodeScanner
 {
     /// <summary>
-    /// Asynchronously scans for a barcode using the device camera.
+    /// Scans for barcodes using the device camera with the specified options.
     /// </summary>
-    /// <param name="options">The <see cref="IBarcodeScanOptions"/> specifying which barcode formats to recognize.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> token to cancel the scan operation.</param>
-    /// <returns>A <see cref="Task{IBarcode}"/> that represents the asynchronous operation. The task result contains the scanned barcode.</returns>
-    /// <exception cref="ScanException">
-    /// Thrown when a scanner-related error occurs, including
-    /// camera configuration issues, invalid event types, scanner start failures,
-    /// torch mode problems, scanner availability issues, or view controller errors.
-    /// </exception>
+    /// <param name="options">The barcode scan configuration options.</param>
+    /// <param name="cancellationToken">A token to cancel the scan operation.</param>
+    /// <returns>A task that represents the asynchronous scan operation, containing the scan result.</returns>
+    /// <exception cref="ScanException">Thrown when the scan operation fails.</exception>
     [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
     public async Task<IScanResult> ScanAsync(IBarcodeScanOptions options, CancellationToken cancellationToken)

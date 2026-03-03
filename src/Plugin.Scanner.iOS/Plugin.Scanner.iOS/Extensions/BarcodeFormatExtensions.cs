@@ -1,31 +1,18 @@
-using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Models.Enums;
 using Vision;
 
 namespace Plugin.Scanner.iOS.Extensions;
 
 /// <summary>
-/// Provides extension methods for converting <see cref="BarcodeFormat"/> values to iOS Vision framework barcode symbology.
+/// Provides extension methods for <see cref="BarcodeFormat"/> conversion.
 /// </summary>
 internal static class BarcodeFormatExtensions
 {
     /// <summary>
-    /// Converts the specified <see cref="BarcodeFormat"/> flags to a collection of Vision framework barcode symbology strings.
+    /// Converts <see cref="BarcodeFormat"/> flags to Vision framework barcode symbology strings.
     /// </summary>
-    /// <param name="formats">The <see cref="BarcodeFormat"/> flags to convert. Can be a single format or multiple formats combined with bitwise OR.</param>
-    /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="string"/> containing the Vision framework symbology names corresponding to the specified formats.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when an unsupported <see cref="BarcodeFormat"/> flag is encountered.</exception>
-    /// <remarks>
-    /// <para>
-    /// This method maps cross-platform <see cref="BarcodeFormat"/> values to iOS-specific <see cref="VNBarcodeSymbology"/> values.
-    /// </para>
-    /// <para>
-    /// If <see cref="BarcodeFormat.All"/> is specified, all available barcode formats are returned.
-    /// Otherwise, only the formats specified by the flags are converted.
-    /// </para>
-    /// <para>
-    /// Supported barcode formats include: Aztec, Codabar, Code39, Code93, Code128, DataMatrix, EAN-8, EAN-13, ITF-14, PDF417, QR, and UPC-E.
-    /// </para>
-    /// </remarks>
+    /// <param name="formats">The barcode format flags to convert.</param>
+    /// <returns>An enumerable collection of barcode symbology strings recognized by the Vision framework.</returns>
     public static IEnumerable<string> ToBarcodeFormats(this BarcodeFormat formats)
     {
         Func<BarcodeFormat, VNBarcodeSymbology> select = flag => flag switch

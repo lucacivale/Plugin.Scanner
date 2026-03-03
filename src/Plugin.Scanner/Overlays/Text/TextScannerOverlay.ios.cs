@@ -1,3 +1,6 @@
 namespace Plugin.Scanner.Overlays.Text;
 
-internal sealed class TextScannerOverlay : ScannerOverlay;
+/// <summary>
+/// Provides iOS-specific text scanner overlay implementation.
+/// </summary>
+internal sealed partial class TextScannerOverlay : ScannerOverlay;

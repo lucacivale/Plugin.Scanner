@@ -1,20 +1,31 @@
 namespace Plugin.Scanner.Core.Exceptions;
 
-/// <inheritdoc />
+/// <summary>
+/// Represents errors that occur during scanning operations.
+/// </summary>
 public sealed class ScanException : Exception
 {
-    /// <inheritdoc />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScanException"/> class with a specified error message.
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
     public ScanException(string message)
         : base(message)
     {
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScanException"/> class.
+    /// </summary>
     public ScanException()
     {
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScanException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+    /// </summary>
+    /// <param name="message">The error message that explains the reason for the exception.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception.</param>
     public ScanException(string message, Exception innerException)
         : base(message, innerException)
     {

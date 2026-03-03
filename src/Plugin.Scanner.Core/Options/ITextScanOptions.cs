@@ -1,5 +1,6 @@
 namespace Plugin.Scanner.Core.Options;
 
-public interface ITextScanOptions : IScanOptions
-{
-}
+/// <summary>
+/// Defines configuration options for text scanning operations.
+/// </summary>
+public interface ITextScanOptions : IScanOptions;

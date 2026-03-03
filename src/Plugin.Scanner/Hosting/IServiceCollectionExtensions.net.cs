@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Scanners;
 
 namespace Plugin.Scanner.Hosting;

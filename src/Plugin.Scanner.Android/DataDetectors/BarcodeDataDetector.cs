@@ -9,6 +9,9 @@ using MLBarcode = Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode;
 
 namespace Plugin.Scanner.Android.DataDetectors;
 
+/// <summary>
+/// Detects barcodes in camera frames using ML Kit barcode scanning with frequency-based validation.
+/// </summary>
 internal sealed class BarcodeDataDetector : DataDetector<IEnumerable<MLBarcode>>
 {
     private const int MaxFrames = 5;
@@ -18,11 +21,20 @@ internal sealed class BarcodeDataDetector : DataDetector<IEnumerable<MLBarcode>>
 
     private int _frameCount;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BarcodeDataDetector"/> class.
+    /// </summary>
+    /// <param name="detector">The ML Kit barcode detector instance.</param>
+    /// <param name="recognizedItemFactory">The factory for creating recognized barcode items.</param>
     public BarcodeDataDetector(IDetector detector, IRecognizedItemFactory<IEnumerable<MLBarcode>> recognizedItemFactory)
         : base(detector, recognizedItemFactory)
     {
     }
 
+    /// <summary>
+    /// Processes the ML Kit analyzer result and extracts recognized barcodes.
+    /// </summary>
+    /// <param name="t">The analyzer result object.</param>
     public override void Accept(Java.Lang.Object? t)
     {
         if (t is not MlKitAnalyzer.Result result)
@@ -42,6 +54,11 @@ internal sealed class BarcodeDataDetector : DataDetector<IEnumerable<MLBarcode>>
         }
     }
 
+    /// <summary>
+    /// Processes recognized barcode items using frequency tracking to filter out false positives.
+    /// Items must appear in multiple frames before being reported as detected.
+    /// </summary>
+    /// <param name="recognizedItems">The list of recognized barcode items.</param>
     private void ProcessResults(IReadOnlyList<RecognizedItem>? recognizedItems)
     {
         if (recognizedItems is null

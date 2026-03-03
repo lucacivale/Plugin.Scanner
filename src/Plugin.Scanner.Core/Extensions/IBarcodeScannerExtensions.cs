@@ -4,43 +4,16 @@ using Plugin.Scanner.Core.Scanners;
 namespace Plugin.Scanner.Core.Extensions;
 
 /// <summary>
-/// Provides extension methods for <see cref="IBarcodeScanner"/> to simplify common scanning operations.
+/// Provides extension methods for <see cref="IBarcodeScanner"/>.
 /// </summary>
 public static class IBarcodeScannerExtensions
 {
     /// <summary>
-    /// Asynchronously scans for a barcode using the device camera without a cancellation token.
+    /// Asynchronously scans for a barcode using the specified options.
     /// </summary>
-    /// <param name="scanner">The <see cref="IBarcodeScanner"/> instance to use for scanning.</param>
-    /// <param name="options">The <see cref="IBarcodeScanOptions"/> specifying which barcode formats to recognize.</param>
-    /// <returns>
-    /// A <see cref="Task{IBarcode}"/> that represents the asynchronous scan operation.
-    /// The task result contains the scanned barcode with its decoded value.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// This is a convenience method that calls <see cref="IBarcodeScanner.ScanAsync"/> with
-    /// <see cref="CancellationToken.None"/>, meaning the scan operation can only be canceled
-    /// through user interaction (e.g., pressing a cancel button in the scanning interface).
-    /// </para>
-    /// <para>
-    /// For operations that require programmatic cancellation, use <see cref="IBarcodeScanner.ScanAsync"/>
-    /// directly with a <see cref="CancellationToken"/>.
-    /// </para>
-    /// </remarks>
-    /// <example>
-    /// Simple barcode scanning:
-    /// <code>
-    /// var scanner = new BarcodeScanner();
-    /// var options = new BarcodeScanOptions
-    /// {
-    ///     Formats = BarcodeFormat.All
-    /// };
-    ///
-    /// var barcode = await scanner.ScanBarcodeAsync(options);
-    /// Console.WriteLine($"Scanned: {barcode.RawValue}");
-    /// </code>
-    /// </example>
+    /// <param name="scanner">The barcode scanner instance.</param>
+    /// <param name="options">The scan options specifying barcode formats and behavior.</param>
+    /// <returns>A task that represents the asynchronous scan operation. The task result contains the scan result.</returns>
     public static Task<IScanResult> ScanAsync(this IBarcodeScanner scanner, IBarcodeScanOptions options)
     {
         return scanner.ScanAsync(options, CancellationToken.None);

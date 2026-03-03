@@ -1,12 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Core.Extensions;
-using Plugin.Scanner.Models;
 using Plugin.Scanner.Options;
 using System.Diagnostics;
 using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Models.Enums;
 
 namespace Plugin.Scanner.Avalonia.Tests.ViewModels;
 

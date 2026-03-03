@@ -8,7 +8,10 @@ using Plugin.Scanner.iOS;
 
 namespace Plugin.Scanner.Overlays;
 
-internal abstract partial class ScannerOverlay : IOverlay
+/// <summary>
+/// Provides iOS-specific base scanner overlay implementation with common UI elements and event handling.
+/// </summary>
+internal abstract partial class ScannerOverlay
 {
     private const int TopBarButtonTopAnchorAdd = 25;
     private const int TopBarButtonTrailingAnchorAdd = 20;
@@ -24,6 +27,18 @@ internal abstract partial class ScannerOverlay : IOverlay
     private DataScannerRegionOfInterest? _dataScannerRegionOfInterest;
     private DataScannerTorchButton? _torchButton;
 
+    /// <summary>
+    /// Releases resources used by the overlay.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Adds the overlay UI elements including top and bottom bars, cancel button, and torch button to the scanner view.
+    /// </summary>
     public void AddOverlay()
     {
         AddOverlayView();
@@ -36,6 +51,10 @@ internal abstract partial class ScannerOverlay : IOverlay
         }
     }
 
+    /// <summary>
+    /// Adds a region of interest overlay to restrict scanning to a specific area.
+    /// </summary>
+    /// <param name="regionOfInterest">The region of interest, or <c>null</c> to scan the entire view.</param>
     public void AddRegionOfInterest(IRegionOfInterest? regionOfInterest)
     {
         if (regionOfInterest is null)
@@ -53,6 +72,9 @@ internal abstract partial class ScannerOverlay : IOverlay
         _dataScannerRegionOfInterest.StartStrokeAnimation();
     }
 
+    /// <summary>
+    /// Cleans up overlay resources, removes event handlers, and detaches UI elements.
+    /// </summary>
     public void Cleanup()
     {
         _dataScannerViewController?.Added -= OnAdded;
@@ -77,21 +99,10 @@ internal abstract partial class ScannerOverlay : IOverlay
         _barcodeItemButton.RemoveFromSuperview();
     }
 
-    public void Dispose()
-    {
-        _cancelButton.Dispose();
-
-        _torchButton?.Dispose();
-
-        _topBar.Dispose();
-
-        _bottomBar.Dispose();
-
-        _dataScannerRegionOfInterest?.Dispose();
-
-        _barcodeItemButton.Dispose();
-    }
-
+    /// <summary>
+    /// Initializes the overlay with the specified view controller and subscribes to scanner events.
+    /// </summary>
+    /// <param name="viewController">The view controller containing the overlay.</param>
     public void Init(UIViewController viewController)
     {
         if (viewController is DataScannerViewController barcodeScannerViewController)
@@ -108,12 +119,38 @@ internal abstract partial class ScannerOverlay : IOverlay
         }
     }
 
+    /// <summary>
+    /// Releases the unmanaged resources used by the overlay and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">True to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // Dispose managed resources
+            _cancelButton.Dispose();
+            _torchButton?.Dispose();
+            _topBar.Dispose();
+            _bottomBar.Dispose();
+            _dataScannerRegionOfInterest?.Dispose();
+            _barcodeItemButton.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Handles the torch button toggle event and sets the camera torch mode.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The torch mode to set.</param>
     [SupportedOSPlatform("ios17.0")]
     private static void TorchButtonToggled(object? sender, AVCaptureTorchMode e)
     {
         DataScannerViewController.SetTorchMode(e);
     }
 
+    /// <summary>
+    /// Adds the top and bottom bar overlays to the scanner container view.
+    /// </summary>
     private void AddOverlayView()
     {
         _ = _dataScannerViewController?.OverlayContainerView ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
@@ -129,11 +166,14 @@ internal abstract partial class ScannerOverlay : IOverlay
 
             _bottomBar.BottomAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.BottomAnchor),
             _bottomBar.LeadingAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.LeadingAnchor),
-            _bottomBar.TrailingAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.TrailingAnchor),
+            _bottomBar.TrailingAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.LeadingAnchor),
             _bottomBar.HeightAnchor.ConstraintEqualTo(DataScannerBarOverlay.Height)
         ]);
     }
 
+    /// <summary>
+    /// Adds the cancel button to the top-right corner of the scanner view.
+    /// </summary>
     private void AddCancelButton()
     {
         const int buttonCornerRadius = 100;
@@ -168,6 +208,9 @@ internal abstract partial class ScannerOverlay : IOverlay
         ]);
     }
 
+    /// <summary>
+    /// Adds the recognized item button to the bottom center of the scanner view.
+    /// </summary>
     private void AddBarcodeButton()
     {
         const float buttonWidthAnchorAdd = 30f;
@@ -194,6 +237,9 @@ internal abstract partial class ScannerOverlay : IOverlay
         ]);
     }
 
+    /// <summary>
+    /// Adds the torch (flashlight) button to the top-left corner of the scanner view.
+    /// </summary>
     [SupportedOSPlatform("ios17.0")]
     private void AddTorchButton()
     {
@@ -213,6 +259,11 @@ internal abstract partial class ScannerOverlay : IOverlay
         ]);
     }
 
+    /// <summary>
+    /// Handles the added event when new items are recognized and displays the first item.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The added items and all items tuple.</param>
     private void OnAdded(object? sender, (iOS.Binding.RecognizedItem[] AddedItems, iOS.Binding.RecognizedItem[] AllItems) e)
     {
         if (_dataScannerViewController?.RecognizesMultipleItems == false)
@@ -222,6 +273,11 @@ internal abstract partial class ScannerOverlay : IOverlay
         }
     }
 
+    /// <summary>
+    /// Handles the removed event when items are no longer detected and hides the button if the current item was removed.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The removed items and all items tuple.</param>
     private void OnRemoved(object? sender, (iOS.Binding.RecognizedItem[] RemovedItems, iOS.Binding.RecognizedItem[] AllItems) e)
     {
         if (e.RemovedItems.Any(x => x.ToRecognizedItem().Id.Equals(_barcodeItemButton.Barcode?.Id, StringComparison.Ordinal)))
@@ -231,6 +287,11 @@ internal abstract partial class ScannerOverlay : IOverlay
         }
     }
 
+    /// <summary>
+    /// Handles the tapped event when an item is tapped and displays the selected item.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The tapped recognized item.</param>
     private void OnTapped(object? sender, iOS.Binding.RecognizedItem e)
     {
         _barcodeItemButton.Barcode = e.ToRecognizedItem();

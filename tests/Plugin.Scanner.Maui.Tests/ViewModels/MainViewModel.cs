@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
-using Plugin.Scanner.Models;
 using System.Diagnostics;
 using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Extensions;
+using Plugin.Scanner.Core.Models.Enums;
 using Plugin.Scanner.Core.Scanners;
 using Plugin.Scanner.Options;
 

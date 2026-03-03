@@ -4,6 +4,9 @@ using Plugin.Scanner.iOS.Extensions;
 
 namespace Plugin.Scanner.Views.iOS;
 
+/// <summary>
+/// Displays an animated border around the scanner's region of interest on iOS.
+/// </summary>
 internal sealed class DataScannerRegionOfInterest : UIView
 {
     private const float CornerRadius = 30f;
@@ -17,6 +20,10 @@ internal sealed class DataScannerRegionOfInterest : UIView
     private CABasicAnimation? _strokeAnimation;
     private nfloat _pathLength;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataScannerRegionOfInterest"/> class.
+    /// </summary>
+    /// <param name="regionOfInterest">The region of interest configuration.</param>
     public DataScannerRegionOfInterest(IRegionOfInterest regionOfInterest)
     {
         _regionOfInterest = regionOfInterest;
@@ -42,6 +49,7 @@ internal sealed class DataScannerRegionOfInterest : UIView
         Layer.AddSublayer(_highlightLayer);
     }
 
+    /// <inheritdoc/>
     public override void LayoutSubviews()
     {
         base.LayoutSubviews();
@@ -49,6 +57,9 @@ internal sealed class DataScannerRegionOfInterest : UIView
         Reset();
     }
 
+    /// <summary>
+    /// Starts the animated highlight stroke around the border.
+    /// </summary>
     public void StartStrokeAnimation()
     {
         if (_highlightLayer.Path is null
@@ -78,11 +89,17 @@ internal sealed class DataScannerRegionOfInterest : UIView
         _highlightLayer.AddAnimation(_strokeAnimation, "dashPhase");
     }
 
+    /// <summary>
+    /// Stops the stroke animation.
+    /// </summary>
     public void StopStrokeAnimation()
     {
         _highlightLayer.RemoveAllAnimations();
     }
 
+    /// <summary>
+    /// Initializes the border path for the region of interest.
+    /// </summary>
     public void SetupStroke()
     {
         CGRect regionRect = _regionOfInterest.CalculateRegionOfInterest().ToRect();
@@ -94,6 +111,9 @@ internal sealed class DataScannerRegionOfInterest : UIView
         _pathLength = CalculateRoundedRectPerimeter(regionRect, CornerRadius);
     }
 
+    /// <summary>
+    /// Resets and restarts the stroke animation.
+    /// </summary>
     public void Reset()
     {
         StopStrokeAnimation();
@@ -101,6 +121,7 @@ internal sealed class DataScannerRegionOfInterest : UIView
         StartStrokeAnimation();
     }
 
+    /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -114,6 +135,12 @@ internal sealed class DataScannerRegionOfInterest : UIView
         base.Dispose(disposing);
     }
 
+    /// <summary>
+    /// Calculates the perimeter of a rounded rectangle.
+    /// </summary>
+    /// <param name="rect">The rectangle bounds.</param>
+    /// <param name="radius">The corner radius.</param>
+    /// <returns>The total perimeter length.</returns>
     private static nfloat CalculateRoundedRectPerimeter(CGRect rect, nfloat radius)
     {
         nfloat w = rect.Width;

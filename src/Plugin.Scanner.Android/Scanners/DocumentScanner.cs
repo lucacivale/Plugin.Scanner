@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Android.Gms.Tasks;
 using AndroidX.Activity.Result;
 using AndroidX.Activity.Result.Contract;
@@ -12,14 +13,21 @@ using GmsTask = Android.Gms.Tasks.Task;
 
 namespace Plugin.Scanner.Android.Scanners;
 
+/// <summary>
+/// Provides Android-specific document scanning using Google ML Kit Document Scanner.
+/// </summary>
 internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IOnFailureListener, IActivityResultCallback, IDocumentScanner
 {
     private readonly ICurrentActivity _currentActivity;
-    private readonly ActivityResultLauncher _scannerLauncher;
-    private readonly ActivityResultContracts.StartIntentSenderForResult _startIntentSenderForResult;
+    private readonly ActivityResultLauncher? _scannerLauncher;
+    private readonly ActivityResultContracts.StartIntentSenderForResult? _startIntentSenderForResult;
 
-    private TaskCompletionSource<IDocument> _taskCompletionSource;
+    private TaskCompletionSource<IDocument>? _taskCompletionSource;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DocumentScanner"/> class.
+    /// </summary>
+    /// <param name="currentActivity">The current activity provider.</param>
     public DocumentScanner(ICurrentActivity currentActivity)
     {
         _currentActivity = currentActivity;
@@ -31,6 +39,11 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
         }
     }
 
+    /// <summary>
+    /// Scans a document using Google ML Kit Document Scanner.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the scan operation.</param>
+    /// <returns>A task containing the scanned document with its pages.</returns>
     public async Task<IDocument> ScanAsync(CancellationToken cancellationToken)
     {
         _taskCompletionSource = new TaskCompletionSource<IDocument>();
@@ -50,20 +63,33 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
         return await _taskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
     }
 
+    /// <summary>
+    /// Handles successful retrieval of the scanner intent.
+    /// </summary>
+    /// <param name="result">The intent sender result.</param>
     public void OnSuccess(Java.Lang.Object? result)
     {
         if (result is IntentSender intent)
         {
             using IntentSenderRequest.Builder builder = new(intent);
-            _scannerLauncher.Launch(builder.Build());
+            _scannerLauncher?.Launch(builder.Build());
         }
     }
 
+    /// <summary>
+    /// Handles failures during scanner initialization.
+    /// </summary>
+    /// <param name="e">The exception that occurred.</param>
     public void OnFailure(Java.Lang.Exception e)
     {
-        _taskCompletionSource.TrySetException(new ScanException("Something went wrong during scanning.", e));
+        _taskCompletionSource?.TrySetException(new ScanException("Something went wrong during scanning.", e));
     }
 
+    /// <summary>
+    /// Handles the activity result from the document scanner.
+    /// </summary>
+    /// <param name="result">The activity result containing scanned pages.</param>
+    [SuppressMessage("Usage", "VSTHRD100:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
     public async void OnActivityResult(Java.Lang.Object? result)
     {
         if (result is not ActivityResult aResult
@@ -71,7 +97,7 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
             || GmsDocumentScanningResult.FromActivityResultIntent(aResult.Data) is not GmsDocumentScanningResult scanResult
             || scanResult.Pages is not IList<GmsDocumentScanningResult.Page> pages)
         {
-            _taskCompletionSource.TrySetResult(new Document(Enumerable.Empty<IDocumentPage>()));
+            _taskCompletionSource?.TrySetResult(new Document(Enumerable.Empty<IDocumentPage>()));
             return;
         }
 
@@ -90,15 +116,19 @@ internal sealed class DocumentScanner : Java.Lang.Object, IOnSuccessListener, IO
             }
         }
 
-        _taskCompletionSource.TrySetResult(new Document(documentPages));
+        _taskCompletionSource?.TrySetResult(new Document(documentPages));
     }
 
+    /// <summary>
+    /// Releases resources used by the document scanner.
+    /// </summary>
+    /// <param name="disposing">Whether to dispose managed resources.</param>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            _startIntentSenderForResult.Dispose();
-            _scannerLauncher.Dispose();
+            _startIntentSenderForResult?.Dispose();
+            _scannerLauncher?.Dispose();
         }
 
         base.Dispose(disposing);
