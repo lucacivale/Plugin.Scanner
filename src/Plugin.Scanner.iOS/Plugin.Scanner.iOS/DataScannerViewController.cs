@@ -1,18 +1,19 @@
 using System.Runtime.Versioning;
 using AVFoundation;
 using Plugin.Scanner.Core;
-using Plugin.Scanner.Core.Barcode;
 using Plugin.Scanner.Core.Exceptions;
+using Plugin.Scanner.Core.Models;
 using Plugin.Scanner.iOS.Binding;
 using Plugin.Scanner.iOS.Exceptions;
 using Plugin.Scanner.iOS.Extensions;
+using RecognizedItem = Plugin.Scanner.iOS.Binding.RecognizedItem;
 
 namespace Plugin.Scanner.iOS;
 
 /// <summary>
-/// Provides a managed wrapper around the native data scanner view controller with enhanced event handling and error management.
+/// iOS data scanner view controller that handles scanning operations for recognized data types.
 /// </summary>
-internal class DataScannerViewController : Binding.DataScannerViewController
+internal sealed class DataScannerViewController : Binding.DataScannerViewController
 {
     private readonly DataScannerViewControllerDelegate _dataScannerViewControllerDelegate;
     private readonly IOverlay? _overlay;
@@ -23,13 +24,15 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     /// <summary>
     /// Initializes a new instance of the <see cref="DataScannerViewController"/> class.
     /// </summary>
-    /// <param name="recognizedDataTypes">An array of <see cref="RecognizedDataType"/> specifying the types of data to recognize during scanning.</param>
-    /// <param name="qualityLevel">The <see cref="QualityLevel"/> for scanning. Default is <see cref="QualityLevel.Balanced"/>.</param>
-    /// <param name="recognizesMultipleItems">If <c>true</c>, the scanner can recognize multiple items simultaneously. Default is <c>false</c>.</param>
-    /// <param name="isHighFrameRateTrackingEnabled">If <c>true</c>, enables high frame rate tracking for better performance. Default is <c>true</c>.</param>
-    /// <param name="isPinchToZoomEnabled">If <c>true</c>, allows pinch-to-zoom gesture. Default is <c>true</c>.</param>
-    /// <param name="isGuidanceEnabled">If <c>true</c>, displays guidance to the user. Default is <c>true</c>.</param>
-    /// <param name="isHighlightingEnabled">If <c>true</c>, highlights recognized items. Default is <c>true</c>.</param>
+    /// <param name="recognizedDataTypes">Types of data to recognize during scanning.</param>
+    /// <param name="qualityLevel">Quality level for recognition.</param>
+    /// <param name="recognizesMultipleItems">Whether to recognize multiple items simultaneously.</param>
+    /// <param name="isHighFrameRateTrackingEnabled">Whether high frame rate tracking is enabled.</param>
+    /// <param name="isPinchToZoomEnabled">Whether pinch-to-zoom is enabled.</param>
+    /// <param name="isGuidanceEnabled">Whether user guidance is enabled.</param>
+    /// <param name="isHighlightingEnabled">Whether highlighting of recognized items is enabled.</param>
+    /// <param name="regionOfInterest">Optional region of interest for scanning.</param>
+    /// <param name="overlay">Optional overlay to display on the scanner view.</param>
     public DataScannerViewController(
         RecognizedDataType[] recognizedDataTypes,
         QualityLevel qualityLevel = QualityLevel.Balanced,
@@ -51,41 +54,39 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     }
 
     /// <summary>
-    /// Gets or sets the event handler invoked when the scanner zoom level changes.
+    /// Gets or sets when the scanner zoom level changes.
     /// </summary>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public EventHandler? Zoomed { get; set; }
 
     /// <summary>
-    /// Gets or sets the event handler invoked when a recognized item is tapped.
+    /// Gets or sets when a recognized item is tapped.
     /// </summary>
     public EventHandler<RecognizedItem>? Tapped { get; set; }
 
     /// <summary>
-    /// Gets or sets the event handler invoked when items are added to the scanner's recognition results.
+    /// Gets or sets when new items are recognized and added.
     /// </summary>
     public EventHandler<(RecognizedItem[] AddedItems, RecognizedItem[] AllItems)>? Added { get; set; }
 
     /// <summary>
-    /// Gets or sets the event handler invoked when recognized items are updated.
+    /// Gets or sets when recognized items are updated.
     /// </summary>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public EventHandler<(RecognizedItem[] UpdatedItems, RecognizedItem[] AllItems)>? Updated { get; set; }
 
     /// <summary>
-    /// Gets or sets the event handler invoked when items are removed from the scanner's recognition results.
+    /// Gets or sets when recognized items are removed.
     /// </summary>
     public EventHandler<(RecognizedItem[] RemovedItems, RecognizedItem[] AllItems)>? Removed { get; set; }
 
     /// <summary>
-    /// Sets the device's torch (flashlight) mode.
-    /// Available only on iOS 17.0 and later.
+    /// Sets the torch mode for the device camera.
     /// </summary>
-    /// <param name="mode">The <see cref="AVCaptureTorchMode"/> to set.</param>
+    /// <param name="mode">The torch mode to set.</param>
     /// <exception cref="DataScannerTorchUnavailableException">Thrown when the torch is not available on the device.</exception>
-    /// <exception cref="DataScannerTorchModeUnsupportedException">Thrown when the specified torch mode is not supported on the device.</exception>
-    /// <exception cref="DataScannerCameraConfigurationLockException">Thrown when the camera configuration cannot be locked for modification.</exception>
-    /// <remarks>
-    /// This method uses the user's preferred camera device to control the torch.
-    /// </remarks>
+    /// <exception cref="DataScannerTorchModeUnsupportedException">Thrown when the specified torch mode is not supported.</exception>
+    /// <exception cref="DataScannerCameraConfigurationLockException">Thrown when camera configuration cannot be locked.</exception>
     [SupportedOSPlatform("ios17.0")]
     public static void SetTorchMode(AVCaptureTorchMode mode)
     {
@@ -121,11 +122,11 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     }
 
     /// <summary>
-    /// Starts the scanning process and subscribes to scanner events.
+    /// Starts the scanning session.
     /// </summary>
-    /// <exception cref="DataScannerUnsupportedException">Thrown when the data scanner is not supported on the device.</exception>
-    /// <exception cref="DataScannerUnavailableException">Thrown when the data scanner is not currently available.</exception>
-    /// <exception cref="DataScannerStartException">Thrown when the scanner fails to start.</exception>
+    /// <exception cref="DataScannerUnsupportedException">Thrown when data scanning is not supported on the device.</exception>
+    /// <exception cref="DataScannerUnavailableException">Thrown when data scanning is currently unavailable.</exception>
+    /// <exception cref="DataScannerStartException">Thrown when scanning fails to start.</exception>
     public void StartScanning()
     {
         if (!IsSupported)
@@ -157,7 +158,7 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     }
 
     /// <summary>
-    /// Stops the scanning process and unsubscribes from scanner events.
+    /// Stops the scanning session and unsubscribes from delegate events.
     /// </summary>
     public override void StopScanning()
     {
@@ -171,15 +172,25 @@ internal class DataScannerViewController : Binding.DataScannerViewController
         base.StopScanning();
     }
 
+    /// <summary>
+    /// Dismisses the scanner view controller with the specified result.
+    /// </summary>
+    /// <param name="result">The scan result to return.</param>
     public void DismissViewController(string result)
     {
         StopScanning();
         DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(result));
     }
 
-    public async Task<IBarcode> ScanAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Presents the scanner and asynchronously waits for a scan result.
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the scanning operation.</param>
+    /// <returns>The scan result.</returns>
+    /// <exception cref="ScanException">Thrown when the top view controller cannot be found.</exception>
+    public async Task<IScanResult> ScanAsync(CancellationToken cancellationToken)
     {
-        UIViewController topViewController = WindowUtils.GetTopViewController() ?? throw new BarcodeScanException("Failed to find top UIViewController.");
+        UIViewController topViewController = WindowUtils.GetTopViewController() ?? throw new ScanException("Failed to find top UIViewController.");
 
         StartScanning();
 
@@ -191,11 +202,11 @@ internal class DataScannerViewController : Binding.DataScannerViewController
 
         _overlay?.Cleanup();
 
-        return new Core.Barcode.Barcode(barcode);
+        return new ScanResult(barcode);
     }
 
     /// <summary>
-    /// Sets up the overlay bars, cancel button, and torch button (iOS 17+).
+    /// Called when the view has been loaded. Sets modal presentation and adds overlay.
     /// </summary>
     public override void ViewDidLoad()
     {
@@ -207,9 +218,9 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     }
 
     /// <summary>
-    /// Animates the UI elements to fade in.
+    /// Called when the view has appeared. Configures region of interest based on view frame.
     /// </summary>
-    /// <param name="animated">If <c>true</c>, the appearance is animated.</param>
+    /// <param name="animated">Whether the appearance is animated.</param>
     public override void ViewDidAppear(bool animated)
     {
         base.ViewDidAppear(animated);
@@ -225,6 +236,11 @@ internal class DataScannerViewController : Binding.DataScannerViewController
         }
     }
 
+    /// <summary>
+    /// Called when the view is transitioning to a new size. Updates region of interest and layout for new dimensions.
+    /// </summary>
+    /// <param name="toSize">The new size of the view.</param>
+    /// <param name="coordinator">The transition coordinator.</param>
     public override void ViewWillTransitionToSize(CGSize toSize, IUIViewControllerTransitionCoordinator coordinator)
     {
         base.ViewWillTransitionToSize(toSize, coordinator);
@@ -248,9 +264,9 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     }
 
     /// <summary>
-    /// Releases the unmanaged resources used by the view controller and optionally releases the managed resources.
+    /// Disposes of managed resources including the delegate.
     /// </summary>
-    /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+    /// <param name="disposing">Whether disposing is in progress.</param>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -263,9 +279,9 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     }
 
     /// <summary>
-    /// Handles the delegate zoom event and forwards it to the public <see cref="Zoomed"/> event.
+    /// Handles the zoom event from the delegate and raises the <see cref="Zoomed"/> event.
     /// </summary>
-    /// <param name="sender">The event source.</param>
+    /// <param name="sender">The event sender.</param>
     /// <param name="e">The event arguments.</param>
     private void DataScannerDidZoom(object? sender, EventArgs e)
     {
@@ -273,45 +289,50 @@ internal class DataScannerViewController : Binding.DataScannerViewController
     }
 
     /// <summary>
-    /// Handles the delegate tap event and forwards it to the public <see cref="Tapped"/> event.
+    /// Handles the tap event from the delegate and raises the <see cref="Tapped"/> event.
     /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="item">The <see cref="RecognizedItem"/> that was tapped.</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="item">The tapped recognized item.</param>
     private void DidTapOn(object? sender, RecognizedItem item)
     {
         Tapped?.Invoke(this, item);
     }
 
     /// <summary>
-    /// Handles the delegate item added event and forwards it to the public <see cref="Added"/> event.
+    /// Handles the add event from the delegate and raises the <see cref="Added"/> event.
     /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="args">A tuple containing the added items and all currently recognized items.</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The added items and all items.</param>
     private void DidAdd(object? sender, (RecognizedItem[] AddedItems, RecognizedItem[] AllItems) args)
     {
         Added?.Invoke(this, args);
     }
 
     /// <summary>
-    /// Handles the delegate item updated event and forwards it to the public <see cref="Updated"/> event.
+    /// Handles the update event from the delegate and raises the <see cref="Updated"/> event.
     /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="args">A tuple containing the updated items and all currently recognized items.</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The updated items and all items.</param>
     private void DidUpdate(object? sender, (RecognizedItem[] UddedItems, RecognizedItem[] AllItems) args)
     {
         Updated?.Invoke(this, args);
     }
 
     /// <summary>
-    /// Handles the delegate item removed event and forwards it to the public <see cref="Removed"/> event.
+    /// Handles the remove event from the delegate and raises the <see cref="Removed"/> event.
     /// </summary>
-    /// <param name="sender">The event source.</param>
-    /// <param name="args">A tuple containing the removed items and all currently recognized items.</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The removed items and all items.</param>
     private void DidRemove(object? sender, (RecognizedItem[] RddedItems, RecognizedItem[] AllItems) args)
     {
         Removed?.Invoke(this, args);
     }
 
+    /// <summary>
+    /// Handles the unavailable error from the delegate, stops scanning and dismisses the view controller.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="error">The exception indicating why scanning became unavailable.</param>
     private void BecameUnavailableWithError(object? sender, DataScannerUnavailableException error)
     {
         StopScanning();

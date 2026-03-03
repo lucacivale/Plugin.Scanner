@@ -56,13 +56,12 @@ jobs:
           scheme: semver
           increment: patch
 
-      - name: Pack Plugin.Scanner.iOS.Binding.${{ steps.version.outputs.version }}-alpha
+      - name: Pack Plugin.Scanner.iOS.Binding.${{ steps.version.outputs.version }}
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: dotnet pack ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}-alpha
+        run: dotnet pack ${{ env.Plugin_Scanner_iOS_BindingProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}
     
       - name: Upload NuGet artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v4
         with:
-          name: Plugin.Scanner.iOS.Binding.${{ steps.version.outputs.version }}-alpha.nupkg
           path: ./artifacts/*.nupkg

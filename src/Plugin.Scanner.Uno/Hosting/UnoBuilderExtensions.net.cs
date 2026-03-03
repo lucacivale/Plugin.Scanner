@@ -27,7 +27,7 @@ public static partial class UnoBuilderExtensions
         {
             host.ConfigureServices((_, services) =>
             {
-                services.AddBarcodeScanner();
+                services.AddScanner();
             });
         });
     }

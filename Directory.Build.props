@@ -28,6 +28,14 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<None Condition="$(MSBuildProjectName.Contains('iOS')) or $(MSBuildProjectName.Contains('Avalonia.Tests'))" Include="..\..\..\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Condition="$(MSBuildProjectName.Contains('iOS')) == false and $(MSBuildProjectName.Contains('Avalonia.Tests')) == false" Include="..\..\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 	
     <PropertyGroup>
@@ -41,6 +49,7 @@
         <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryType>git</RepositoryType>
+		<PackageIcon>icon.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<Description>This plugin aims to enalbe simple, fast and customizable data scanning(barcodes, text, documents...) using native Android and iOS APIs ML Kit and Vision Kit.</Description>
 	</PropertyGroup>

@@ -15,5 +15,4 @@
     <ItemGroup>
         <ProjectReference Include="..\Plugin.Scanner\Plugin.Scanner.csproj" />
     </ItemGroup>
-
 </Project>

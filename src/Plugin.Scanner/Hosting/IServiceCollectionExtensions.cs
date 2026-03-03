@@ -12,5 +12,5 @@ public static partial class IServiceCollectionExtensions
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to add the barcode scanner to.</param>
     /// <returns>The <see cref="IServiceCollection"/> for method chaining.</returns>
-    public static partial IServiceCollection AddBarcodeScanner(this IServiceCollection serviceCollection);
+    public static partial IServiceCollection AddScanner(this IServiceCollection serviceCollection);
 }

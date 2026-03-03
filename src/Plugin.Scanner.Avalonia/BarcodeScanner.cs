@@ -1,73 +1,44 @@
-﻿using Plugin.Scanner.Core.Barcode;
+﻿using Plugin.Scanner.Core.Scanners;
 
 namespace Plugin.Scanner.Avalonia;
 
 /// <summary>
-/// Provides cross-platform access to barcode scanning functionality.
+/// A static class that provides access to the default implementation of the barcode scanner.
 /// </summary>
-/// <remarks>
-/// This class automatically selects the appropriate platform-specific implementation
-/// based on the target platform (iOS, Android, or Core).
-/// </remarks>
-/// <example>
-/// <code>
-/// // Basic usage
-/// var result = await BarcodeScanner.Default.ScanAsync();
-/// Console.WriteLine($"Scanned: {result.RawValue}");
-/// </code>
-/// </example>
 public static class BarcodeScanner
 {
     private static IBarcodeScanner? _barcodeScannerImplementation;
 
 #if !IOS && !ANDROID
     /// <summary>
-    /// Gets the default platform-specific barcode scanner implementation.
+    /// Gets the default implementation of the <see cref="IBarcodeScanner"/> interface.
+    /// This property provides a singleton instance of the barcode scanner,
+    /// which can be used to perform barcode scanning operations.
     /// </summary>
-    /// <value>
-    /// An <see cref="IBarcodeScanner"/> instance that provides barcode scanning capabilities.
-    /// The implementation is lazily initialized on first access and reused for further calls.
-    /// </value>
-    /// <remarks>
-    /// <para>Platform-specific behavior:</para>
-    /// <list type="bullet">
-    /// <item><description>Other: Uses the core scanner implementation</description></item>
-    /// </list>
-    /// </remarks>
-    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new Plugin.Scanner.Core.Barcode.BarcodeScanner();
+    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new Plugin.Scanner.Core.Scanners.BarcodeScanner();
 #endif
 
 #if IOS
     /// <summary>
-    /// Gets the default platform-specific barcode scanner implementation.
+    /// Gets the default implementation of the <see cref="IBarcodeScanner"/> interface.
     /// </summary>
-    /// <value>
-    /// An <see cref="IBarcodeScanner"/> instance that provides barcode scanning capabilities.
-    /// The implementation is lazily initialized on first access and reused for further calls.
-    /// </value>
     /// <remarks>
-    /// <para>Platform-specific behavior:</para>
-    /// <list type="bullet">
-    /// <item><description>iOS: Uses native DataScannerViewController with camera access</description></item>
-    /// </list>
+    /// This property initializes an instance of the default barcode scanner implementation
+    /// for the platform, if it is not already set.
     /// </remarks>
-    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new iOS.Barcode.BarcodeScanner();
+    /// <value>
+    /// An instance of <see cref="IBarcodeScanner"/> that represents the default barcode scanner implementation.
+    /// </value>
+    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new iOS.Scanners.BarcodeScanner();
 #endif
 
 #if ANDROID
     /// <summary>
-    /// Gets the default platform-specific barcode scanner implementation.
+    /// Gets the default instance of <see cref="IBarcodeScanner"/>.
+    /// This property provides access to the default implementation of the barcode scanner,
+    /// initializing it if necessary. The default implementation is platform-specific and
+    /// may vary depending on the environment (e.g., Android, iOS) in which the application is run.
     /// </summary>
-    /// <value>
-    /// An <see cref="IBarcodeScanner"/> instance that provides barcode scanning capabilities.
-    /// The implementation is lazily initialized on first access and reused for further calls.
-    /// </value>
-    /// <remarks>
-    /// <para>Platform-specific behavior:</para>
-    /// <list type="bullet">
-    /// <item><description>Android: Uses Googles ML-Kit camera-based scanner with activity context</description></item>
-    /// </list>
-    /// </remarks>
-    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new Scanner.Android.Barcode.BarcodeScanner(new Android.CurrentActivity());
+    public static IBarcodeScanner Default => _barcodeScannerImplementation ??= new Scanner.Android.Scanners.BarcodeScanner(new Android.CurrentActivity());
 #endif
 }

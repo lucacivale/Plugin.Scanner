@@ -1,6 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Scanners;
+using BarcodeScanner = Plugin.Scanner.iOS.Scanners.BarcodeScanner;
+using DocumentScanner = Plugin.Scanner.iOS.Scanners.DocumentScanner;
+using TextScanner = Plugin.Scanner.iOS.Scanners.TextScanner;
 
 namespace Plugin.Scanner.Hosting;
 
@@ -14,9 +17,11 @@ public static partial class IServiceCollectionExtensions
     /// </summary>
     /// <param name="serviceCollection">The <see cref="IServiceCollection"/> to add the barcode scanner to.</param>
     /// <returns>The <see cref="IServiceCollection"/> for method chaining.</returns>
-    public static partial IServiceCollection AddBarcodeScanner(this IServiceCollection serviceCollection)
+    public static partial IServiceCollection AddScanner(this IServiceCollection serviceCollection)
     {
-        serviceCollection.TryAddSingleton<IBarcodeScanner, Plugin.Scanner.iOS.Barcode.BarcodeScanner>();
+        serviceCollection.TryAddSingleton<IBarcodeScanner, BarcodeScanner>();
+        serviceCollection.TryAddSingleton<ITextScanner, TextScanner>();
+        serviceCollection.TryAddSingleton<IDocumentScanner, DocumentScanner>();
 
         return serviceCollection;
     }

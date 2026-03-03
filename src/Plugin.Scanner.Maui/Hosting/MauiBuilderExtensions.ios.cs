@@ -24,7 +24,7 @@ public static partial class MauiBuilderExtensions
     /// </example>
     public static partial MauiAppBuilder UseScanner(this MauiAppBuilder app)
     {
-        app.Services.AddBarcodeScanner();
+        app.Services.AddScanner();
 
         return app;
     }

@@ -1,28 +1,19 @@
 namespace Plugin.Scanner.iOS;
 
 /// <summary>
-/// Provides utility methods for working with UIKit windows and view controllers.
+/// Provides utility methods for working with iOS windows and view controllers.
 /// </summary>
 internal static class WindowUtils
 {
     /// <summary>
-    /// Gets the topmost visible view controller in the application's view hierarchy.
+    /// Gets the topmost view controller in the current window hierarchy.
     /// </summary>
     /// <returns>
-    /// The topmost <see cref="UIViewController"/> in the presentation chain, or <c>null</c> if no view controller is found.
+    /// The topmost <see cref="UIViewController"/> if available; otherwise, <see langword="null"/>.
     /// </returns>
     /// <remarks>
-    /// <para>
-    /// This method traverses the view hierarchy to find the currently visible view controller by:
-    /// <list type="number">
-    /// <item><description>Finding the active application window scene</description></item>
-    /// <item><description>Getting the root view controller from the window</description></item>
-    /// <item><description>Traversing any presented view controllers to find the topmost one</description></item>
-    /// </list>
-    /// </para>
-    /// <para>
-    /// This is useful for presenting modal view controllers when the current context is unknown.
-    /// </para>
+    /// This method traverses the view controller hierarchy by checking for presented view controllers
+    /// and returns the one at the top of the presentation stack.
     /// </remarks>
     public static UIViewController? GetTopViewController()
     {

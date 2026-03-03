@@ -1,6 +1,6 @@
-<Project Sdk="Uno.Sdk">
+﻿<Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>$(NetVersion)-android;$(NetVersion)-ios;$(NetVersion)</TargetFrameworks>
+    <TargetFrameworks>$(NetVersion)-android;$(NetVersion)-ios</TargetFrameworks>
 
     <OutputType Condition="'$(TargetFramework)' != '$(NetVersion)'">Exe</OutputType>
     <UnoSingleProject>true</UnoSingleProject>
@@ -36,4 +36,16 @@
     <ProjectReference Include="..\..\src\Plugin.Scanner.Uno\Plugin.Scanner.Uno.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
+   <!-- workaround
+     https://github.com/dotnet/android-libraries/issues/1341
+     https://learn.microsoft.com/en-us/answers/questions/5689593/build-error-net-maui-app-upgrade-net-9-0-to-net-10
+    -->
+    <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" ExcludeAssets="all"/>
+
+    <PackageReference Include="Xamarin.AndroidX.Activity" Version="1.12.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.10.0.1"/>
+    <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.1.2" />
+  </ItemGroup>
+    
 </Project>

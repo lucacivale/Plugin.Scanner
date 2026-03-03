@@ -32,5 +32,27 @@
             FontSize="16"
             Text="{Binding Barcode}"
             TextAlignment="Center" />
+
+        <Button
+            HorizontalAlignment="Center"
+            Command="{Binding ScanTextCommand}"
+            Content="Scan Text" />
+
+        <TextBlock
+            HorizontalAlignment="Center"
+            FontSize="16"
+            Text="{Binding Text}"
+            TextAlignment="Center" />
+
+        <Button
+            HorizontalAlignment="Center"
+            Command="{Binding ScanDocumentCommand}"
+            Content="Scan Documents" />
+
+        <TextBlock
+            HorizontalAlignment="Center"
+            FontSize="16"
+            Text="{Binding ScannedDocuments}"
+            TextAlignment="Center" />
     </StackPanel>
 </UserControl>

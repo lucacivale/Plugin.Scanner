@@ -6,7 +6,7 @@ using AndroidX.Core.Content;
 namespace Plugin.Scanner.Android;
 
 /// <summary>
-/// Provides helper methods for checking and requesting camera and flashlight permissions.
+/// Provides helper methods for managing camera and flashlight permissions on Android.
 /// </summary>
 internal static class PermissionsHelper
 {
@@ -24,9 +24,9 @@ internal static class PermissionsHelper
     }
 
     /// <summary>
-    /// Checks if all required permissions are granted.
+    /// Checks whether all required permissions have been granted.
     /// </summary>
-    /// <param name="context">The context to check permissions against.</param>
+    /// <param name="context">The context to check permissions in.</param>
     /// <returns><c>true</c> if all required permissions are granted; otherwise, <c>false</c>.</returns>
     public static bool PermissionsGranted(Context context)
     {

@@ -8,5 +8,11 @@
     <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
         <Button Command="{Binding ScanBarcodeCommand}" Text="Scan single barcode" />
         <Label HorizontalOptions="Center" Text="{Binding Barcode}" />
+
+        <Button Command="{Binding ScanTextCommand}" Text="Scan single text" />
+        <Label HorizontalOptions="Center" Text="{Binding Text}" />
+
+        <Button Command="{Binding ScanDocumentCommand}" Text="Scan documents" />
+        <Label HorizontalOptions="Center" Text="{Binding ScannedDocuments}" />
     </VerticalStackLayout>
 </ContentPage>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 128 128">
+	<defs>
+		<linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+			<stop offset="0%" stop-color="#10b981"/>
+			<stop offset="100%" stop-color="#059669"/>
+		</linearGradient>
+
+		<linearGradient id="scanGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop offset="0%" stop-color="#34d399" stop-opacity="0"/>
+			<stop offset="50%" stop-color="#34d399" stop-opacity="1"/>
+			<stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+		</linearGradient>
+	</defs>
+
+	<!-- Rounded Background -->
+	<rect width="128" height="128" rx="24" fill="url(#greenGrad)"/>
+
+	<g transform="translate(64 64)">
+
+		<!-- Phone -->
+		<rect x="-22" y="-34" width="44" height="68" rx="8"
+			  fill="none"
+			  stroke="#ffffff"
+			  stroke-width="2.5"/>
+
+		<!-- Screen -->
+		<rect x="-17" y="-24" width="34" height="48" rx="4"
+			  fill="#ffffff"
+			  opacity="0.95"/>
+
+		<!-- Text/Data lines -->
+		<line x1="-10" y1="-10" x2="10" y2="-10"
+			  stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+		<line x1="-10" y1="-2" x2="6" y2="-2"
+			  stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+		<line x1="-10" y1="6" x2="12" y2="6"
+			  stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+		<line x1="-10" y1="14" x2="4" y2="14"
+			  stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+
+		<!-- Scanner corner brackets -->
+		<path d="M-14 -18 h6 M-14 -18 v6
+             M14 -18 h-6 M14 -18 v6
+             M-14 18 h6 M-14 18 v-6
+             M14 18 h-6 M14 18 v-6"
+			  stroke="#34d399"
+			  stroke-width="2"
+			  stroke-linecap="round"/>
+
+		<!-- Scan beam -->
+		<rect x="-14" y="0" width="28" height="3"
+			  fill="url(#scanGlow)"
+			  rx="2"/>
+
+	</g>
+</svg>

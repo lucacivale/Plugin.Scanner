@@ -1,18 +1,17 @@
-using Plugin.Scanner.Core.Barcode;
+using Plugin.Scanner.Core.Models.Enums;
 
 namespace Plugin.Scanner.Android.Extensions;
 
 /// <summary>
-/// Provides extension methods for converting <see cref="BarcodeFormat"/> flags to ML Kit barcode format identifiers.
+/// Provides extension methods for converting <see cref="BarcodeFormat"/> to ML Kit barcode format constants.
 /// </summary>
 internal static class BarcodeFormatExtensions
 {
     /// <summary>
-    /// Converts the barcode format flags to a collection of ML Kit barcode format identifiers.
+    /// Converts <see cref="BarcodeFormat"/> flags to ML Kit barcode format integers.
     /// </summary>
     /// <param name="formats">The barcode format flags to convert.</param>
-    /// <returns>A collection of ML Kit barcode format integer identifiers.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when an unsupported barcode format is encountered.</exception>
+    /// <returns>An enumerable collection of ML Kit barcode format integers.</returns>
     public static IEnumerable<int> ToBarcodeFormats(this BarcodeFormat formats)
     {
         Func<BarcodeFormat, int> select = flag => flag switch

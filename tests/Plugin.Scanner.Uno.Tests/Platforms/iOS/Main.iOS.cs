@@ -1,4 +1,3 @@
-using UIKit;
 using Uno.UI.Hosting;
 
 namespace Plugin.Scanner.Uno.Tests.iOS;
