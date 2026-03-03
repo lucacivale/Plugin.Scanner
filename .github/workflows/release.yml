@@ -28,23 +28,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install ${{ inputs.target-platform }} Workloads
-        shell: pwsh
-        run: |
-          dotnet tool install -g uno.check
-          echo "Install iOS Workload"
-          uno-check -v --ci --non-interactive --fix --target iOS --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates
-          echo "uno-check finished for target: iOS"
-
-          echo "Install Android Workload"
-          uno-check -v --ci --non-interactive --fix --target Android --skip vswin --skip vsmac --skip xcode --skip vswinworkloads --skip androidemulator --skip dotnetnewunotemplates
-          echo "uno-check finished for target: Android"
-
       - name: Set Xcode version ${{ env.XCODE_VERSION }}
         run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
 
-      #- name: Install workloads
-      #  run: dotnet workload install maui ios android  --version ${{ env.DOTNET_VERSION }}
+      - name: Install workloads
+        run: dotnet workload install maui ios android  --version ${{ env.DOTNET_VERSION }}
 
       - name: Get next version
         uses: reecetech/version-increment@2024.10.1
@@ -69,8 +57,8 @@ jobs:
             dotnet pack "$project" -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}
           done
 
-      - name: Pack Uno plugin
-        run: dotnet build ${{ env.Plugin_Scanner_Uno_ProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} -p:GeneratePackageOnBuild=true
+      #- name: Pack Uno plugin
+      #  run: dotnet build ${{ env.Plugin_Scanner_Uno_ProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} -p:GeneratePackageOnBuild=true
 
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v4
