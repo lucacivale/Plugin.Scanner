@@ -33,7 +33,7 @@ jobs:
 
       - name: Install workloads
         run: dotnet workload install maui ios android  --version ${{ env.DOTNET_VERSION }}
-      
+
       - name: Get next version
         uses: reecetech/version-increment@2024.10.1
         id: version
@@ -56,11 +56,11 @@ jobs:
             echo "Packing $project"
             dotnet pack "$project" -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}
           done
-          
+
       - name: Pack Uno plugin
-        run: dotnet build ${{ env.Plugin_Scanner_Uno_ProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} -p:GeneratePackageOnBuild=true
+        run: dotnet build ${{ env.Plugin_Scanner_Uno_ProjectPath }} -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} -p:GeneratePackageOnBuild=true
 
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./artifacts/*.nupkg
+          path: '**/*.nupkg'
