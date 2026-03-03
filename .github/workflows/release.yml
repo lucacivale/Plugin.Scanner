@@ -55,6 +55,11 @@ jobs:
           for project in "${projects[@]}"; do
             echo "Packing $project"
             dotnet pack "$project" -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}
+          
+            if [ $? -ne 0 ]; then
+            echo "Failed to pack $project"
+            exit 1
+          fi
           done
           
       - name: Pack Uno plugin
