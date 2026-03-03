@@ -57,8 +57,8 @@ jobs:
             dotnet pack "$project" -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }}
           done
 
-      #- name: Pack Uno plugin
-      #  run: dotnet build ${{ env.Plugin_Scanner_Uno_ProjectPath }} -o ./artifacts -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} -p:GeneratePackageOnBuild=true
+      - name: Pack Uno plugin
+        run: dotnet build ${{ env.Plugin_Scanner_Uno_ProjectPath }} -c ${{ env.Configuration }} -p:PackageVersion=${{ steps.version.outputs.version }} -p:GeneratePackageOnBuild=true
 
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v4
