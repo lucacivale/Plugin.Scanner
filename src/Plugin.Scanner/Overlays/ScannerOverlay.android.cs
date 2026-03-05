@@ -1,6 +1,6 @@
 using AndroidX.Camera.Core;
 using AndroidX.Camera.View;
-using Plugin.Scanner.Android;
+using Plugin.Scanner.Android.Dialogs;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Core;

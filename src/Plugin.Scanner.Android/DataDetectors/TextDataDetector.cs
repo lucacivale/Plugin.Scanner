@@ -1,9 +1,10 @@
+using Android.Gms.Tasks;
 using AndroidX.Camera.MLKit.Vision;
 using Java.Interop;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Models;
-using Xamarin.Google.MLKit.Vision.Interfaces;
+using Xamarin.Google.MLKit.Vision.Common;
 using Xamarin.Google.MLKit.Vision.Text;
 
 namespace Plugin.Scanner.Android.DataDetectors;
@@ -11,16 +12,19 @@ namespace Plugin.Scanner.Android.DataDetectors;
 /// <summary>
 /// Detects text in camera frames using ML Kit text recognition.
 /// </summary>
-internal sealed class TextDataDetector : DataDetector<Text>
+internal sealed class TextDataDetector : DataDetector<Text>, IOnSuccessListener
 {
+    private readonly ITextRecognizer _textRecognizer;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TextDataDetector"/> class.
     /// </summary>
     /// <param name="detector">The ML Kit text detector instance.</param>
     /// <param name="recognizedItemFactory">The factory for creating recognized text items.</param>
-    public TextDataDetector(IDetector detector, IRecognizedItemFactory<Text> recognizedItemFactory)
+    public TextDataDetector(ITextRecognizer detector, IRecognizedItemFactory<Text> recognizedItemFactory)
         : base(detector, recognizedItemFactory)
     {
+        _textRecognizer = detector;
     }
 
     /// <summary>
@@ -44,6 +48,16 @@ internal sealed class TextDataDetector : DataDetector<Text>
                 ProcessResults(RecognizedItemFactory.Create(text));
             }
         }
+    }
+
+    public void OnSuccess(Java.Lang.Object? result)
+    {
+        Accept(result);
+    }
+
+    public void Process(InputImage inputImage)
+    {
+        _ = _textRecognizer.Process(inputImage).AddOnSuccessListener(this);
     }
 
     /// <summary>

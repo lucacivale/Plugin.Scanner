@@ -1,10 +1,12 @@
+using Android.Gms.Tasks;
 using AndroidX.Camera.MLKit.Vision;
 using Java.Interop;
 using Java.Util;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Models;
-using Xamarin.Google.MLKit.Vision.Interfaces;
+using Xamarin.Google.MLKit.Vision.BarCode;
+using Xamarin.Google.MLKit.Vision.Common;
 using MLBarcode = Xamarin.Google.MLKit.Vision.Barcode.Common.Barcode;
 
 namespace Plugin.Scanner.Android.DataDetectors;
@@ -12,12 +14,13 @@ namespace Plugin.Scanner.Android.DataDetectors;
 /// <summary>
 /// Detects barcodes in camera frames using ML Kit barcode scanning with frequency-based validation.
 /// </summary>
-internal sealed class BarcodeDataDetector : DataDetector<IEnumerable<MLBarcode>>
+internal sealed class BarcodeDataDetector : DataDetector<IEnumerable<MLBarcode>>, IOnSuccessListener
 {
     private const int MaxFrames = 5;
     private const int MinOccurrences = 3;
 
     private readonly Dictionary<RecognizedItem, int> _itemFrequencies = new();
+    private readonly IBarcodeScanner _barcodeScanner;
 
     private int _frameCount;
 
@@ -26,9 +29,10 @@ internal sealed class BarcodeDataDetector : DataDetector<IEnumerable<MLBarcode>>
     /// </summary>
     /// <param name="detector">The ML Kit barcode detector instance.</param>
     /// <param name="recognizedItemFactory">The factory for creating recognized barcode items.</param>
-    public BarcodeDataDetector(IDetector detector, IRecognizedItemFactory<IEnumerable<MLBarcode>> recognizedItemFactory)
+    public BarcodeDataDetector(IBarcodeScanner detector, IRecognizedItemFactory<IEnumerable<MLBarcode>> recognizedItemFactory)
         : base(detector, recognizedItemFactory)
     {
+        _barcodeScanner = detector;
     }
 
     /// <summary>
@@ -52,6 +56,16 @@ internal sealed class BarcodeDataDetector : DataDetector<IEnumerable<MLBarcode>>
                 ProcessResults(RecognizedItemFactory.Create(results?.ToEnumerable().OfType<MLBarcode>() ?? Enumerable.Empty<MLBarcode>()));
             }
         }
+    }
+
+    public void OnSuccess(Java.Lang.Object? result)
+    {
+        Accept(result);
+    }
+
+    public void Process(InputImage inputImage)
+    {
+        _ = _barcodeScanner.Process(inputImage).AddOnSuccessListener(this);
     }
 
     /// <summary>

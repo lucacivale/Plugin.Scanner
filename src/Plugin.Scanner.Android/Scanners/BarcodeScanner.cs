@@ -1,6 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using Android.OS;
 using AndroidX.Camera.Core;
+using AndroidX.Camera.Core.ImageCaptures;
 using AndroidX.Camera.Core.ResolutionSelector;
 using AndroidX.Camera.MLKit.Vision;
 using AndroidX.Camera.View;
@@ -8,6 +8,7 @@ using AndroidX.Core.Content;
 using AndroidX.Lifecycle;
 using Java.Util.Concurrent;
 using Plugin.Scanner.Android.DataDetectors;
+using Plugin.Scanner.Android.Dialogs;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
@@ -15,7 +16,10 @@ using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Core.Models;
 using Plugin.Scanner.Core.Options;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Xamarin.Google.MLKit.Vision.BarCode;
+using Xamarin.Google.MLKit.Vision.Common;
 using ASize = Android.Util.Size;
 using Exception = System.Exception;
 using IBarcodeScanner = Plugin.Scanner.Core.Scanners.IBarcodeScanner;
@@ -90,7 +94,7 @@ internal sealed class BarcodeScanner : IBarcodeScanner
                     .SetAspectRatioStrategy(aspectRatioStrategy)
                     .Build();
 
-                using DataScannerDialog scannerDialog = new(
+                using CameraScannerDialog scannerDialog = new(
                     _currentActivity.Activity,
                     barcodeDetector,
                     cameraController,
@@ -104,6 +108,73 @@ internal sealed class BarcodeScanner : IBarcodeScanner
 
                 cameraController.ClearImageAnalysisAnalyzer();
                 cameraController.Unbind();
+            }
+            catch (Exception e)
+            {
+                scanCompleteTaskSource.TrySetException(e);
+            }
+        });
+
+        try
+        {
+            return await scanCompleteTaskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
+        }
+        catch (Exception e)
+            when (e is MainExecutorNotAvailableException
+                or NoCameraException
+                or ViewNotFoundException)
+        {
+            throw new ScanException(e.Message, e);
+        }
+    }
+
+    [SuppressMessage("Usage", "VSTHRD101:Avoid unsupported async delegates", Justification = "We have to await this async call because we have to dispatch to the main queue.")]
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Intentionally catching all exceptions here to prevent background task from crashing the process.")]
+    public async Task<IScanResult> ScanAsync(byte[] image, IBarcodeScanOptions options, CancellationToken cancellationToken)
+    {
+        _ = _currentActivity.Activity.MainLooper ?? throw new ScanException("MainLooper can't be null here");
+
+        TaskCompletionSource<IScanResult> scanCompleteTaskSource = new();
+
+        using Handler handler = new(_currentActivity.Activity.MainLooper);
+
+        handler.Post(async () =>
+        {
+            try
+            {
+                List<int> formats = options.Formats.ToBarcodeFormats().ToList();
+
+                using BarcodeScannerOptions.Builder builder = new();
+                using BarcodeScannerOptions scannerOptions = builder
+                    .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
+                    .Build();
+
+                using BarcodeDataDetector barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode());
+
+                using Bitmap imageBitmap = await BitmapFactory.DecodeByteArrayAsync(image, 0, image.Length).ConfigureAwait(true) ?? throw new NullReferenceException("Could not decode byte array.");
+
+                using ImageScannerDialog scannerDialog = new(
+                    _currentActivity.Activity,
+                    imageBitmap,
+                    barcodeDetector,
+                    options.RegionOfInterest,
+                    options.Overlay,
+                    options.RecognizeMultiple,
+                    options.IsHighlightingEnabled);
+
+                using InputImage inputImage = InputImage.FromBitmap(imageBitmap, 0);
+
+                EventHandler @event = null!;
+                @event = (_, _) =>
+                {
+                    barcodeDetector.Process(inputImage);
+                    scannerDialog.ShowEvent -= @event;
+                };
+
+                scannerDialog.ShowEvent += @event;
+
+                IScanResult barcode = new ScanResult((await scannerDialog.ScanAsync(cancellationToken).ConfigureAwait(true)).Text);
+                scanCompleteTaskSource.TrySetResult(barcode);
             }
             catch (Exception e)
             {
