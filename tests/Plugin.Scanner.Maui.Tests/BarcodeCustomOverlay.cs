@@ -2,6 +2,8 @@ using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Platform;
 using Plugin.Scanner.Core;
 using ContentView = Microsoft.Maui.Controls.ContentView;
+using Plugin.Scanner.Overlays;
+
 
 #if IOS
 using UIKit;
@@ -11,6 +13,7 @@ using UIKit;
 using Android.App;
 using Android.Views;
 using View = Android.Views.View;
+using Plugin.Scanner.Core.Controllers;
 #endif
 
 namespace Plugin.Scanner.Maui.Tests;
@@ -121,17 +124,17 @@ public class BarcodeCustomOverlay : IOverlay
     {
     }
 
-    #if IOS
+#if IOS
     public void Init(UIViewController viewController)
     {
         _viewController = viewController;
     }
-    #endif
+#endif
 
-    #if ANDROID
-    public void Init(Dialog dialog, View root)
+#if ANDROID
+    public void Init(IDataScannerController controller, View root)
     {
         _root = root;
     }
-    #endif
+#endif
 }

@@ -41,11 +41,11 @@ internal sealed partial class BarcodeScannerOverlay : ScannerOverlay
     {
         base.OnDetected(sender, e);
 
-        PreviewView previewView = Dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        PreviewView previewView = Controller?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
 
         RecognizedItem? recognizedItem;
 
-        if (Dialog?.RecognizeMultiple == false)
+        if (Controller?.RecognizeMultiple == false)
         {
             _selectedRecognizedItem ??= e.First();
 
@@ -60,9 +60,9 @@ internal sealed partial class BarcodeScannerOverlay : ScannerOverlay
         itemButton.RecognizedItem = recognizedItem;
         itemButton.Visibility = recognizedItem is null ? ViewStates.Gone : ViewStates.Visible;
 
-        if (Dialog?.IsHighlightingEnabled == true)
+        if (Controller?.IsHighlightingEnabled == true)
         {
-            if (Dialog?.RecognizeMultiple == false)
+            if (Controller?.RecognizeMultiple == false)
             {
                 if (recognizedItem is not null)
                 {

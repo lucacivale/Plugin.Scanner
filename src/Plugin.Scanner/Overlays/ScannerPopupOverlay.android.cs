@@ -13,7 +13,7 @@ namespace Plugin.Scanner.Overlays;
 /// <summary>
 /// Provides Android-specific base scanner overlay implementation with common UI elements and event handling.
 /// </summary>
-internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouchListener
+internal abstract partial class ScannerPopupOverlay : Java.Lang.Object, View.IOnTouchListener
 {
     private IReadOnlyList<RecognizedItem>? _recognizedItems;
 
@@ -33,8 +33,6 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouch
     /// Gets the list of currently recognized items.
     /// </summary>
     protected IReadOnlyList<RecognizedItem>? RecognizedItems => _recognizedItems;
-
-    protected IDataScannerController? Controller => _controller;
 
     /// <summary>
     /// Initializes the overlay with the specified dialog and root view.

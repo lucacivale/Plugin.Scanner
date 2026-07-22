@@ -82,7 +82,8 @@ internal sealed class BarcodeScanner : IBarcodeScanner
 
                 // As google recommends https://developers.google.com/ml-kit/vision/barcode-scanning/android?hl=de 2 mp
                 using ResolutionSelector.Builder resolutionBuilder = new();
-                using ResolutionStrategy resolutionStrategy = new(new ASize(1920, 1080), ResolutionStrategy.FallbackRuleClosestHigherThenLower);
+                using ASize size = new(1920, 1080);
+                using ResolutionStrategy resolutionStrategy = new(size, ResolutionStrategy.FallbackRuleClosestHigherThenLower);
                 using AspectRatioStrategy aspectRatioStrategy = new(AspectRatio.Ratio169, AspectRatio.RatioDefault);
 
                 cameraController.ImageAnalysisResolutionSelector = resolutionBuilder

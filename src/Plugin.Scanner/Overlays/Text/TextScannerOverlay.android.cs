@@ -42,14 +42,14 @@ internal sealed partial class TextScannerOverlay : ScannerOverlay
     {
         base.OnDetected(sender, e);
 
-        PreviewView previewView = Dialog?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
+        PreviewView previewView = Controller?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Overlay?.Clear();
 
         _textBlockHighlights.ForEach(x => x.Dispose());
         _textBlockHighlights.Clear();
 
-        if (Dialog?.IsHighlightingEnabled == true
-            && Dialog?.RecognizeMultiple == true)
+        if (Controller?.IsHighlightingEnabled == true
+            && Controller?.RecognizeMultiple == true)
         {
             Color baseColor = Color.Yellow;
 

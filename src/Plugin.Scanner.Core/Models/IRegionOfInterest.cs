@@ -1,5 +1,5 @@
-﻿using System.Drawing;
-
+﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
+// ReSharper disable once CheckNamespace
 namespace Plugin.Scanner.Core;
 
 /// <summary>
@@ -17,6 +17,6 @@ public interface IRegionOfInterest
     /// <summary>
     /// Calculates and returns the region of interest rectangle.
     /// </summary>
-    /// <returns>A <see cref="Rectangle"/> representing the region of interest.</returns>
-    Rectangle CalculateRegionOfInterest();
+    /// <returns>A <see cref="System.Drawing.Rectangle"/> representing the region of interest.</returns>
+    System.Drawing.Rectangle CalculateRegionOfInterest();
 }

@@ -1,5 +1,4 @@
-﻿using AndroidX.AppCompat.App;
-using AndroidX.Camera.View;
+﻿using AndroidX.Camera.View;
 using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
@@ -9,12 +8,8 @@ using Plugin.Scanner.Core.Models;
 
 namespace Plugin.Scanner.Android;
 
-/// <summary>
-/// Provides a fullscreen dialog for scanning data using the device camera on Android.
-/// </summary>
-internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerController
+internal sealed class DataScannerPopup : FrameLayout, IDataScannerController
 {
-    private readonly Activity _activity;
     private readonly LifecycleCameraController _cameraController;
     private readonly IDataDetector _dataDetector;
 
@@ -23,10 +18,8 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
     private readonly IOverlay? _overlay;
     private readonly IRegionOfInterest? _regionOfInterest;
 
-    private TaskCompletionSource<RecognizedItem>? _scanCompleteTaskSource;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataScannerDialog"/> class.
+    /// Initializes a new instance of the <see cref="DataScannerPopup"/> class.
     /// </summary>
     /// <param name="context">The activity context.</param>
     /// <param name="detector">The data detector to use for recognition.</param>
@@ -35,17 +28,16 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
     /// <param name="overlay">Optional overlay to display on the scanner view.</param>
     /// <param name="recognizeMultiple">Whether to recognize multiple items.</param>
     /// <param name="isHighlightingEnabled">Whether to highlight detected items.</param>
-    public DataScannerDialog(
-        Activity context,
+    public DataScannerPopup(
+        Context context,
         IDataDetector detector,
         LifecycleCameraController cameraController,
         IRegionOfInterest? regionOfInterest,
         IOverlay? overlay,
         bool recognizeMultiple,
         bool isHighlightingEnabled)
-        : base(context, _Microsoft.Android.Resource.Designer.Resource.Style.Plugin_Scanner_DataScannerDialog)
+        : base(context)
     {
-        _activity = context;
         _dataDetector = detector;
         _cameraController = cameraController;
         _regionOfInterest = regionOfInterest;
@@ -77,68 +69,39 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
     /// </summary>
     public bool IsHighlightingEnabled => _isHighlightingEnabled;
 
-    public bool IsRunning => IsShowing;
+    public bool IsRunning => IsAttachedToWindow;
 
-    /// <summary>
-    /// Starts the scanning operation and waits for a recognized item.
-    /// </summary>
-    /// <param name="cancellationToken">A token to cancel the scan operation.</param>
-    /// <returns>A task that represents the asynchronous scan operation, containing the recognized item.</returns>
-    /// <exception cref="NoCameraException">Thrown when the device has no camera.</exception>
-    public async Task<RecognizedItem> ScanAsync(CancellationToken cancellationToken)
+    public void Cancel()
     {
-        if (Context.HasCamera() == false)
+        if (Parent is ViewGroup parent)
+        {
+            parent.RemoveView(this);
+        }
+    }
+
+    public void Dismiss(RecognizedItem item)
+    {
+        Cancel();
+    }
+
+    protected override void OnAttachedToWindow()
+    {
+        base.OnAttachedToWindow();
+
+        if (Context?.HasCamera() == false)
         {
             throw new NoCameraException("Device has no camera.");
         }
 
-        Show();
-
         _dataDetector.Detected += OnDetected;
         _dataDetector.Cleared += OnCleared;
-
-        _scanCompleteTaskSource = new();
-
-        RecognizedItem result = await _scanCompleteTaskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
-
-        // Wait here because MLKit won't stop analyzing until the pipeline is finished.
-        // If we dispose of the dialog before MLKit finishes, it will throw an exception.
-        await Task.Delay(450, cancellationToken).ConfigureAwait(true);
-
-        base.Dismiss();
-
-        return result;
     }
 
-    /// <summary>
-    /// Shows the scanner dialog and checks for required permissions.
-    /// </summary>
-    public override void Show()
+    protected override void OnDetachedFromWindow()
     {
-        PermissionsHelper.CheckPermissions(_activity);
+        base.OnDetachedFromWindow();
 
-        base.Show();
-    }
-
-    /// <summary>
-    /// Dismisses the scanner dialog with an empty result.
-    /// </summary>
-    public override void Dismiss()
-    {
         Cleanup();
-
-        _scanCompleteTaskSource?.TrySetResult(RecognizedItem.Empty);
-    }
-
-    /// <summary>
-    /// Dismisses the scanner dialog with the specified recognized item.
-    /// </summary>
-    /// <param name="item">The recognized item to return as the scan result.</param>
-    public void Dismiss(RecognizedItem item)
-    {
-        Cleanup();
-
-        _scanCompleteTaskSource?.TrySetResult(item);
     }
 
     /// <summary>
@@ -161,7 +124,12 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
     /// </summary>
     private void SetContentView()
     {
-        SetContentView(_Microsoft.Android.Resource.Designer.Resource.Layout.DataScanner);
+        if (Context is null)
+        {
+            return;
+        }
+
+        LayoutInflater.FromContext(Context)?.Inflate(Resource.Layout.DataScanner, this);
 
         PreviewView previewView = FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.Controller = _cameraController;
@@ -171,7 +139,7 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
 
         if (_regionOfInterest is not null)
         {
-            EventHandler @event = null!;
+            EventHandler<ViewAttachedToWindowEventArgs> @event = null!;
             @event = (_, _) =>
             {
                 FrameLayout frame = FindViewById<FrameLayout>(_Microsoft.Android.Resource.Designer.Resource.Id.dataScanner) ?? throw new ViewNotFoundException(nameof(FrameLayout));
@@ -181,10 +149,10 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
 
                 _overlay?.AddRegionOfInterest(_regionOfInterest);
 
-                ShowEvent -= @event;
+                ViewAttachedToWindow -= @event;
             };
 
-            ShowEvent += @event;
+            ViewAttachedToWindow += @event;
         }
     }
 

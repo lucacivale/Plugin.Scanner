@@ -1,4 +1,5 @@
-﻿namespace Plugin.Scanner.Core;
+﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace Plugin.Scanner.Core;
 
 /// <summary>
 /// Represents a single page of a scanned document.
