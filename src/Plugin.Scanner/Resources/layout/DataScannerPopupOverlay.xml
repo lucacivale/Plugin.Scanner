@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+	<FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_gravity="top">
+
+		<Plugin.Scanner.Views.Android.FlashButton
+			android:id="@+id/flashButton"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_gravity="start|left"
+			android:layout_marginStart="6dp"
+			android:layout_marginTop="3dp"
+			android:src="@drawable/flash_on_24"
+			android:tint="@android:color/white" />
+
+		<ImageButton
+            android:id="@+id/closeButton"
+			android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|right"
+            android:layout_marginEnd="6dp"
+			android:layout_marginTop="3dp"
+            android:src="@drawable/cancel_36"
+            android:tint="@android:color/white" />
+	</FrameLayout>
+
+	<Plugin.Scanner.Views.Android.RecognizedItemButton
+        android:id="@+id/recognizedItemButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+		android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="30dp"
+		android:visibility="gone"/>
+
+	<Plugin.Scanner.Views.Android.ExpandMinimizeButton
+		android:id="@+id/expandminimize"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:layout_gravity="bottom|left"
+		android:layout_marginStart="6dp"
+		android:layout_marginBottom="3dp"
+		android:src="@drawable/expand_24"/>
+</FrameLayout>

@@ -17,6 +17,8 @@ public partial interface IDataScannerController
 
     bool IsRunning { get; }
 
+    bool IsDialog { get; }
+
     /// <summary>
     /// Gets or sets when items are detected by the scanner.
     /// </summary>

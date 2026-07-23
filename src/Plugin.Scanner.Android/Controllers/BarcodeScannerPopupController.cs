@@ -71,18 +71,9 @@ public class BarcodeScannerPopupController : IDataScannerPopupController<IBarcod
             options.RecognizeMultiple,
             options.IsHighlightingEnabled);
 
-        using PopupWindow popupWindow = new(
-            popup,
-            (int)parent.Context.ToPixels(200),
-            (int)parent.Context.ToPixels(200));
-
         _dataScannerPopups.Add(parent, popup);
 
-        popupWindow.ShowAtLocation(
-            parent,
-            GravityFlags.Right | GravityFlags.Top,
-            100,
-            100);
+        popup.Show(parent);
     }
 
     public void Remove(ViewGroup parent)

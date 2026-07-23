@@ -17,9 +17,15 @@ public partial class MainPage : ContentPage
 
     private async void ContentPage_NavigatedTo(object sender, NavigatedToEventArgs e)
     {
-		await Task.Delay(2000);
+		var options = new BarcodeScanOptions()
+		{
+			Formats = Core.Models.Enums.BarcodeFormat.All,
+			//RegionOfInterest = new CenteredPopupRegionOfInterest(),
+		};
+
+        await Task.Delay(2000);
 #if ANDROID
-		new Scanner.Android.Controllers.BarcodeScannerPopupController().Add((AAViewGroup)Handler!.PlatformView, new BarcodeScanOptions() { Formats = Core.Models.Enums.BarcodeFormat.All});
+		new Scanner.Android.Controllers.BarcodeScannerPopupController().Add((AAViewGroup)Handler!.PlatformView, options);
 #endif
     }
 }

@@ -79,6 +79,8 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
 
     public bool IsRunning => IsShowing;
 
+    public bool IsDialog => true;
+
     /// <summary>
     /// Starts the scanning operation and waits for a recognized item.
     /// </summary>
