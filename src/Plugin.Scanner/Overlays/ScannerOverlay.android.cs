@@ -6,6 +6,7 @@ using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Controllers;
 using Plugin.Scanner.Core.Models;
 using Plugin.Scanner.Views.Android;
+using Orientation = Android.Content.Res.Orientation;
 
 namespace Plugin.Scanner.Overlays;
 
@@ -15,6 +16,8 @@ namespace Plugin.Scanner.Overlays;
 internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouchListener
 {
     private IReadOnlyList<RecognizedItem>? _recognizedItems;
+
+    private Orientation? _orientation;
 
     private IDataScannerController? _controller;
     private View? _root;
@@ -84,6 +87,15 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouch
         {
             _controller?.Minimize();
         }
+
+        _regionOfInterestView?.PostDelayed(
+            () =>
+            {
+                FrameLayout frame = _root?.FindViewById<FrameLayout>(_Microsoft.Android.Resource.Designer.Resource.Id.dataScanner) ?? throw new ViewNotFoundException(nameof(FrameLayout));
+                _regionOfInterest?.SetConstraints(Convert.ToInt32(_root?.Context?.FromPixels(frame.Width) ?? 0), Convert.ToInt32(_root?.Context?.FromPixels(frame.Height) ?? 0));
+                _regionOfInterestView?.Reset();
+            },
+            250);
     }
 
     /// <summary>
@@ -99,6 +111,7 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouch
 
         _regionOfInterest = regionOfInterest;
         _root?.LayoutChange += DecorView_LayoutChange;
+        _orientation = _root?.Context?.Resources?.Configuration?.Orientation;
 
         FrameLayout frame = _root?.FindViewById<FrameLayout>(_Microsoft.Android.Resource.Designer.Resource.Id.dataScanner) ?? throw new ViewNotFoundException(nameof(FrameLayout));
 
@@ -238,8 +251,11 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouch
             return;
         }
 
-        if (_controller?.IsRunning == true)
+        if (_controller?.IsRunning == true
+            && _orientation != _root?.Context?.Resources?.Configuration?.Orientation)
         {
+            _orientation = _root?.Context?.Resources?.Configuration?.Orientation;
+
             FrameLayout frame = _root?.FindViewById<FrameLayout>(_Microsoft.Android.Resource.Designer.Resource.Id.dataScanner) ?? throw new ViewNotFoundException(nameof(FrameLayout));
             _regionOfInterest?.SetConstraints(Convert.ToInt32(_root?.Context?.FromPixels(frame.Width) ?? 0), Convert.ToInt32(_root?.Context?.FromPixels(frame.Height) ?? 0));
 
