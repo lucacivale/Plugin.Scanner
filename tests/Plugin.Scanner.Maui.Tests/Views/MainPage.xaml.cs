@@ -1,5 +1,4 @@
-﻿#endif
-using Plugin.Scanner.Maui.Tests.ViewModels;
+﻿using Plugin.Scanner.Maui.Tests.ViewModels;
 
 namespace Plugin.Scanner.Maui.Tests.Views;
 
