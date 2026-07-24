@@ -41,7 +41,8 @@ public partial class MainViewModel : BaseViewModel
             {
                 Formats = BarcodeFormat.All,
                 IsHighlightingEnabled = true,
-                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                RegionOfInterest = new CenteredRegionOfInterest()
+                    .WithFixedDimensions(250, 200),
             };
 
             Barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).Value;
@@ -62,7 +63,8 @@ public partial class MainViewModel : BaseViewModel
             TextScanOptions options = new()
             {
                 IsHighlightingEnabled = true,
-                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                RegionOfInterest = new CenteredRegionOfInterest()
+                    .WithFixedDimensions(250, 200),
             };
 
             Text = (await _textScanner.ScanAsync(options).ConfigureAwait(false)).Value;

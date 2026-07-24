@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
 	<style name="PluginScannerDialogAnimation">
-		<item name="android:windowEnterAnimation">@anim/mtrl_bottom_sheet_slide_in</item>
-		<item name="android:windowExitAnimation">@anim/mtrl_bottom_sheet_slide_out</item>
+		<item name="android:windowEnterAnimation">@anim/plugin_scanner_dialog_enter_animation</item>
+		<item name="android:windowExitAnimation">@anim/plugin_scanner_dialog_exit_animation</item>
 	</style>
 	<style name="PluginScannerPopupAnimation">
-		<item name="android:windowEnterAnimation">@anim/pluginScannerPopupAnimation</item>
-		<item name="android:windowExitAnimation">@anim/pluginScannerPopdownAnimation</item>
+		<item name="android:windowEnterAnimation">@anim/plugin_scanner_popup_enter_animation</item>
+		<item name="android:windowExitAnimation">@anim/plugin_scanner_popup_exit_animation</item>
 	</style>
 </resources>

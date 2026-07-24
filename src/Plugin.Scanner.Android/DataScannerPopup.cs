@@ -1,5 +1,7 @@
 ﻿using Android.Animation;
 using Android.Runtime;
+using AndroidX.Activity;
+using AndroidX.AppCompat.App;
 using AndroidX.Camera.View;
 using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
@@ -8,14 +10,12 @@ using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Controllers;
 using Plugin.Scanner.Core.Models;
 using System.Diagnostics.CodeAnalysis;
-using AndroidX.Activity;
-using AndroidX.AppCompat.App;
 
 namespace Plugin.Scanner.Android;
 
 internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, View.IOnTouchListener
 {
-    private readonly ICurrentActivity _currentActivity;
+    private readonly Activity _activity;
     private readonly Context _context;
     private readonly LifecycleCameraController _cameraController;
     private readonly IDataDetector _dataDetector;
@@ -43,6 +43,7 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
     /// Initializes a new instance of the <see cref="DataScannerPopup"/> class.
     /// </summary>
     /// <param name="parent">Popup parent.</param>
+    /// <param name="activity">Current activity.</param>
     /// <param name="detector">The data detector to use for recognition.</param>
     /// <param name="cameraController">The camera controller for managing camera operations.</param>
     /// <param name="regionOfInterest">Optional region of interest to limit scanning area.</param>
@@ -50,7 +51,7 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
     /// <param name="recognizeMultiple">Whether to recognize multiple items.</param>
     /// <param name="isHighlightingEnabled">Whether to highlight detected items.</param>
     public DataScannerPopup(
-        ICurrentActivity currentActivity,
+        Activity activity,
         View parent,
         IDataDetector detector,
         LifecycleCameraController cameraController,
@@ -64,7 +65,7 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
 
         _parent = parent;
         _context = parent.Context;
-        _currentActivity = currentActivity;
+        _activity = activity;
 
         _touchSlop = ViewConfiguration.Get(_context)?.ScaledTouchSlop ?? 0;
 
@@ -112,7 +113,9 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
 
     public void Show()
     {
-        if (_currentActivity.Activity is AppCompatActivity activity)
+        PermissionsHelper.CheckPermissions(_activity);
+
+        if (_activity is AppCompatActivity activity)
         {
             _backPressed = new BackPressed(true);
             _backPressed.OnBackPressed += OnBackPressed;

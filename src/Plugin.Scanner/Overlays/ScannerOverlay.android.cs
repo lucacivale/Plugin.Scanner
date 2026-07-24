@@ -55,7 +55,7 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouch
         PreviewView previewView = _root?.FindViewById<PreviewView>(_Microsoft.Android.Resource.Designer.Resource.Id.previewView) ?? throw new ViewNotFoundException(nameof(PreviewView));
         previewView.SetOnTouchListener(this);
 
-        int overlayId = Controller?.IsDialog == true ? _Microsoft.Android.Resource.Designer.Resource.Layout.DataScannerOverlay : _Microsoft.Android.Resource.Designer.Resource.Layout.DataScannerPopupOverlay;
+        int overlayId = Controller?.IsDialog == true ? _Microsoft.Android.Resource.Designer.Resource.Layout.DataScannerDialogOverlay : _Microsoft.Android.Resource.Designer.Resource.Layout.DataScannerPopupOverlay;
         View? view = LayoutInflater.From(_root.Context)?.Inflate(overlayId, _controller?.FindViewById<FrameLayout>(_Microsoft.Android.Resource.Designer.Resource.Id.dataScanner) ?? throw new ViewNotFoundException(nameof(FrameLayout)));
 
         RecognizedItemButton recognizedButton = view?.FindViewById<RecognizedItemButton>(_Microsoft.Android.Resource.Designer.Resource.Id.recognizedItemButton) ?? throw new ViewNotFoundException(nameof(RecognizedItemButton));
