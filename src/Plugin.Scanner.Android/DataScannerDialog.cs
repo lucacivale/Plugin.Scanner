@@ -143,6 +143,16 @@ internal sealed class DataScannerDialog : AppCompatDialog, IDataScannerControlle
         _scanCompleteTaskSource?.TrySetResult(item);
     }
 
+    public void Expand()
+    {
+        // As of now Dialog always full size
+    }
+
+    public void Minimize()
+    {
+        // As of now Dialog always full size
+    }
+
     /// <summary>
     /// Cleans up scanner resources, detaches event handlers, and removes the overlay.
     /// </summary>

@@ -1,4 +1,5 @@
 ﻿#if ANDROID
+using Plugin.Scanner.Android;
 using AAViewGroup = Android.Views.ViewGroup;
 #endif
 using Plugin.Scanner.Maui.Tests.ViewModels;
@@ -17,7 +18,7 @@ public partial class MainPage : ContentPage
 
     private async void ContentPage_NavigatedTo(object sender, NavigatedToEventArgs e)
     {
-		var options = new BarcodeScanOptions()
+		BarcodeScanOptions options = new BarcodeScanOptions()
 		{
 			Formats = Core.Models.Enums.BarcodeFormat.All,
 			//RegionOfInterest = new CenteredPopupRegionOfInterest(),
@@ -25,7 +26,7 @@ public partial class MainPage : ContentPage
 
         await Task.Delay(2000);
 #if ANDROID
-		new Scanner.Android.Controllers.BarcodeScannerPopupController().Add((AAViewGroup)Handler!.PlatformView, options);
+		new Scanner.Android.Controllers.BarcodeScannerPopupController(Handler.GetRequiredService<ICurrentActivity>()).Add((AAViewGroup)Handler!.PlatformView, options);
 #endif
     }
 }

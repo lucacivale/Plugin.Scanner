@@ -33,6 +33,8 @@
 _UpgradeReport_Files/
 [Pp]ackages/
 
+**/.junie/
+
 Thumbs.db
 Desktop.ini
 .DS_Store

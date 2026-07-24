@@ -8,14 +8,18 @@ using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Controllers;
 using Plugin.Scanner.Core.Models;
 using System.Diagnostics.CodeAnalysis;
+using AndroidX.Activity;
+using AndroidX.AppCompat.App;
 
 namespace Plugin.Scanner.Android;
 
 internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, View.IOnTouchListener
 {
+    private readonly ICurrentActivity _currentActivity;
     private readonly Context _context;
     private readonly LifecycleCameraController _cameraController;
     private readonly IDataDetector _dataDetector;
+    private readonly View _parent;
 
     private readonly bool _recognizeMultiple;
     private readonly bool _isHighlightingEnabled;
@@ -24,7 +28,10 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
 
     private readonly int _touchSlop;
 
-    private View? _parent;
+    private readonly int _minimizedWidth;
+    private readonly int _minimizedHeight;
+
+    private BackPressed? _backPressed;
 
     private bool _dragging;
     private float _startRawX;
@@ -35,7 +42,7 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
     /// <summary>
     /// Initializes a new instance of the <see cref="DataScannerPopup"/> class.
     /// </summary>
-    /// <param name="context">The activity context.</param>
+    /// <param name="parent">Popup parent.</param>
     /// <param name="detector">The data detector to use for recognition.</param>
     /// <param name="cameraController">The camera controller for managing camera operations.</param>
     /// <param name="regionOfInterest">Optional region of interest to limit scanning area.</param>
@@ -43,18 +50,24 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
     /// <param name="recognizeMultiple">Whether to recognize multiple items.</param>
     /// <param name="isHighlightingEnabled">Whether to highlight detected items.</param>
     public DataScannerPopup(
-        Context context,
+        ICurrentActivity currentActivity,
+        View parent,
         IDataDetector detector,
         LifecycleCameraController cameraController,
         IRegionOfInterest? regionOfInterest,
         IOverlay? overlay,
         bool recognizeMultiple,
         bool isHighlightingEnabled)
-        : base(context)
+        : base(parent, parent.Width / 2, parent.Height / 3, false)
     {
-        _touchSlop = ViewConfiguration.Get(context)?.ScaledTouchSlop ?? 0;
+        ArgumentNullException.ThrowIfNull(parent.Context);
 
-        _context = context;
+        _parent = parent;
+        _context = parent.Context;
+        _currentActivity = currentActivity;
+
+        _touchSlop = ViewConfiguration.Get(_context)?.ScaledTouchSlop ?? 0;
+
         _dataDetector = detector;
         _cameraController = cameraController;
         _regionOfInterest = regionOfInterest;
@@ -63,10 +76,13 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
         _recognizeMultiple = recognizeMultiple;
         _isHighlightingEnabled = isHighlightingEnabled;
 
+        _minimizedWidth = Width;
+        _minimizedHeight = Height;
+
         SetContentView();
         SetTouchInterceptor(this);
 
-        AnimationStyle = Resource.Style.PluginScannerPopupAnimation;
+        AnimationStyle = _Microsoft.Android.Resource.Designer.Resource.Style.PluginScannerPopupAnimation;
         SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
     }
 
@@ -94,19 +110,17 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
 
     public bool IsDialog => false;
 
-    public void Show(View? parent)
+    public void Show()
     {
-        if (parent is null)
+        if (_currentActivity.Activity is AppCompatActivity activity)
         {
-            return;
+            _backPressed = new BackPressed(true);
+            _backPressed.OnBackPressed += OnBackPressed;
+
+            activity.OnBackPressedDispatcher.AddCallback(_backPressed);
         }
 
-        _parent = parent;
-
-        Height = parent.Height / 3;
-        Width = parent.Width / 2;
-
-        int x = parent.Width - Width;
+        int x = _parent.Width - Width;
         int y = 0;
 
         ShowAtLocation(
@@ -136,6 +150,28 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
         base.Dismiss();
     }
 
+    public void Expand()
+    {
+        int startWidth = Width;
+        int endWidth = _parent.Width;
+
+        int startHeight = Height;
+        int endHeight = _parent.Height / 2;
+
+        UpdateSize(startWidth, endWidth, startHeight, endHeight);
+    }
+
+    public void Minimize()
+    {
+        int startWidth = Width;
+        int endWidth = _minimizedWidth;
+
+        int startHeight = Height;
+        int endHeight = _minimizedHeight;
+
+        UpdateSize(startWidth, endWidth, startHeight, endHeight);
+    }
+
     public override void ShowAtLocation(View? parent, [GeneratedEnum] GravityFlags gravity, int x, int y)
     {
         if (_context?.HasCamera() == false)
@@ -154,12 +190,59 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
         return ContentView?.FindViewById<T>(id);
     }
 
+    public bool OnTouch(View? v, MotionEvent? e)
+    {
+        bool handled = false;
+
+        switch (e?.ActionMasked)
+        {
+            case MotionEventActions.Down:
+                _startRawX = e.RawX;
+                _startRawY = e.RawY;
+                _dragging = false;
+                break;
+
+            case MotionEventActions.Move:
+                float dx = e.RawX - _startRawX;
+                float dy = e.RawY - _startRawY;
+
+                _dragging = !_dragging
+                    && (Math.Abs(dx) > _touchSlop
+                        || Math.Abs(dy) > _touchSlop);
+
+                if (_dragging)
+                {
+                    _popupX += (int)dx;
+                    _popupY += (int)dy;
+
+                    Update(_popupX, _popupY, -1, -1);
+
+                    _startRawX = e.RawX;
+                    _startRawY = e.RawY;
+
+                    handled = true;
+                }
+                break;
+
+            case MotionEventActions.Up:
+            case MotionEventActions.Cancel:
+                handled = _dragging;
+                _dragging = false;
+                break;
+        }
+
+        return handled;
+    }
+
     /// <summary>
     /// Cleans up scanner resources, detaches event handlers, and removes the overlay.
     /// </summary>
     private void Cleanup()
     {
-        _parent = null;
+        _backPressed?.OnBackPressed -= OnBackPressed;
+        _backPressed?.Enabled = false;
+        _backPressed?.Remove();
+        _backPressed?.Dispose();
 
         _dataDetector.Stop();
         _dataDetector.Detected -= OnDetected;
@@ -176,7 +259,7 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
     /// </summary>
     private void SetContentView()
     {
-        ContentView = LayoutInflater.FromContext(_context)?.Inflate(Resource.Layout.DataScanner, null);
+        ContentView = LayoutInflater.FromContext(_context)?.Inflate(_Microsoft.Android.Resource.Designer.Resource.Layout.DataScanner, null);
 
         GradientDrawable background = new();
 
@@ -231,61 +314,45 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
         Cleared?.Invoke(this, EventArgs.Empty);
     }
 
-    public bool OnTouch(View? v, MotionEvent? e)
+    private void UpdateSize(
+        int startWidth,
+        int endWidth,
+        int startHeight,
+        int endHeight)
     {
-        bool handled = false;
+        ValueAnimator? animator = ValueAnimator.OfFloat(0f, 1f);
 
-        switch (e?.ActionMasked)
+        animator?.SetDuration(250);
+        animator?.Update += (s, e) =>
         {
-            case MotionEventActions.Down:
-                _startRawX = e.RawX;
-                _startRawY = e.RawY;
-                _dragging = false;
+            float progress = (float)e.Animation.AnimatedValue!;
 
-                // Don't consume yet.
-                handled = false;
-                break;
+            Width = startWidth + (int)((endWidth - startWidth) * progress);
+            Height = startHeight + (int)((endHeight - startHeight) * progress);
+            Update(Width, Height);
+        };
 
-            case MotionEventActions.Move:
+        animator?.Start();
+    }
 
-                float dx = e.RawX - _startRawX;
-                float dy = e.RawY - _startRawY;
+    private void OnBackPressed(object? sender, EventArgs e)
+    {
+        Dismiss();
+    }
+}
 
-                if (!_dragging)
-                {
-                    if (Math.Abs(dx) > _touchSlop ||
-                        Math.Abs(dy) > _touchSlop)
-                    {
-                        _dragging = true;
-                    }
-                }
+[SuppressMessage("Documentation Rules", "SA1402:File may only contain a single type", Justification = "Is okay here.")]
+internal sealed class BackPressed : OnBackPressedCallback
+{
+    public BackPressed(bool enabled)
+        : base(enabled)
+    {
+    }
 
-                if (_dragging)
-                {
-                    _popupX += (int)dx;
-                    _popupY += (int)dy;
+    public EventHandler? OnBackPressed { get; set; }
 
-                    Update(_popupX, _popupY, -1, -1);
-
-                    _startRawX = e.RawX;
-                    _startRawY = e.RawY;
-
-                    handled = true;
-                }
-                else
-                {
-                    handled = false;
-                }
-
-                break;
-
-            case MotionEventActions.Up:
-            case MotionEventActions.Cancel:
-                handled = _dragging;
-                _dragging = false;
-                break;
-        }
-
-        return handled;
+    public override void HandleOnBackPressed()
+    {
+        OnBackPressed?.Invoke(this, EventArgs.Empty);
     }
 }

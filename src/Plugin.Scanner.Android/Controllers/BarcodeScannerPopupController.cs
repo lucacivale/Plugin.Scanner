@@ -18,10 +18,12 @@ namespace Plugin.Scanner.Android.Controllers;
 
 public class BarcodeScannerPopupController : IDataScannerPopupController<IBarcodeScanOptions>
 {
+    private readonly ICurrentActivity _currentActivity;
     private readonly Dictionary<ViewGroup, DataScannerPopup> _dataScannerPopups;
 
-    public BarcodeScannerPopupController()
+    public BarcodeScannerPopupController(ICurrentActivity currentActivity)
     {
+        _currentActivity = currentActivity;
         _dataScannerPopups = [];
     }
 
@@ -63,7 +65,8 @@ public class BarcodeScannerPopupController : IDataScannerPopupController<IBarcod
             .Build();
 
         DataScannerPopup popup = new(
-            parent.Context,
+            _currentActivity,
+            parent,
             barcodeDetector,
             cameraController,
             options.RegionOfInterest,
@@ -73,7 +76,7 @@ public class BarcodeScannerPopupController : IDataScannerPopupController<IBarcod
 
         _dataScannerPopups.Add(parent, popup);
 
-        popup.Show(parent);
+        popup.Show();
     }
 
     public void Remove(ViewGroup parent)

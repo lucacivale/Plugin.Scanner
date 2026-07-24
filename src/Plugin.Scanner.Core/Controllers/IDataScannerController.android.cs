@@ -33,6 +33,10 @@ public partial interface IDataScannerController
 
     void Dismiss(RecognizedItem item);
 
+    void Expand();
+
+    void Minimize();
+
     T? FindViewById<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)] T>(int id)
         where T : View;
 }

@@ -1,5 +1,3 @@
-using Android.Animation;
-using Android.Hardware.Lights;
 using AndroidX.Camera.Core;
 using AndroidX.Camera.View;
 using Plugin.Scanner.Android.Exceptions;
@@ -8,7 +6,6 @@ using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Controllers;
 using Plugin.Scanner.Core.Models;
 using Plugin.Scanner.Views.Android;
-using static Android.Icu.Text.ListFormatter;
 
 namespace Plugin.Scanner.Overlays;
 
@@ -79,26 +76,14 @@ internal abstract partial class ScannerOverlay : Java.Lang.Object, View.IOnTouch
 
     private void ExpandMinimize_Toggled(object? sender, bool e)
     {
-        int startWidth = Width;
-        int endWidth = _parent?.Width ?? 0;
-
-        int startHeight = Height;
-        int endHeight = _parent?.RootView?.Height / 2 ?? 0;
-
-        ValueAnimator? animator = ValueAnimator.OfFloat(0f, 1f);
-
-        animator?.SetDuration(300);
-        animator?.Update += (s, e) =>
+        if (e)
         {
-            float progress = (float)e.Animation.AnimatedValue!;
-
-            Width = startWidth + (int)((endWidth - startWidth) * progress);
-            Height = startHeight + (int)((endHeight - startHeight) * progress);
-
-            Update(Width, Height);
-        };
-
-        animator?.Start();
+            _controller?.Expand();
+        }
+        else
+        {
+            _controller?.Minimize();
+        }
     }
 
     /// <summary>
