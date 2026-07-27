@@ -19,6 +19,9 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _scannedDocuments = string.Empty;
+    
+    [ObservableProperty]
+    private bool _isScannerPopupOpen;
 
     [RelayCommand]
     public async Task ScanBarcode()
@@ -59,7 +62,7 @@ public partial class MainViewModel : ViewModelBase
         {
             Debug.WriteLine(exception);
 
-            Barcode = "Something went wrong.";
+            Text = "Something went wrong.";
         }
     }
 
@@ -76,5 +79,11 @@ public partial class MainViewModel : ViewModelBase
         {
             Debug.WriteLine(exception);
         }
+    }
+    
+    [RelayCommand]
+    public void OpenScannerPopup()
+    {
+        IsScannerPopupOpen = true;
     }
 }

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Platform;
 using Plugin.Scanner.Core.Models.Enums;
 using Plugin.Scanner.Core.Options;
 using Plugin.Scanner.Core.Scanners.Popups;
@@ -38,6 +39,14 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
 
         control.Unloaded += PageOnUnloaded;
 
+        IPlatformHandle? platformHandle = TopLevel.GetTopLevel(control)?.TryGetPlatformHandle();
+
+        if (platformHandle is null)
+        {
+            Trace.TraceWarning("Platform handle is null.");
+            return;
+        }
+
         if (_scannerAttached)
         {
             Trace.TraceWarning("Only one scanner at a time can be attached");
@@ -49,13 +58,13 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
         if (_scannerType == ScannerType.Barcode
             && options is IBarcodeScanOptions barcodeOptions)
         {
-            AttachBarcodeScanner(control, barcodeOptions);
+            AttachBarcodeScanner(platformHandle, barcodeOptions);
             _barcodeScannerPopup.Detached += ScannerDetached;
         }
         else if (_scannerType == ScannerType.Text
             && options is ITextScanOptions textScanOptions)
         {
-            AttachTextScanner(control, textScanOptions);
+            AttachTextScanner(platformHandle, textScanOptions);
             _textScannerPopup.Detached += ScannerDetached;
         }
 
@@ -103,7 +112,7 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
         _pageLoadedTcs?.TrySetResult();
     }
 
-    private partial void AttachBarcodeScanner(Control control, IBarcodeScanOptions options);
+    private partial void AttachBarcodeScanner(IPlatformHandle platformHandle, IBarcodeScanOptions options);
 
-    private partial void AttachTextScanner(Control control, ITextScanOptions options);
+    private partial void AttachTextScanner(IPlatformHandle platformHandle, ITextScanOptions options);
 }

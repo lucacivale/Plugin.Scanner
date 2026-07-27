@@ -1,8 +1,8 @@
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Plugin.Scanner.Core.Options;
-using System.Diagnostics;
 
 namespace Plugin.Scanner.Avalonia.Scanners.Popups.Xaml;
 
@@ -20,7 +20,8 @@ public sealed class DataScannerPopupManager : AvaloniaObject
 
     static DataScannerPopupManager()
     {
-        OptionsProperty.Changed.AddClassHandler<Control>(HandleIsAttachedChanged);
+        IsAttachedProperty.Changed.AddClassHandler<Control>(HandleIsAttachedChanged);
+        OptionsProperty.Changed.AddClassHandler<Control>(HandleOptionsChanged);
     }
 
     public static void SetOptions(AvaloniaObject target, IScanOptions options)
@@ -50,7 +51,6 @@ public sealed class DataScannerPopupManager : AvaloniaObject
 
     private static void HandleOptionsChanged(Control target, AvaloniaPropertyChangedEventArgs args)
     {
-        TryAttachDetach(target, (bool?)args.NewValue == true);
         TryAttachDetach(target, GetIsAttached(target));
     }
 
@@ -67,11 +67,11 @@ public sealed class DataScannerPopupManager : AvaloniaObject
 
         try
         {
-            IDataScannerPopupManager popupManager = Application.Current!.Handler!.GetRequiredService<IDataScannerPopupManager>();
+            IDataScannerPopupManager popupManager = Avalonia.DataScannerPopupManager.Default;
 
             if (attach)
             {
-                await popupManager.Attach((Page)bindable, options, CancellationToken.None).ConfigureAwait(true);
+                await popupManager.Attach((Control)bindable, options, CancellationToken.None).ConfigureAwait(true);
             }
             else
             {

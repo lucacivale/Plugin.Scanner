@@ -1,17 +1,57 @@
+using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Platform;
+using ObjCRuntime;
 using Plugin.Scanner.Core.Options;
 
 namespace Plugin.Scanner.Avalonia.Scanners.Popups;
 
 internal partial class DataScannerPopupManager
 {
-    private partial void AttachBarcodeScanner(Control control, IBarcodeScanOptions options)
+    private partial void AttachBarcodeScanner(IPlatformHandle platformHandle, IBarcodeScanOptions options)
     {
-        _barcodeScannerPopup.Attach(page.ToUIViewController(context), options);
+        UIViewController? viewController = FindViewController(Runtime.GetNSObject<UIView>(platformHandle.Handle));
+
+        if (viewController is null)
+        {
+            Trace.TraceError("Could not find view controller!");
+            return;
+        }
+
+        _barcodeScannerPopup.Attach(viewController, options);
     }
 
-    private partial void AttachTextScanner(Control control, ITextScanOptions options)
+    private partial void AttachTextScanner(IPlatformHandle platformHandle, ITextScanOptions options)
     {
-        _textScannerPopup.Attach(page.ToUIViewController(context), options);
+        UIViewController? viewController = FindViewController(Runtime.GetNSObject<UIView>(platformHandle.Handle));
+
+        if (viewController is null)
+        {
+            Trace.TraceError("Could not find view controller!");
+            return;
+        }
+
+        _textScannerPopup.Attach(viewController, options);
+    }
+
+    private static UIViewController? FindViewController(UIView? view)
+    {
+        UIViewController? viewController = null;
+        UIResponder? responder = view;
+
+        while (responder is not null)
+        {
+            responder = responder.NextResponder;
+
+            if (responder is not UIViewController currentViewController)
+            {
+                continue;
+            }
+
+            viewController = currentViewController;
+            break;
+        }
+
+        return viewController;
     }
 }

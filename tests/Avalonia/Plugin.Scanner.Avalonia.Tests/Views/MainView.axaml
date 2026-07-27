@@ -1,14 +1,20 @@
 <UserControl
-    x:Class="Plugin.Scanner.Avalonia.Tests.Views.MainView"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:Plugin.Scanner.Avalonia.Tests.ViewModels"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    mc:Ignorable="d"
+    pluginscannerpopup:DataScannerPopupManager.IsAttached="{Binding IsScannerPopupOpen}"
+    x:Class="Plugin.Scanner.Avalonia.Tests.Views.MainView"
     x:DataType="vm:MainViewModel"
-    mc:Ignorable="d">
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pluginscanneroptions="clr-namespace:Plugin.Scanner.Options;assembly=Plugin.Scanner"
+    xmlns:pluginscannerpopup="clr-namespace:Plugin.Scanner.Avalonia.Scanners.Popups.Xaml;assembly=Plugin.Scanner.Avalonia"
+    xmlns:vm="using:Plugin.Scanner.Avalonia.Tests.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <pluginscannerpopup:DataScannerPopupManager.Options>
+        <pluginscanneroptions:BarcodeScanOptions Formats="All" />
+    </pluginscannerpopup:DataScannerPopupManager.Options>
     <Design.DataContext>
         <!--
             This only sets the DataContext for the previewer in an IDE,
@@ -19,40 +25,42 @@
 
     <StackPanel
         HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        Spacing="12">
+        Spacing="12"
+        VerticalAlignment="Center">
 
         <Button
-            HorizontalAlignment="Center"
             Command="{Binding ScanBarcodeCommand}"
-            Content="Scan Barcode" />
+            Content="Scan Barcode"
+            HorizontalAlignment="Center" />
 
         <TextBlock
-            HorizontalAlignment="Center"
             FontSize="16"
+            HorizontalAlignment="Center"
             Text="{Binding Barcode}"
             TextAlignment="Center" />
 
         <Button
-            HorizontalAlignment="Center"
             Command="{Binding ScanTextCommand}"
-            Content="Scan Text" />
+            Content="Scan Text"
+            HorizontalAlignment="Center" />
 
         <TextBlock
-            HorizontalAlignment="Center"
             FontSize="16"
+            HorizontalAlignment="Center"
             Text="{Binding Text}"
             TextAlignment="Center" />
 
         <Button
-            HorizontalAlignment="Center"
             Command="{Binding ScanDocumentCommand}"
-            Content="Scan Documents" />
+            Content="Scan Documents"
+            HorizontalAlignment="Center" />
 
         <TextBlock
-            HorizontalAlignment="Center"
             FontSize="16"
+            HorizontalAlignment="Center"
             Text="{Binding ScannedDocuments}"
             TextAlignment="Center" />
+
+        <Button Command="{Binding OpenScannerPopupCommand}" Content="Open scanner popup" />
     </StackPanel>
 </UserControl>
