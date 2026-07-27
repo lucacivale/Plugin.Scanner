@@ -1,4 +1,4 @@
-﻿using Plugin.Scanner.Core.Options;
+using Plugin.Scanner.Core.Options;
 
 namespace Plugin.Scanner.Core.Scanners.Popups;
 

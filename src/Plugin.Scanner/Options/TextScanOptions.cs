@@ -1,4 +1,5 @@
 using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Models.Enums;
 using Plugin.Scanner.Core.Options;
 using Plugin.Scanner.Overlays.Text;
 
@@ -28,6 +29,8 @@ public sealed class TextScanOptions : ITextScanOptions
     /// Gets or sets the overlay displayed during scanning operations.
     /// </summary>
     public IOverlay Overlay { get; set; } = new TextScannerOverlay();
+
+    public ScannerType ScannerType => ScannerType.Text;
 
     /// <summary>
     /// Releases resources used by the scan options, including the overlay.

@@ -29,7 +29,8 @@ public partial class MainViewModel : ViewModelBase
             {
                 Formats = BarcodeFormat.All,
                 IsHighlightingEnabled = true,
-                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                RegionOfInterest = new CenteredRegionOfInterest()
+                    .WithFixedDimensions(250, 200),
             };
 
             Barcode = (await BarcodeScanner.Default.ScanAsync(options).ConfigureAwait(false)).Value;

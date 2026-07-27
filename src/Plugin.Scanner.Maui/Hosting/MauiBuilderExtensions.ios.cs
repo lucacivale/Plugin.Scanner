@@ -26,6 +26,7 @@ public static partial class MauiBuilderExtensions
     {
         app.Services.AddScanner();
 
+        app.UseMauiScanner();
         return app;
     }
 }

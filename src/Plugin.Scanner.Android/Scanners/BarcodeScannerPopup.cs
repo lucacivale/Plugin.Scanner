@@ -1,5 +1,4 @@
-﻿using Android.Gms.Tasks;
-using AndroidX.Camera.Core;
+﻿using AndroidX.Camera.Core;
 using AndroidX.Camera.Core.ResolutionSelector;
 using AndroidX.Camera.MLKit.Vision;
 using AndroidX.Camera.View;
@@ -17,7 +16,7 @@ using ASize = Android.Util.Size;
 
 namespace Plugin.Scanner.Android.Scanners;
 
-public sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
+internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
 {
     private readonly ICurrentActivity _currentActivity;
 
@@ -117,7 +116,7 @@ public sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
 
         // Wait here because MLKit won't stop analyzing until the pipeline is finished.
         // If we dispose of the dialog before MLKit finishes, it will throw an exception.
-        await System.Threading.Tasks.Task.Delay(450).ConfigureAwait(true);
+        await Task.Delay(450).ConfigureAwait(true);
 
         Detach();
     }

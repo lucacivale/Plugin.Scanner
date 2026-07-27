@@ -1,10 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
+    pluginscannerpopup:DataScannerPopupManager.IsBarcodeScannerOpen="True"
     x:Class="Plugin.Scanner.Maui.Tests.Views.MainPage"
+    x:DataType="vm:MainViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pluginscanneroptions="clr-namespace:Plugin.Scanner.Options;assembly=Plugin.Scanner"
+    xmlns:pluginscannerpopup="clr-namespace:Plugin.Scanner.Maui.Scanners.Popups.Xaml;assembly=Plugin.Scanner.Maui"
     xmlns:vm="clr-namespace:Plugin.Scanner.Maui.Tests.ViewModels"
-    x:DataType="vm:MainViewModel">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <pluginscannerpopup:DataScannerPopupManager.BarcodeScanOptions>
+        <pluginscanneroptions:BarcodeScanOptions Formats="All" />
+    </pluginscannerpopup:DataScannerPopupManager.BarcodeScanOptions>
     <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
         <Button Command="{Binding ScanBarcodeCommand}" Text="Scan single barcode" />
         <Label HorizontalOptions="Center" Text="{Binding Barcode}" />

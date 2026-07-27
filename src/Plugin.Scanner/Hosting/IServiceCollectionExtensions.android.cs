@@ -3,7 +3,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Plugin.Scanner.Android;
 using System.Diagnostics.CodeAnalysis;
 using Plugin.Scanner.Core.Scanners;
+using Plugin.Scanner.Core.Scanners.Popups;
 using BarcodeScanner = Plugin.Scanner.Android.Scanners.BarcodeScanner;
+using BarcodeScannerPopup = Plugin.Scanner.Android.Scanners.BarcodeScannerPopup;
 using DocumentScanner = Plugin.Scanner.Android.Scanners.DocumentScanner;
 using TextScanner = Plugin.Scanner.Android.Scanners.TextScanner;
 
@@ -24,6 +26,7 @@ public static partial class IServiceCollectionExtensions
         serviceCollection.TryAddSingleton<IBarcodeScanner, BarcodeScanner>();
         serviceCollection.TryAddSingleton<ITextScanner, TextScanner>();
         serviceCollection.TryAddSingleton<IDocumentScanner, DocumentScanner>();
+        serviceCollection.TryAddSingleton<IBarcodeScannerPopup, BarcodeScannerPopup>();
 
         return serviceCollection;
     }

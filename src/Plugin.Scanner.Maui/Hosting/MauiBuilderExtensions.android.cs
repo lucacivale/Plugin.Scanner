@@ -27,6 +27,7 @@ public static partial class MauiBuilderExtensions
         app.Services.AddScanner()
             .AddCurrentActivity<Android.CurrentActivity>();
 
+        app.UseMauiScanner();
         return app;
     }
 }

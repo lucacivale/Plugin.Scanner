@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using AVFoundation;
 using Plugin.Scanner.Core;
 using Plugin.Scanner.iOS.Exceptions;
-using Plugin.Scanner.iOS.Extensions;
 using Plugin.Scanner.Views.iOS;
 using System.Runtime.Versioning;
+using Plugin.Scanner.Core.Controllers;
+using Plugin.Scanner.Core.Models;
 using Plugin.Scanner.iOS;
 
 namespace Plugin.Scanner.Overlays;
@@ -13,19 +15,24 @@ namespace Plugin.Scanner.Overlays;
 /// </summary>
 internal abstract partial class ScannerOverlay
 {
-    private const int TopBarButtonTopAnchorAdd = 25;
-    private const int TopBarButtonTrailingAnchorAdd = 20;
-    private const int TopBarButtonHeightAnchor = 50;
-    private const int TopBarButtonWidthAnchor = 50;
+    private const int DialogMargin = 25;
+    private const float PopupMargin = 12.5f;
+    private const int TopButtonHeightAnchor = 50;
+    private const int TopButtonWidthAnchor = 50;
 
     private readonly DataScannerBarOverlay _topBar = [];
     private readonly DataScannerBarOverlay _bottomBar = [];
-    private readonly UIButton _cancelButton = new(UIButtonType.Close);
+    private readonly IconButton _cancelButton = new("x.circle.fill");
     private readonly RecognizedItemButton _barcodeItemButton = [];
 
-    private DataScannerViewController? _dataScannerViewController;
+    private UIView? _root;
+    private IDataScannerController? _controller;
+
+    private float _margin;
+
     private DataScannerRegionOfInterest? _dataScannerRegionOfInterest;
     private DataScannerTorchButton? _torchButton;
+    private DataScannerExpandMinimizeButton? _expandMinimizeButton;
 
     /// <summary>
     /// Releases resources used by the overlay.
@@ -41,13 +48,22 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     public void AddOverlay()
     {
-        AddOverlayView();
+        if (_controller?.IsDialog == true)
+        {
+            AddOverlayView();
+        }
+
         AddCancelButton();
         AddBarcodeButton();
 
         if (OperatingSystem.IsIOSVersionAtLeast(17))
         {
             AddTorchButton();
+        }
+
+        if (_controller?.IsDialog == false)
+        {
+            AddExpandMinimizeButton();
         }
     }
 
@@ -57,16 +73,24 @@ internal abstract partial class ScannerOverlay
     /// <param name="regionOfInterest">The region of interest, or <c>null</c> to scan the entire view.</param>
     public void AddRegionOfInterest(IRegionOfInterest? regionOfInterest)
     {
-        if (regionOfInterest is null)
+        if (regionOfInterest is null
+            || _root is null)
         {
             return;
         }
 
-        _ = _dataScannerViewController?.View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
-
         _dataScannerRegionOfInterest = new(regionOfInterest);
+        _dataScannerRegionOfInterest.TranslatesAutoresizingMaskIntoConstraints = false;
 
-        _dataScannerViewController.View.Add(_dataScannerRegionOfInterest);
+        _root.Add(_dataScannerRegionOfInterest);
+
+        NSLayoutConstraint.ActivateConstraints(
+        [
+            _dataScannerRegionOfInterest.TopAnchor.ConstraintEqualTo(_root.TopAnchor),
+            _dataScannerRegionOfInterest.LeadingAnchor.ConstraintEqualTo(_root.LeadingAnchor),
+            _dataScannerRegionOfInterest.TrailingAnchor.ConstraintEqualTo(_root.TrailingAnchor),
+            _dataScannerRegionOfInterest.BottomAnchor.ConstraintEqualTo(_root.BottomAnchor),
+        ]);
 
         _dataScannerRegionOfInterest.SetupStroke();
         _dataScannerRegionOfInterest.StartStrokeAnimation();
@@ -77,17 +101,21 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     public void Cleanup()
     {
-        _dataScannerViewController?.Added -= OnAdded;
-        _dataScannerViewController?.Removed -= OnRemoved;
+        _controller?.Added -= OnAdded;
+        _controller?.Removed -= OnRemoved;
 
-        if (_dataScannerViewController?.RecognizesMultipleItems == true)
+        if (_controller?.RecognizeMultiple == true)
         {
-            _dataScannerViewController?.Tapped -= OnTapped;
+            _controller?.Tapped -= OnTapped;
         }
 
         _cancelButton.RemoveFromSuperview();
 
+        _torchButton?.Toggled -= TorchButtonToggled;
         _torchButton?.RemoveFromSuperview();
+
+        _expandMinimizeButton?.Toggled -= ExpandMinimizeButtonToggled;
+        _expandMinimizeButton?.RemoveFromSuperview();
 
         _topBar.RemoveFromSuperview();
 
@@ -102,21 +130,22 @@ internal abstract partial class ScannerOverlay
     /// <summary>
     /// Initializes the overlay with the specified view controller and subscribes to scanner events.
     /// </summary>
-    /// <param name="viewController">The view controller containing the overlay.</param>
-    public void Init(UIViewController viewController)
+    /// <param name="controller">The data scanner controller.</param>
+    /// <param name="root">The root view to attach the overlay to.</param>
+    public void Init(IDataScannerController controller, UIView root)
     {
-        if (viewController is DataScannerViewController barcodeScannerViewController)
+        _root = root;
+        _controller = controller;
+
+        _controller.Added += OnAdded;
+        _controller.Removed += OnRemoved;
+
+        if (_controller.RecognizeMultiple)
         {
-            _dataScannerViewController = barcodeScannerViewController;
-
-            _dataScannerViewController.Added += OnAdded;
-            _dataScannerViewController.Removed += OnRemoved;
-
-            if (_dataScannerViewController.RecognizesMultipleItems)
-            {
-                _dataScannerViewController.Tapped += OnTapped;
-            }
+            _controller.Tapped += OnTapped;
         }
+
+        _margin = _controller.IsDialog ? DialogMargin : PopupMargin;
     }
 
     /// <summary>
@@ -130,6 +159,7 @@ internal abstract partial class ScannerOverlay
             // Dispose managed resources
             _cancelButton.Dispose();
             _torchButton?.Dispose();
+            _expandMinimizeButton?.Dispose();
             _topBar.Dispose();
             _bottomBar.Dispose();
             _dataScannerRegionOfInterest?.Dispose();
@@ -148,26 +178,38 @@ internal abstract partial class ScannerOverlay
         DataScannerViewController.SetTorchMode(e);
     }
 
+    private void ExpandMinimizeButtonToggled(object? sender, bool e)
+    {
+        if (e)
+        {
+            _controller?.Expand();
+        }
+        else
+        {
+            _controller?.Minimize();
+        }
+    }
+
     /// <summary>
     /// Adds the top and bottom bar overlays to the scanner container view.
     /// </summary>
     private void AddOverlayView()
     {
-        _ = _dataScannerViewController?.OverlayContainerView ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
+        _ = _controller?.Overlay ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
-        _dataScannerViewController.OverlayContainerView.AddSubviews(_topBar, _bottomBar);
+        _controller.Overlay.AddSubviews(_topBar, _bottomBar);
 
         NSLayoutConstraint.ActivateConstraints(
         [
-            _topBar.TopAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.TopAnchor),
-            _topBar.LeadingAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.LeadingAnchor),
-            _topBar.TrailingAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.TrailingAnchor),
+            _topBar.TopAnchor.ConstraintEqualTo(_controller.Overlay.TopAnchor),
+            _topBar.LeadingAnchor.ConstraintEqualTo(_controller.Overlay.LeadingAnchor),
+            _topBar.TrailingAnchor.ConstraintEqualTo(_controller.Overlay.TrailingAnchor),
             _topBar.HeightAnchor.ConstraintEqualTo(DataScannerBarOverlay.Height),
 
-            _bottomBar.BottomAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.BottomAnchor),
-            _bottomBar.LeadingAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.LeadingAnchor),
-            _bottomBar.TrailingAnchor.ConstraintEqualTo(_dataScannerViewController.OverlayContainerView.LeadingAnchor),
-            _bottomBar.HeightAnchor.ConstraintEqualTo(DataScannerBarOverlay.Height)
+            _bottomBar.BottomAnchor.ConstraintEqualTo(_controller.Overlay.BottomAnchor),
+            _bottomBar.LeadingAnchor.ConstraintEqualTo(_controller.Overlay.LeadingAnchor),
+            _bottomBar.TrailingAnchor.ConstraintEqualTo(_controller.Overlay.TrailingAnchor),
+            _bottomBar.HeightAnchor.ConstraintEqualTo(DataScannerBarOverlay.Height),
         ]);
     }
 
@@ -176,35 +218,25 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     private void AddCancelButton()
     {
-        const int buttonCornerRadius = 100;
-
-        _ = _dataScannerViewController?.View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
-
-        _cancelButton.TranslatesAutoresizingMaskIntoConstraints = false;
-
-        UIButtonConfiguration config = UIButtonConfiguration.FilledButtonConfiguration;
-        config.BaseBackgroundColor = UIColor.White;
-        config.BaseForegroundColor = UIColor.Black;
-        config.Background.CornerRadius = buttonCornerRadius;
-        _cancelButton.Configuration = config;
+        _ = _root ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
         EventHandler @event = null!;
         @event = (s, _) =>
         {
             ((UIButton)s!).TouchUpInside -= @event;
 
-            _dataScannerViewController.DismissViewController(string.Empty);
+            _controller?.Dismiss(string.Empty);
         };
         _cancelButton.TouchUpInside += @event;
 
-        _dataScannerViewController.View.Add(_cancelButton);
+        _root.Add(_cancelButton);
 
         NSLayoutConstraint.ActivateConstraints(
         [
-            _cancelButton.TopAnchor.ConstraintEqualTo(_dataScannerViewController.View.TopAnchor, constant: TopBarButtonTopAnchorAdd),
-            _cancelButton.TrailingAnchor.ConstraintEqualTo(_dataScannerViewController.View.TrailingAnchor, constant: -TopBarButtonTrailingAnchorAdd),
-            _cancelButton.HeightAnchor.ConstraintEqualTo(TopBarButtonHeightAnchor),
-            _cancelButton.WidthAnchor.ConstraintEqualTo(TopBarButtonWidthAnchor),
+            _cancelButton.TopAnchor.ConstraintEqualTo(_root.TopAnchor, constant: _margin),
+            _cancelButton.TrailingAnchor.ConstraintEqualTo(_root.TrailingAnchor, constant: -_margin),
+            _cancelButton.HeightAnchor.ConstraintEqualTo(TopButtonHeightAnchor),
+            _cancelButton.WidthAnchor.ConstraintEqualTo(TopButtonWidthAnchor),
         ]);
     }
 
@@ -216,24 +248,24 @@ internal abstract partial class ScannerOverlay
         const float buttonWidthAnchorAdd = 30f;
         const float buttonBottomAnchorAdd = 25f;
 
-        _ = _dataScannerViewController?.View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
+        _ = _root ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
         EventHandler @event = null!;
         @event = (s, _) =>
         {
             ((RecognizedItemButton)s!).TouchUpInside -= @event;
 
-            _dataScannerViewController.DismissViewController(((RecognizedItemButton)s).Barcode?.Text ?? string.Empty);
+            _controller?.Dismiss(((RecognizedItemButton)s).Barcode?.Text ?? string.Empty);
         };
         _barcodeItemButton.TouchUpInside += @event;
 
-        _dataScannerViewController.View.Add(_barcodeItemButton);
+        _root.Add(_barcodeItemButton);
 
         NSLayoutConstraint.ActivateConstraints(
         [
-            _barcodeItemButton.CenterXAnchor.ConstraintEqualTo(_dataScannerViewController.View.CenterXAnchor),
-            _barcodeItemButton.BottomAnchor.ConstraintEqualTo(_dataScannerViewController.View.BottomAnchor, -(DataScannerBarOverlay.Height + buttonBottomAnchorAdd)),
-            _barcodeItemButton.WidthAnchor.ConstraintLessThanOrEqualTo(_dataScannerViewController.View.WidthAnchor, constant: -buttonWidthAnchorAdd),
+            _barcodeItemButton.CenterXAnchor.ConstraintEqualTo(_root.CenterXAnchor),
+            _barcodeItemButton.BottomAnchor.ConstraintEqualTo(_root.BottomAnchor, -(DataScannerBarOverlay.Height + buttonBottomAnchorAdd)),
+            _barcodeItemButton.WidthAnchor.ConstraintLessThanOrEqualTo(_root.WidthAnchor, constant: -buttonWidthAnchorAdd),
         ]);
     }
 
@@ -243,19 +275,37 @@ internal abstract partial class ScannerOverlay
     [SupportedOSPlatform("ios17.0")]
     private void AddTorchButton()
     {
-        _ = _dataScannerViewController?.View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
+        _ = _root ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
         _torchButton = new DataScannerTorchButton();
         _torchButton.Toggled += TorchButtonToggled;
 
-        _dataScannerViewController.View.Add(_torchButton);
+        _root.Add(_torchButton);
 
         NSLayoutConstraint.ActivateConstraints(
         [
-            _torchButton.TopAnchor.ConstraintEqualTo(_dataScannerViewController.View.TopAnchor, constant: TopBarButtonTopAnchorAdd),
-            _torchButton.LeadingAnchor.ConstraintEqualTo(_dataScannerViewController.View.LeadingAnchor, constant: TopBarButtonTrailingAnchorAdd),
-            _torchButton.HeightAnchor.ConstraintEqualTo(TopBarButtonHeightAnchor),
-            _torchButton.WidthAnchor.ConstraintEqualTo(TopBarButtonWidthAnchor),
+            _torchButton.TopAnchor.ConstraintEqualTo(_root.TopAnchor, constant: _margin),
+            _torchButton.LeadingAnchor.ConstraintEqualTo(_root.LeadingAnchor, constant: _margin),
+            _torchButton.HeightAnchor.ConstraintEqualTo(TopButtonHeightAnchor),
+            _torchButton.WidthAnchor.ConstraintEqualTo(TopButtonWidthAnchor),
+        ]);
+    }
+
+    private void AddExpandMinimizeButton()
+    {
+        _ = _root ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
+
+        _expandMinimizeButton = new DataScannerExpandMinimizeButton();
+        _expandMinimizeButton.Toggled += ExpandMinimizeButtonToggled;
+
+        _root.Add(_expandMinimizeButton);
+
+        NSLayoutConstraint.ActivateConstraints(
+        [
+            _expandMinimizeButton.BottomAnchor.ConstraintEqualTo(_root.BottomAnchor, constant: -_margin),
+            _expandMinimizeButton.LeadingAnchor.ConstraintEqualTo(_root.LeadingAnchor, constant: _margin),
+            _expandMinimizeButton.HeightAnchor.ConstraintEqualTo(TopButtonHeightAnchor),
+            _expandMinimizeButton.WidthAnchor.ConstraintEqualTo(TopButtonWidthAnchor),
         ]);
     }
 
@@ -264,11 +314,12 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The added items and all items tuple.</param>
-    private void OnAdded(object? sender, (iOS.Binding.RecognizedItem[] AddedItems, iOS.Binding.RecognizedItem[] AllItems) e)
+    [SuppressMessage("Documentation Rules", "S1172:Remove this unused method parameter 'sende", Justification = "Event handler.")]
+    private void OnAdded(object? sender, (RecognizedItem[] AddedItems, RecognizedItem[] AllItems) e)
     {
-        if (_dataScannerViewController?.RecognizesMultipleItems == false)
+        if (_controller?.RecognizeMultiple == false)
         {
-            _barcodeItemButton.Barcode = e.AddedItems[0].ToRecognizedItem();
+            _barcodeItemButton.Barcode = e.AddedItems[0];
             _barcodeItemButton.Hidden = false;
         }
     }
@@ -278,9 +329,10 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The removed items and all items tuple.</param>
-    private void OnRemoved(object? sender, (iOS.Binding.RecognizedItem[] RemovedItems, iOS.Binding.RecognizedItem[] AllItems) e)
+    [SuppressMessage("Documentation Rules", "S1172:Remove this unused method parameter 'sende", Justification = "Event handler.")]
+    private void OnRemoved(object? sender, (RecognizedItem[] RemovedItems, RecognizedItem[] AllItems) e)
     {
-        if (e.RemovedItems.Any(x => x.ToRecognizedItem().Id.Equals(_barcodeItemButton.Barcode?.Id, StringComparison.Ordinal)))
+        if (e.RemovedItems.Any(x => x.Id.Equals(_barcodeItemButton.Barcode?.Id, StringComparison.Ordinal)))
         {
             _barcodeItemButton.Hidden = true;
             _barcodeItemButton.Barcode = null;
@@ -292,9 +344,10 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The tapped recognized item.</param>
-    private void OnTapped(object? sender, iOS.Binding.RecognizedItem e)
+    [SuppressMessage("Documentation Rules", "S1172:Remove this unused method parameter 'sende", Justification = "Event handler.")]
+    private void OnTapped(object? sender, RecognizedItem e)
     {
-        _barcodeItemButton.Barcode = e.ToRecognizedItem();
+        _barcodeItemButton.Barcode = e;
         _barcodeItemButton.Hidden = false;
     }
 }

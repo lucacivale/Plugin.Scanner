@@ -1,6 +1,7 @@
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Platform;
 using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Controllers;
 using ContentView = Microsoft.Maui.Controls.ContentView;
 using Plugin.Scanner.Overlays;
 
@@ -21,7 +22,7 @@ namespace Plugin.Scanner.Maui.Tests;
 public class BarcodeCustomOverlay : IOverlay
 {
     #if IOS
-    private UIViewController? _viewController;
+    private UIView? _root;
     #endif
     
     #if ANDROID
@@ -63,7 +64,7 @@ public class BarcodeCustomOverlay : IOverlay
         }
 
         #if IOS
-        _viewController?.View?.Add(new ContentView { Content = stack }.ToPlatform(context));
+        _root?.Add(new ContentView { Content = stack }.ToPlatform(context));
 #endif
 
 #if ANDROID
@@ -107,7 +108,7 @@ public class BarcodeCustomOverlay : IOverlay
         }
 
         #if IOS
-        _viewController?.View?.Add(new ContentView {Content = grid }.ToPlatform(context));
+        _root?.Add(new ContentView {Content = grid }.ToPlatform(context));
         #endif
         
         #if ANDROID
@@ -125,9 +126,9 @@ public class BarcodeCustomOverlay : IOverlay
     }
 
 #if IOS
-    public void Init(UIViewController viewController)
+    public void Init(IDataScannerController controller, UIView root)
     {
-        _viewController = viewController;
+        _root = root;
     }
 #endif
 

@@ -35,7 +35,8 @@ public partial record MainModel
             {
                 Formats = BarcodeFormat.All,
                 IsHighlightingEnabled = true,
-                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                RegionOfInterest = new CenteredRegionOfInterest()
+                    .WithFixedDimensions(250, 200),
             };
 
             string barcode = (await _barcodeScanner.ScanAsync(options).ConfigureAwait(false)).Value;
@@ -57,7 +58,8 @@ public partial record MainModel
             TextScanOptions options = new()
             {
                 IsHighlightingEnabled = true,
-                RegionOfInterest = new CenteredRegionOfInterest(250, 200),
+                RegionOfInterest = new CenteredRegionOfInterest()
+                    .WithFixedDimensions(250, 200),
             };
 
             string text = (await _textScanner.ScanAsync(options).ConfigureAwait(false)).Value;

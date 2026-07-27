@@ -121,6 +121,11 @@ internal sealed class DataScannerRegionOfInterest : UIView
         StartStrokeAnimation();
     }
 
+    public override UIView? HitTest(CGPoint point, UIEvent? uievent)
+    {
+        return null;
+    }
+
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {

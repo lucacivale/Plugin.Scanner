@@ -1,6 +1,7 @@
 using System.Runtime.Versioning;
 using AVFoundation;
 using Plugin.Scanner.Core;
+using Plugin.Scanner.Core.Controllers;
 using Plugin.Scanner.Core.Exceptions;
 using Plugin.Scanner.Core.Models;
 using Plugin.Scanner.iOS.Binding;
@@ -13,7 +14,7 @@ namespace Plugin.Scanner.iOS;
 /// <summary>
 /// iOS data scanner view controller that handles scanning operations for recognized data types.
 /// </summary>
-internal sealed class DataScannerViewController : Binding.DataScannerViewController
+internal sealed class DataScannerViewController : Binding.DataScannerViewController, IDataScannerController
 {
     private readonly DataScannerViewControllerDelegate _dataScannerViewControllerDelegate;
     private readonly IOverlay? _overlay;
@@ -43,15 +44,27 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
         bool isHighlightingEnabled = true,
         IRegionOfInterest? regionOfInterest = null,
         IOverlay? overlay = null)
-        : base(recognizedDataTypes, qualityLevel, recognizesMultipleItems, isHighFrameRateTrackingEnabled, isPinchToZoomEnabled, isGuidanceEnabled, isHighlightingEnabled)
+        : base(
+            recognizedDataTypes,
+            qualityLevel,
+            recognizesMultipleItems,
+            isHighFrameRateTrackingEnabled,
+            isPinchToZoomEnabled,
+            isGuidanceEnabled,
+            isHighlightingEnabled)
     {
         _dataScannerViewControllerDelegate = new DataScannerViewControllerDelegate();
         Delegate = _dataScannerViewControllerDelegate;
 
         _regionOfInterest = regionOfInterest;
         _overlay = overlay;
-        _overlay?.Init(this);
     }
+
+    public bool IsDialog => ParentViewController is not DataScannerPopupViewController;
+
+    public UIView Overlay => OverlayContainerView;
+
+    public bool RecognizeMultiple => RecognizesMultipleItems;
 
     /// <summary>
     /// Gets or sets when the scanner zoom level changes.
@@ -62,23 +75,39 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
     /// <summary>
     /// Gets or sets when a recognized item is tapped.
     /// </summary>
-    public EventHandler<RecognizedItem>? Tapped { get; set; }
+    public EventHandler<Core.Models.RecognizedItem>? Tapped { get; set; }
 
     /// <summary>
     /// Gets or sets when new items are recognized and added.
     /// </summary>
-    public EventHandler<(RecognizedItem[] AddedItems, RecognizedItem[] AllItems)>? Added { get; set; }
+    public EventHandler<(Core.Models.RecognizedItem[] AddedItems, Core.Models.RecognizedItem[] AllItems)>? Added { get; set; }
 
     /// <summary>
     /// Gets or sets when recognized items are updated.
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public EventHandler<(RecognizedItem[] UpdatedItems, RecognizedItem[] AllItems)>? Updated { get; set; }
+    public EventHandler<(Core.Models.RecognizedItem[] UpdatedItems, Core.Models.RecognizedItem[] AllItems)>? Updated { get; set; }
 
     /// <summary>
     /// Gets or sets when recognized items are removed.
     /// </summary>
-    public EventHandler<(RecognizedItem[] RemovedItems, RecognizedItem[] AllItems)>? Removed { get; set; }
+    public EventHandler<(Core.Models.RecognizedItem[] RemovedItems, Core.Models.RecognizedItem[] AllItems)>? Removed { get; set; }
+
+    public void Expand()
+    {
+        if (ParentViewController is DataScannerPopupViewController popup)
+        {
+            popup.Expand();
+        }
+    }
+
+    public void Minimize()
+    {
+        if (ParentViewController is DataScannerPopupViewController popup)
+        {
+            popup.Minimize();
+        }
+    }
 
     /// <summary>
     /// Sets the torch mode for the device camera.
@@ -172,14 +201,18 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
         base.StopScanning();
     }
 
-    /// <summary>
-    /// Dismisses the scanner view controller with the specified result.
-    /// </summary>
-    /// <param name="result">The scan result to return.</param>
-    public void DismissViewController(string result)
+    public void Dismiss(string result)
     {
-        StopScanning();
-        DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(result));
+        _overlay?.Cleanup();
+
+        if (IsDialog)
+        {
+            DismissViewController(result);
+        }
+        else if (ParentViewController is DataScannerPopupViewController popupViewController)
+        {
+            popupViewController.Dismiss();
+        }
     }
 
     /// <summary>
@@ -200,8 +233,6 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
 
         string barcode = await _scanCompleteTaskSource.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
 
-        _overlay?.Cleanup();
-
         return new ScanResult(barcode);
     }
 
@@ -214,7 +245,23 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
 
         ModalInPresentation = true;
 
+        _ = View ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
+
+        _overlay?.Init(this, View);
         _overlay?.AddOverlay();
+    }
+
+    public override void ViewDidLayoutSubviews()
+    {
+        base.ViewDidLayoutSubviews();
+
+        if (View is null)
+        {
+            return;
+        }
+
+        _regionOfInterest?.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
+        RegionOfInterest = _regionOfInterest?.CalculateRegionOfInterest().ToRect() ?? CGRect.Empty;
     }
 
     /// <summary>
@@ -228,39 +275,8 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
         if (View is not null
             && _regionOfInterest is not null)
         {
-            _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
-
-            RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
-
             _overlay?.AddRegionOfInterest(_regionOfInterest);
         }
-    }
-
-    /// <summary>
-    /// Called when the view is transitioning to a new size. Updates region of interest and layout for new dimensions.
-    /// </summary>
-    /// <param name="toSize">The new size of the view.</param>
-    /// <param name="coordinator">The transition coordinator.</param>
-    public override void ViewWillTransitionToSize(CGSize toSize, IUIViewControllerTransitionCoordinator coordinator)
-    {
-        base.ViewWillTransitionToSize(toSize, coordinator);
-
-        coordinator.AnimateAlongsideTransition(
-            _ =>
-            {
-                if (View is not null
-                    && _regionOfInterest is not null)
-                {
-                    _regionOfInterest.SetConstraints((int)View.Frame.Width.Value, (int)View.Frame.Height.Value);
-                    RegionOfInterest = _regionOfInterest.CalculateRegionOfInterest().ToRect();
-
-                    foreach (UIView viewSubview in View.Subviews)
-                    {
-                        viewSubview.LayoutSubviews();
-                    }
-                }
-            },
-            null);
     }
 
     /// <summary>
@@ -295,7 +311,7 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
     /// <param name="item">The tapped recognized item.</param>
     private void DidTapOn(object? sender, RecognizedItem item)
     {
-        Tapped?.Invoke(this, item);
+        Tapped?.Invoke(this, item.ToRecognizedItem());
     }
 
     /// <summary>
@@ -305,7 +321,7 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
     /// <param name="args">The added items and all items.</param>
     private void DidAdd(object? sender, (RecognizedItem[] AddedItems, RecognizedItem[] AllItems) args)
     {
-        Added?.Invoke(this, args);
+        Added?.Invoke(this, (args.AddedItems.Select(x => x.ToRecognizedItem()).ToArray(), args.AllItems.Select(x => x.ToRecognizedItem()).ToArray()));
     }
 
     /// <summary>
@@ -315,7 +331,7 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
     /// <param name="args">The updated items and all items.</param>
     private void DidUpdate(object? sender, (RecognizedItem[] UddedItems, RecognizedItem[] AllItems) args)
     {
-        Updated?.Invoke(this, args);
+        Updated?.Invoke(this, (args.UddedItems.Select(x => x.ToRecognizedItem()).ToArray(), args.AllItems.Select(x => x.ToRecognizedItem()).ToArray()));
     }
 
     /// <summary>
@@ -323,9 +339,9 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
     /// </summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="args">The removed items and all items.</param>
-    private void DidRemove(object? sender, (RecognizedItem[] RddedItems, RecognizedItem[] AllItems) args)
+    private void DidRemove(object? sender, (RecognizedItem[] RemovedItems, RecognizedItem[] AllItems) args)
     {
-        Removed?.Invoke(this, args);
+        Removed?.Invoke(this, (args.RemovedItems.Select(x => x.ToRecognizedItem()).ToArray(), args.AllItems.Select(x => x.ToRecognizedItem()).ToArray()));
     }
 
     /// <summary>
@@ -337,5 +353,15 @@ internal sealed class DataScannerViewController : Binding.DataScannerViewControl
     {
         StopScanning();
         DismissViewController(true, () => throw error);
+    }
+
+    /// <summary>
+    /// Dismisses the scanner view controller with the specified result.
+    /// </summary>
+    /// <param name="result">The scan result to return.</param>
+    private void DismissViewController(string result)
+    {
+        StopScanning();
+        DismissViewController(true, () => _scanCompleteTaskSource?.TrySetResult(result));
     }
 }

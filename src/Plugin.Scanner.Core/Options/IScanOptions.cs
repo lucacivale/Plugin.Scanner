@@ -1,3 +1,5 @@
+using Plugin.Scanner.Core.Models.Enums;
+
 namespace Plugin.Scanner.Core.Options;
 
 /// <summary>
@@ -24,4 +26,6 @@ public interface IScanOptions : IDisposable
     /// Gets the overlay displayed during scanning operations.
     /// </summary>
     IOverlay Overlay { get; }
+
+    ScannerType ScannerType { get; }
 }

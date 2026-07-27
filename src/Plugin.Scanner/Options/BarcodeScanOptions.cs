@@ -40,6 +40,8 @@ public sealed class BarcodeScanOptions : IBarcodeScanOptions
     /// </summary>
     public IOverlay Overlay { get; set; } = new BarcodeScannerOverlay();
 
+    public ScannerType ScannerType => ScannerType.Barcode;
+
     /// <summary>
     /// Releases resources used by the scan options, including the overlay.
     /// </summary>

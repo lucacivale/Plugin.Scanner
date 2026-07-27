@@ -1,4 +1,7 @@
-﻿namespace Plugin.Scanner.Maui.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Plugin.Scanner.Maui.Scanners.Popups;
+
+namespace Plugin.Scanner.Maui.Hosting;
 
 /// <summary>
 /// Provides extension methods for configuring the Plugin.Scanner library within a .NET MAUI application.
@@ -25,4 +28,11 @@ public static partial class MauiBuilderExtensions
     /// </code>
     /// </example>
     public static partial MauiAppBuilder UseScanner(this MauiAppBuilder app);
+
+    private static MauiAppBuilder UseMauiScanner(this MauiAppBuilder app)
+    {
+        app.Services.TryAddSingleton<IDataScannerPopupManager, DataScannerPopupManager>();
+
+        return app;
+    }
 }
