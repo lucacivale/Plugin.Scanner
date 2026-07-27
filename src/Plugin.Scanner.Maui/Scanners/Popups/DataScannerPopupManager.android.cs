@@ -9,4 +9,9 @@ internal partial class DataScannerPopupManager
     {
         _barcodeScannerPopup.Attach(page.ToPlatform(context), options);
     }
+
+    private partial void AttachTextScanner(Page page, IMauiContext context, ITextScanOptions options)
+    {
+        _textScannerPopup.Attach(page.ToPlatform(context), options);
+    }
 }

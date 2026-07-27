@@ -1,16 +1,13 @@
 using Plugin.Scanner.Core.Options;
-using Plugin.Scanner.Core.Scanners;
+using Plugin.Scanner.Core.Scanners.Popups;
 using Plugin.Scanner.iOS.Binding;
 using Plugin.Scanner.iOS.Extensions;
 
-namespace Plugin.Scanner.iOS.Scanners;
+namespace Plugin.Scanner.iOS.Scanners.Popups;
 
-/// <summary>
-/// Provides barcode scanning functionality for iOS using the DataScanner framework.
-/// </summary>
-internal sealed class BarcodeScanner : Scanner<IBarcodeScanOptions>, IBarcodeScanner
+internal sealed class BarcodeScannerPopup : ScannerPopup<IBarcodeScanOptions>, IBarcodeScannerPopup
 {
-    protected override DataScannerViewController CreateViewController(IBarcodeScanOptions options)
+    protected override DataScannerPopupViewController CreateViewController(IBarcodeScanOptions options)
     {
         using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
 

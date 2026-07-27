@@ -1,11 +1,9 @@
-using Plugin.Scanner.Core.Options;
-using Plugin.Scanner.Core.Scanners.Popups;
-using Plugin.Scanner.iOS.Binding;
-using Plugin.Scanner.iOS.Extensions;
+﻿using Plugin.Scanner.Core.Options;
 
-namespace Plugin.Scanner.iOS.Scanners;
+namespace Plugin.Scanner.iOS.Scanners.Popups;
 
-internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
+internal abstract class ScannerPopup<TOptions> : IDisposable
+    where TOptions : IScanOptions
 {
     private DataScannerPopupViewController? _popup;
 
@@ -14,17 +12,9 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
 
     public EventHandler? Detached { get; set; }
 
-    public void Attach(UIViewController parent, IBarcodeScanOptions options)
+    public void Attach(UIViewController parent, TOptions options)
     {
-        using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
-
-        _popup = new(
-            [barcodeType],
-            recognizesMultipleItems: options.RecognizeMultiple,
-            isHighlightingEnabled: options.IsHighlightingEnabled,
-            isPinchToZoomEnabled: options.IsPinchToZoomEnabled,
-            regionOfInterest: options.RegionOfInterest,
-            overlay: options.Overlay);
+        _popup = CreateViewController(options);
         _popup.Dismissed += Dismissed;
 
         if (_popup.View is not null)
@@ -68,6 +58,8 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    protected abstract DataScannerPopupViewController CreateViewController(TOptions options);
 
     private void Dismissed(object? sender, EventArgs e)
     {

@@ -1,18 +1,14 @@
 using Plugin.Scanner.Core.Options;
-using Plugin.Scanner.Core.Scanners;
+using Plugin.Scanner.Core.Scanners.Popups;
 using Plugin.Scanner.iOS.Binding;
 
-namespace Plugin.Scanner.iOS.Scanners;
+namespace Plugin.Scanner.iOS.Scanners.Popups;
 
-/// <summary>
-/// Provides text scanning functionality for iOS using the DataScanner framework.
-/// </summary>
-internal sealed class TextScanner : Scanner<ITextScanOptions>, ITextScanner
+internal sealed class TextScannerPopup : ScannerPopup<ITextScanOptions>, ITextScannerPopup
 {
-    protected override DataScannerViewController CreateViewController(ITextScanOptions options)
+    protected override DataScannerPopupViewController CreateViewController(ITextScanOptions options)
     {
         using RecognizedDataType types = RecognizedDataType.Text(Binding.DataScannerViewController.SupportedTextRecognitionLanguages, TextContentType.Default);
-
         return new(
             [types],
             recognizesMultipleItems: true,

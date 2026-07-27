@@ -7,20 +7,17 @@ using AndroidX.Lifecycle;
 using Java.Util.Concurrent;
 using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
-using Plugin.Scanner.Android.Extensions;
-using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Options;
-using Plugin.Scanner.Core.Scanners.Popups;
-using Xamarin.Google.MLKit.Vision.BarCode;
 using ASize = Android.Util.Size;
 
-namespace Plugin.Scanner.Android.Scanners;
+namespace Plugin.Scanner.Android.Scanners.Popups;
 
-internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
+internal abstract class ScannerPopup<TOptions> : IDisposable
+    where TOptions : IScanOptions
 {
     private readonly ICurrentActivity _currentActivity;
 
-    private BarcodeDataDetector? _barcodeDetector;
+    private IDataDetector? _dataDetector;
     private MlKitAnalyzer? _analyzer;
     private LifecycleCameraController? _cameraController;
     private DataScannerPopup? _popup;
@@ -30,12 +27,12 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
 
     public EventHandler? Detached { get; set; }
 
-    public BarcodeScannerPopup(ICurrentActivity currentActivity)
+    protected ScannerPopup(ICurrentActivity currentActivity)
     {
         _currentActivity = currentActivity;
     }
 
-    public void Attach(View parent, IBarcodeScanOptions options)
+    public void Attach(View parent, TOptions options)
     {
         ArgumentNullException.ThrowIfNull(parent.Context);
 
@@ -46,14 +43,8 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
 
         IExecutor mainExecutor = ContextCompat.GetMainExecutor(parent.Context) ?? throw new MainExecutorNotAvailableException("Main executor not available.");
 
-        List<int> formats = options.Formats.ToBarcodeFormats().ToList();
-
-        using BarcodeScannerOptions.Builder builder = new();
-        using BarcodeScannerOptions scannerOptions = builder
-            .SetBarcodeFormats(formats[0], formats.Skip(1).ToArray())
-            .Build();
-        _barcodeDetector = new(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode());
-        _analyzer = new([_barcodeDetector.Detector], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, _barcodeDetector);
+        _dataDetector = CreateDataDetector(options);
+        _analyzer = new([_dataDetector.Detector], ImageAnalysis.CoordinateSystemViewReferenced, mainExecutor, _dataDetector);
 
         _cameraController = new(parent.Context);
         _cameraController.BindToLifecycle(owner);
@@ -72,15 +63,12 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
             .SetAspectRatioStrategy(aspectRatioStrategy)
             .Build();
 
-        _popup = new(
+        _popup = CreateDataScannerPopup(
             _currentActivity.Activity,
             parent,
-            _barcodeDetector,
+            _dataDetector,
             _cameraController,
-            options.RegionOfInterest,
-            options.Overlay,
-            options.RecognizeMultiple,
-            options.IsHighlightingEnabled);
+            options);
 
         _popup.DismissEvent += Popup_DismissEvent;
         _popup.Show();
@@ -103,7 +91,7 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
             _popup.Dismiss();
         }
 
-        _barcodeDetector?.Dispose();
+        _dataDetector?.Dispose();
         _analyzer?.Dispose();
         _cameraController?.Dispose();
 
@@ -118,6 +106,15 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    protected abstract IDataDetector CreateDataDetector(TOptions options);
+
+    protected abstract DataScannerPopup CreateDataScannerPopup(
+        Activity activity,
+        View parent,
+        IDataDetector dataDetector,
+        LifecycleCameraController cameraController,
+        TOptions options);
 
     private async void Popup_DismissEvent(object? sender, EventArgs e)
     {

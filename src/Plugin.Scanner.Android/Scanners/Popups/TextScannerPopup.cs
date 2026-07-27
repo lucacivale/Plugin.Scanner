@@ -1,23 +1,16 @@
-using AndroidX.Camera.View;
+﻿using AndroidX.Camera.View;
 using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Options;
-using Plugin.Scanner.Core.Scanners;
+using Plugin.Scanner.Core.Scanners.Popups;
 using Xamarin.Google.MLKit.Vision.Text;
 using Xamarin.Google.MLKit.Vision.Text.Latin;
 
-namespace Plugin.Scanner.Android.Scanners;
+namespace Plugin.Scanner.Android.Scanners.Popups;
 
-/// <summary>
-/// Provides Android-specific text recognition (OCR) using Google ML Kit.
-/// </summary>
-internal sealed class TextScanner : Scanner<ITextScanOptions>, ITextScanner
+internal sealed class TextScannerPopup : ScannerPopup<ITextScanOptions>, ITextScannerPopup
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TextScanner"/> class.
-    /// </summary>
-    /// <param name="currentActivity">The current activity provider.</param>
-    public TextScanner(ICurrentActivity currentActivity)
+    public TextScannerPopup(ICurrentActivity currentActivity)
         : base(currentActivity)
     {
     }
@@ -27,10 +20,16 @@ internal sealed class TextScanner : Scanner<ITextScanOptions>, ITextScanner
         return new TextDataDetector(TextRecognition.GetClient(TextRecognizerOptions.DefaultOptions), new RecognizedItemFactoryText());
     }
 
-    protected override DataScannerDialog CreateDataScannerDialog(Activity activity, IDataDetector dataDetector, LifecycleCameraController cameraController, ITextScanOptions options)
+    protected override DataScannerPopup CreateDataScannerPopup(
+        Activity activity,
+        View parent,
+        IDataDetector dataDetector,
+        LifecycleCameraController cameraController,
+        ITextScanOptions options)
     {
         return new(
             activity,
+            parent,
             dataDetector,
             cameraController,
             options.RegionOfInterest,

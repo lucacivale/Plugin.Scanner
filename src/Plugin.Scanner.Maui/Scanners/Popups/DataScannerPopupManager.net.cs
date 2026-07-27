@@ -8,4 +8,9 @@ internal partial class DataScannerPopupManager
     {
         // Intentionally left empty
     }
+
+    private partial void AttachTextScanner(Page page, IMauiContext context, ITextScanOptions options)
+    {
+        // Intentionally left empty
+    }
 }

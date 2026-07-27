@@ -1,23 +1,16 @@
-using AndroidX.Camera.View;
+﻿using AndroidX.Camera.View;
 using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Extensions;
 using Plugin.Scanner.Android.Factories;
 using Plugin.Scanner.Core.Options;
+using Plugin.Scanner.Core.Scanners.Popups;
 using Xamarin.Google.MLKit.Vision.BarCode;
-using IBarcodeScanner = Plugin.Scanner.Core.Scanners.IBarcodeScanner;
 
-namespace Plugin.Scanner.Android.Scanners;
+namespace Plugin.Scanner.Android.Scanners.Popups;
 
-/// <summary>
-/// Provides Android-specific barcode scanning using Google ML Kit.
-/// </summary>
-internal sealed class BarcodeScanner : Scanner<IBarcodeScanOptions>, IBarcodeScanner
+internal sealed class BarcodeScannerPopup : ScannerPopup<IBarcodeScanOptions>, IBarcodeScannerPopup
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BarcodeScanner"/> class.
-    /// </summary>
-    /// <param name="currentActivity">The current activity provider.</param>
-    public BarcodeScanner(ICurrentActivity currentActivity)
+    public BarcodeScannerPopup(ICurrentActivity currentActivity)
         : base(currentActivity)
     {
     }
@@ -34,10 +27,16 @@ internal sealed class BarcodeScanner : Scanner<IBarcodeScanOptions>, IBarcodeSca
         return new BarcodeDataDetector(BarcodeScanning.GetClient(scannerOptions), new RecognizedItemFactoryBarcode());
     }
 
-    protected override DataScannerDialog CreateDataScannerDialog(Activity activity, IDataDetector dataDetector, LifecycleCameraController cameraController, IBarcodeScanOptions options)
+    protected override DataScannerPopup CreateDataScannerPopup(
+        Activity activity,
+        View parent,
+        IDataDetector dataDetector,
+        LifecycleCameraController cameraController,
+        IBarcodeScanOptions options)
     {
         return new(
             activity,
+            parent,
             dataDetector,
             cameraController,
             options.RegionOfInterest,

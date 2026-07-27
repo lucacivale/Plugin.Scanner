@@ -21,6 +21,7 @@ public static partial class IServiceCollectionExtensions
         serviceCollection.TryAddSingleton<ITextScanner, TextScanner>();
         serviceCollection.TryAddSingleton<IDocumentScanner, DocumentScanner>();
         serviceCollection.TryAddSingleton<IBarcodeScannerPopup, BarcodeScannerPopup>();
+        serviceCollection.TryAddSingleton<ITextScannerPopup, TextScannerPopup>();
 
         return serviceCollection;
     }

@@ -3,9 +3,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Plugin.Scanner.Core.Scanners;
 using Plugin.Scanner.Core.Scanners.Popups;
 using BarcodeScanner = Plugin.Scanner.iOS.Scanners.BarcodeScanner;
-using BarcodeScannerPopup = Plugin.Scanner.iOS.Scanners.BarcodeScannerPopup;
+using BarcodeScannerPopup = Plugin.Scanner.iOS.Scanners.Popups.BarcodeScannerPopup;
 using DocumentScanner = Plugin.Scanner.iOS.Scanners.DocumentScanner;
 using TextScanner = Plugin.Scanner.iOS.Scanners.TextScanner;
+using TextScannerPopup = Plugin.Scanner.iOS.Scanners.Popups.TextScannerPopup;
 
 namespace Plugin.Scanner.Hosting;
 
@@ -25,6 +26,7 @@ public static partial class IServiceCollectionExtensions
         serviceCollection.TryAddSingleton<ITextScanner, TextScanner>();
         serviceCollection.TryAddSingleton<IDocumentScanner, DocumentScanner>();
         serviceCollection.TryAddSingleton<IBarcodeScannerPopup, BarcodeScannerPopup>();
+        serviceCollection.TryAddSingleton<ITextScannerPopup, TextScannerPopup>();
 
         return serviceCollection;
     }

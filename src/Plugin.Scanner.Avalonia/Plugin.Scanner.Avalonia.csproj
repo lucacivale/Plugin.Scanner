@@ -7,10 +7,15 @@
 
 	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-android'">
 		<PackageReference Include="Avalonia.Android" />
+		<PackageReference Include="Xamarin.AndroidX.Activity.Ktx" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)-ios'">
 		<PackageReference Include="Avalonia.iOS" />
+	</ItemGroup>
+	
+	<ItemGroup Condition="$(TargetFramework) == '$(NetVersion)'">
+		<PackageReference Include="Avalonia" />
 	</ItemGroup>
 
 	<ItemGroup>

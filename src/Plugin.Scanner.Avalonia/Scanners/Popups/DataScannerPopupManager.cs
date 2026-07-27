@@ -1,9 +1,10 @@
 using System.Diagnostics;
+using Avalonia.Controls;
 using Plugin.Scanner.Core.Models.Enums;
 using Plugin.Scanner.Core.Options;
 using Plugin.Scanner.Core.Scanners.Popups;
 
-namespace Plugin.Scanner.Maui.Scanners.Popups;
+namespace Plugin.Scanner.Avalonia.Scanners.Popups;
 
 internal partial class DataScannerPopupManager : IDataScannerPopupManager
 {
@@ -12,7 +13,7 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
 
     private ScannerType _scannerType;
     private bool _scannerAttached;
-    private Page? _attachedPage;
+    private Control? _attachedControl;
     private TaskCompletionSource? _pageLoadedTcs;
 
     public DataScannerPopupManager(IBarcodeScannerPopup barcodeScannerPopup, ITextScannerPopup textScannerPopup)
@@ -21,27 +22,21 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
         _textScannerPopup = textScannerPopup;
     }
 
-    public async Task Attach(Page page, IScanOptions options, CancellationToken cancellationToken)
+    public async Task Attach(Control control, IScanOptions options, CancellationToken cancellationToken)
     {
-        if (page.IsLoaded == false)
+        if (control.IsLoaded == false)
         {
             // Make sure UI is setup before we try attach the popup
-            page.SizeChanged += SizeChanged;
+            control.SizeChanged += SizeChanged;
 
             _pageLoadedTcs = new TaskCompletionSource();
 
             await _pageLoadedTcs.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
 
-            page.SizeChanged -= SizeChanged;
+            control.SizeChanged -= SizeChanged;
         }
 
-        page.Unloaded += PageOnUnloaded;
-
-        if (page.Handler?.MauiContext is null)
-        {
-            Trace.TraceError("Maui Context is null");
-            return;
-        }
+        control.Unloaded += PageOnUnloaded;
 
         if (_scannerAttached)
         {
@@ -54,17 +49,17 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
         if (_scannerType == ScannerType.Barcode
             && options is IBarcodeScanOptions barcodeOptions)
         {
-            AttachBarcodeScanner(page, page.Handler.MauiContext, barcodeOptions);
+            AttachBarcodeScanner(control, barcodeOptions);
             _barcodeScannerPopup.Detached += ScannerDetached;
         }
         else if (_scannerType == ScannerType.Text
             && options is ITextScanOptions textScanOptions)
         {
-            AttachTextScanner(page, page.Handler.MauiContext, textScanOptions);
+            AttachTextScanner(control, textScanOptions);
             _textScannerPopup.Detached += ScannerDetached;
         }
 
-        _attachedPage = page;
+        _attachedControl = control;
         _scannerAttached = true;
     }
 
@@ -86,7 +81,7 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
             _textScannerPopup.Detach();
         }
 
-        _attachedPage?.SetValue(Xaml.DataScannerPopupManager.IsAttachedProperty, false);
+        _attachedControl?.SetValue(Xaml.DataScannerPopupManager.IsAttachedProperty, false);
         _scannerAttached = false;
     }
 
@@ -99,8 +94,8 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
     {
         Detach();
 
-        _attachedPage?.Unloaded -= PageOnUnloaded;
-        _attachedPage = null;
+        _attachedControl?.Unloaded -= PageOnUnloaded;
+        _attachedControl = null;
     }
 
     private void SizeChanged(object? sender, EventArgs e)
@@ -108,7 +103,7 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
         _pageLoadedTcs?.TrySetResult();
     }
 
-    private partial void AttachBarcodeScanner(Page page, IMauiContext context, IBarcodeScanOptions options);
+    private partial void AttachBarcodeScanner(Control control, IBarcodeScanOptions options);
 
-    private partial void AttachTextScanner(Page page, IMauiContext context, ITextScanOptions options);
+    private partial void AttachTextScanner(Control control, ITextScanOptions options);
 }
