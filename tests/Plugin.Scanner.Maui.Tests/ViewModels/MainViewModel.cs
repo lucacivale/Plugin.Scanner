@@ -25,6 +25,9 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty]
     private string _scannedDocuments = string.Empty;
 
+    [ObservableProperty]
+    private bool _isScannerPopupOpen;
+
     public MainViewModel(IBarcodeScanner barcodeScanner, ITextScanner textScanner, IDocumentScanner documentScanner)
     {
         _barcodeScanner = barcodeScanner;
@@ -73,7 +76,7 @@ public partial class MainViewModel : BaseViewModel
         {
             Debug.WriteLine(exception);
 
-            Barcode = "Something went wrong.";
+            Text = "Something went wrong.";
         }
     }
 
@@ -93,5 +96,11 @@ public partial class MainViewModel : BaseViewModel
 
             ScannedDocuments = "Something went wrong.";
         }
+    }
+
+    [RelayCommand]
+    public void OpenScannerPopup()
+    {
+        IsScannerPopupOpen = true;
     }
 }

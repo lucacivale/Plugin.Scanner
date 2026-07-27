@@ -28,6 +28,8 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
     private bool _disposedValue;
     private bool _isAttached;
 
+    public EventHandler? Detached { get; set; }
+
     public BarcodeScannerPopup(ICurrentActivity currentActivity)
     {
         _currentActivity = currentActivity;
@@ -88,6 +90,11 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
 
     public void Detach()
     {
+        if (_isAttached == false)
+        {
+            return;
+        }
+
         _isAttached = false;
 
         if (_popup?.IsRunning == true)
@@ -101,6 +108,8 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
         _cameraController?.Dispose();
 
         _popup?.Dispose();
+
+        Detached?.Invoke(this, EventArgs.Empty);
     }
 
     public void Dispose()

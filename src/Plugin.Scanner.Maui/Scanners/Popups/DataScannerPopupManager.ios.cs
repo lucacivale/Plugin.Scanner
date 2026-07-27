@@ -5,14 +5,8 @@ namespace Plugin.Scanner.Maui.Scanners.Popups;
 
 internal partial class DataScannerPopupManager
 {
-    public partial async Task AttachBarcodeScanner(Page page, IBarcodeScanOptions options)
+    private partial void AttachBarcodeScanner(Page page, IMauiContext context, IBarcodeScanOptions options)
     {
-        if (await Attach(page, options).ConfigureAwait(true) == false)
-        {
-            return;
-        }
-
-        _barcodeScannerPopup.Attach(page.ToUIViewController(page.Handler!.MauiContext!), options);
-        _scannerAttached = true;
+        _barcodeScannerPopup.Attach(page.ToUIViewController(context), options);
     }
 }

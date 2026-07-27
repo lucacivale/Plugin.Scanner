@@ -19,23 +19,18 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
         _barcodeScannerPopup = barcodeScannerPopup;
     }
 
-    public async Task<bool> Attach(Page page, IScanOptions options)
+    public async Task Attach(Page page, IScanOptions options, CancellationToken cancellationToken)
     {
-        bool canAttach = true;
-
-        _attachedPage = page;
-
-        if (_attachedPage.IsLoaded == false)
+        if (page.IsLoaded == false)
         {
-            _attachedPage.Loaded += PageOnLoaded;
+            // Make sure UI is setup before we try attach the popup
+            page.SizeChanged += SizeChanged;
 
             _pageLoadedTcs = new TaskCompletionSource();
 
-            using CancellationTokenSource cts = new(TimeSpan.FromSeconds(1));
+            await _pageLoadedTcs.Task.WaitAsync(cancellationToken).ConfigureAwait(true);
 
-            await _pageLoadedTcs.Task.WaitAsync(cts.Token).ConfigureAwait(true);
-
-            _attachedPage.Loaded -= PageOnLoaded;
+            page.SizeChanged -= SizeChanged;
         }
 
         page.Unloaded += PageOnUnloaded;
@@ -43,34 +38,27 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
         if (page.Handler?.MauiContext is null)
         {
             Trace.TraceError("Maui Context is null");
-            canAttach = false;
+            return;
         }
 
         if (_scannerAttached)
         {
             Trace.TraceWarning("Only one scanner at a time can be attached");
-            canAttach = false;
+            return;
         }
 
         _scannerType = options.ScannerType;
 
-        return canAttach;
+        if (_scannerType == ScannerType.Barcode
+            && options is IBarcodeScanOptions barcodeOptions)
+        {
+            AttachBarcodeScanner(page, page.Handler.MauiContext, barcodeOptions);
+            _barcodeScannerPopup.Detached += BarcodeScannerDetached;
+        }
+
+        _attachedPage = page;
+        _scannerAttached = true;
     }
-
-    private void PageOnUnloaded(object? sender, EventArgs e)
-    {
-        Detach();
-
-        _attachedPage?.Unloaded -= PageOnUnloaded;
-        _attachedPage = null;
-    }
-
-    private void PageOnLoaded(object? sender, EventArgs e)
-    {
-        _pageLoadedTcs?.TrySetResult();
-    }
-
-    public partial Task AttachBarcodeScanner(Page page, IBarcodeScanOptions options);
 
     public void Detach()
     {
@@ -81,10 +69,31 @@ internal partial class DataScannerPopupManager : IDataScannerPopupManager
 
         if (_scannerType == ScannerType.Barcode)
         {
+            _barcodeScannerPopup.Detached -= BarcodeScannerDetached;
             _barcodeScannerPopup.Detach();
         }
 
-        _attachedPage?.SetValue(Xaml.DataScannerPopupManager.IsBarcodeScannerOpenProperty, false);
+        _attachedPage?.SetValue(Xaml.DataScannerPopupManager.IsAttachedProperty, false);
         _scannerAttached = false;
     }
+
+    private void BarcodeScannerDetached(object? sender, EventArgs e)
+    {
+        Detach();
+    }
+
+    private void PageOnUnloaded(object? sender, EventArgs e)
+    {
+        Detach();
+
+        _attachedPage?.Unloaded -= PageOnUnloaded;
+        _attachedPage = null;
+    }
+
+    private void SizeChanged(object? sender, EventArgs e)
+    {
+        _pageLoadedTcs?.TrySetResult();
+    }
+
+    private partial void AttachBarcodeScanner(Page page, IMauiContext context, IBarcodeScanOptions options);
 }

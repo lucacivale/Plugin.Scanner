@@ -4,8 +4,8 @@ namespace Plugin.Scanner.Maui.Scanners.Popups;
 
 internal partial class DataScannerPopupManager
 {
-    public partial Task AttachBarcodeScanner(Page page, IBarcodeScanOptions options)
+    private partial void AttachBarcodeScanner(Page page, IMauiContext context, IBarcodeScanOptions options)
     {
-        return Task.CompletedTask;
+        // Intentionally left empty
     }
 }

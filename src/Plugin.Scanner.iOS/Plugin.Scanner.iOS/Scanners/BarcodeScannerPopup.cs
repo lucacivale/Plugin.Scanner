@@ -12,6 +12,8 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
     private bool _disposedValue;
     private bool _isAttached;
 
+    public EventHandler? Detached { get; set; }
+
     public void Attach(UIViewController parent, IBarcodeScanOptions options)
     {
         using RecognizedDataType barcodeType = RecognizedDataType.Barcode(options.Formats.ToBarcodeFormats().ToArray());
@@ -43,6 +45,11 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
 
     public void Detach()
     {
+        if (_isAttached == false)
+        {
+            return;
+        }
+
         _isAttached = false;
 
         if (_popup?.IsOpen == true)
@@ -51,6 +58,8 @@ internal sealed class BarcodeScannerPopup : IBarcodeScannerPopup, IDisposable
         }
 
         _popup?.Dispose();
+
+        Detached?.Invoke(this, EventArgs.Empty);
     }
 
     public void Dispose()

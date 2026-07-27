@@ -3,6 +3,7 @@ using Android.Runtime;
 using AndroidX.Activity;
 using AndroidX.AppCompat.App;
 using AndroidX.Camera.View;
+using AndroidX.Core.View;
 using Plugin.Scanner.Android.DataDetectors;
 using Plugin.Scanner.Android.Exceptions;
 using Plugin.Scanner.Android.Extensions;
@@ -10,6 +11,7 @@ using Plugin.Scanner.Core;
 using Plugin.Scanner.Core.Controllers;
 using Plugin.Scanner.Core.Models;
 using System.Diagnostics.CodeAnalysis;
+using Orientation = Android.Content.Res.Orientation;
 
 namespace Plugin.Scanner.Android;
 
@@ -28,11 +30,11 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
 
     private readonly int _touchSlop;
 
-    private readonly int _minimizedWidth;
-    private readonly int _minimizedHeight;
-
     private BackPressed? _backPressed;
 
+    private Orientation? _orientation;
+
+    private bool _isExpanded;
     private bool _dragging;
     private float _startRawX;
     private float _startRawY;
@@ -59,13 +61,14 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
         IOverlay? overlay,
         bool recognizeMultiple,
         bool isHighlightingEnabled)
-        : base(parent, parent.Width / 2, parent.Height / 3, false)
+        : base(parent)
     {
         ArgumentNullException.ThrowIfNull(parent.Context);
 
         _parent = parent;
         _context = parent.Context;
         _activity = activity;
+        _orientation = _context.Resources?.Configuration?.Orientation;
 
         _touchSlop = ViewConfiguration.Get(_context)?.ScaledTouchSlop ?? 0;
 
@@ -77,12 +80,14 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
         _recognizeMultiple = recognizeMultiple;
         _isHighlightingEnabled = isHighlightingEnabled;
 
-        _minimizedWidth = Width;
-        _minimizedHeight = Height;
+        System.Drawing.Rectangle rect = CalculatePopupRect();
+        Width = rect.Width;
+        Height = rect.Height;
 
         SetContentView();
         SetTouchInterceptor(this);
 
+        Focusable = false;
         AnimationStyle = _Microsoft.Android.Resource.Designer.Resource.Style.PluginScannerPopupAnimation;
         SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
     }
@@ -155,24 +160,16 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
 
     public void Expand()
     {
-        int startWidth = Width;
-        int endWidth = _parent.Width;
+        _isExpanded = true;
 
-        int startHeight = Height;
-        int endHeight = _parent.Height / 2;
-
-        UpdateSize(startWidth, endWidth, startHeight, endHeight);
+        MinimizeExpand();
     }
 
     public void Minimize()
     {
-        int startWidth = Width;
-        int endWidth = _minimizedWidth;
+        _isExpanded = false;
 
-        int startHeight = Height;
-        int endHeight = _minimizedHeight;
-
-        UpdateSize(startWidth, endWidth, startHeight, endHeight);
+        MinimizeExpand();
     }
 
     public override void ShowAtLocation(View? parent, [GeneratedEnum] GravityFlags gravity, int x, int y)
@@ -255,6 +252,8 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
         previewView.Controller = null;
 
         _overlay?.Cleanup();
+
+        ContentView?.LayoutChange -= ContentView_LayoutChange;
     }
 
     /// <summary>
@@ -263,6 +262,7 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
     private void SetContentView()
     {
         ContentView = LayoutInflater.FromContext(_context)?.Inflate(_Microsoft.Android.Resource.Designer.Resource.Layout.DataScanner, null);
+        ContentView?.LayoutChange += ContentView_LayoutChange;
 
         GradientDrawable background = new();
 
@@ -294,6 +294,19 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
             };
 
             ContentView.LayoutChange += @event;
+        }
+    }
+
+    private void ContentView_LayoutChange(object? sender, View.LayoutChangeEventArgs e)
+    {
+        if (IsRunning == true
+            && _orientation != _context.Resources?.Configuration?.Orientation)
+        {
+            _orientation = _context.Resources?.Configuration?.Orientation;
+
+            System.Drawing.Rectangle rect = CalculatePopupRect();
+
+            Update(_parent.Width - rect.Width, 0, rect.Width, rect.Height);
         }
     }
 
@@ -341,6 +354,51 @@ internal sealed class DataScannerPopup : PopupWindow, IDataScannerController, Vi
     private void OnBackPressed(object? sender, EventArgs e)
     {
         Dismiss();
+    }
+
+    private void MinimizeExpand()
+    {
+        int startWidth = Width;
+        int startHeight = Height;
+
+        System.Drawing.Rectangle rect = CalculatePopupRect();
+
+        UpdateSize(startWidth, rect.Width, startHeight, rect.Height);
+    }
+
+    private System.Drawing.Rectangle CalculatePopupRect()
+    {
+        bool isLandscape = _parent.Width > _parent.Height;
+
+        WindowInsetsCompat? insets = ViewCompat.GetRootWindowInsets(_parent);
+        AndroidX.Core.Graphics.Insets? systemBarInsets = insets?.GetInsets(WindowInsetsCompat.Type.SystemBars());
+
+        int safeHeight = _parent.Height - ((systemBarInsets?.Bottom ?? 0) + (systemBarInsets?.Top ?? 0));
+
+        int width = _parent.Width * 2 / 3;
+        int height = safeHeight / 3;
+
+        if (isLandscape)
+        {
+            width = _parent.Width / 3;
+            height = safeHeight * 2 / 3;
+        }
+
+        if (_isExpanded)
+        {
+            if (isLandscape)
+            {
+                width = _parent.Width / 2;
+                height = safeHeight;
+            }
+            else
+            {
+                width = _parent.Width;
+                height = safeHeight / 2;
+            }
+        }
+
+        return new(0, 0, width, height);
     }
 }
 

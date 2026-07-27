@@ -4,7 +4,7 @@ namespace Plugin.Scanner.Maui.Scanners.Popups;
 
 public interface IDataScannerPopupManager
 {
-    Task AttachBarcodeScanner(Page page, IBarcodeScanOptions options);
+    Task Attach(Page page, IScanOptions options, CancellationToken cancellationToken);
 
     void Detach();
 }

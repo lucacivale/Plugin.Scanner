@@ -5,55 +5,59 @@ namespace Plugin.Scanner.Maui.Scanners.Popups.Xaml;
 
 public static class DataScannerPopupManager
 {
-    public static readonly BindableProperty BarcodeScanOptionsProperty = BindableProperty.CreateAttached(
-        "BarcodeScanOptions",
-        typeof(IBarcodeScanOptions),
+    public static readonly BindableProperty OptionsProperty = BindableProperty.CreateAttached(
+        "Options",
+        typeof(IScanOptions),
         typeof(Page),
         null,
-        propertyChanged: BarcodeScanOptionsPropertyChanged);
+        propertyChanged: ScanOptionsPropertyChanged);
 
-    public static readonly BindableProperty IsBarcodeScannerOpenProperty = BindableProperty.CreateAttached(
-        "IsBarcodeScannerOpen",
+    public static readonly BindableProperty IsAttachedProperty = BindableProperty.CreateAttached(
+        "IsAttched",
         typeof(bool),
         typeof(Page),
         false,
-        propertyChanged: IsBarcodeScannerOpenPropertyChanged);
+        BindingMode.TwoWay,
+        propertyChanged: IsAttachedPropertyChanged);
 
-    public static void SetBarcodeScanOptions(BindableObject target, IBarcodeScanOptions options)
+    public static void SetOptions(BindableObject target, IScanOptions options)
     {
-        target.SetValue(BarcodeScanOptionsProperty, options);
+        target.SetValue(OptionsProperty, options);
     }
 
-    public static IBarcodeScanOptions? GetBarcodeScanOptions(BindableObject target)
+    public static IScanOptions? GetOptions(BindableObject target)
     {
-        return (IBarcodeScanOptions?)target.GetValue(BarcodeScanOptionsProperty);
+        return (IScanOptions?)target.GetValue(OptionsProperty);
     }
 
-    public static void SetIsBarcodeScannerOpen(BindableObject target, bool isOpen)
+    public static void SetIsAttached(BindableObject target, bool isOpen)
     {
-        target.SetValue(IsBarcodeScannerOpenProperty, isOpen);
+        target.SetValue(IsAttachedProperty, isOpen);
     }
 
-    public static bool GetIsBarcodeScannerOpen(BindableObject target)
+    public static bool GetIsAttached(BindableObject target)
     {
-        return (bool)target.GetValue(IsBarcodeScannerOpenProperty);
+        return (bool)target.GetValue(IsAttachedProperty);
     }
 
-    private static void IsBarcodeScannerOpenPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+    private static void IsAttachedPropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
         TryAttachDetach(bindable, (bool)newValue);
     }
 
-    private static void BarcodeScanOptionsPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+    private static void ScanOptionsPropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        TryAttachDetach(bindable, GetIsBarcodeScannerOpen(bindable));
+        TryAttachDetach(bindable, GetIsAttached(bindable));
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Bug", "S3168:\"async\" methods should not return \"void\"", Justification = "Is event and okay.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100:Avoid async void methods", Justification = "Is event and okay.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Catch all exceptions to prevent crash.")]
     private static async void TryAttachDetach(BindableObject bindable, bool attach)
     {
-        if (GetBarcodeScanOptions(bindable) is not IBarcodeScanOptions barcodeScanOptions)
+        if (GetOptions(bindable) is not IScanOptions options)
         {
-            Trace.TraceWarning("Barcode scan options can not be null.");
+            Trace.TraceWarning("Scan options can not be null.");
             return;
         }
 
@@ -63,7 +67,7 @@ public static class DataScannerPopupManager
 
             if (attach)
             {
-                await popupManager.AttachBarcodeScanner((Page)bindable, barcodeScanOptions).ConfigureAwait(true);
+                await popupManager.Attach((Page)bindable, options, CancellationToken.None).ConfigureAwait(true);
             }
             else
             {
