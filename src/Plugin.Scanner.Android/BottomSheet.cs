@@ -8,6 +8,7 @@ internal sealed class BottomSheet : PopupWindow, IOnApplyWindowInsetsListener
     private readonly Window? _window;
 
     private readonly FrameLayout _bottomSheet;
+    private readonly View _touchOutside;
     private readonly BottomSheetBehavior _behavior;
     private readonly BottomSheetCallback _bottomSheetCallback;
 
@@ -20,6 +21,7 @@ internal sealed class BottomSheet : PopupWindow, IOnApplyWindowInsetsListener
 
         FrameLayout container = ((FrameLayout?)LayoutInflater.FromContext(context)?.Inflate(Resource.Layout.BottomSheetPopup, null)) ?? new FrameLayout(context);
         _bottomSheet = container.FindViewById<FrameLayout>(Resource.Id.design_bottom_sheet) ?? new FrameLayout(context);
+        _touchOutside = container.FindViewById<FrameLayout>(Resource.Id.touch_outside) ?? new View(context);
 
         _bottomSheetCallback = new(this);
         _behavior = BottomSheetBehavior.From(_bottomSheet);
@@ -30,7 +32,33 @@ internal sealed class BottomSheet : PopupWindow, IOnApplyWindowInsetsListener
         ContentView = container;
     }
 
-    public bool IsModal { get => Focusable; set => Focusable = value; }
+    public bool IsModal
+    {
+        get => Focusable;
+        set
+        {
+            Focusable = value;
+
+            if (IsModal)
+            {
+                _touchOutside.Click += TouchOutside_Click;
+            }
+            else
+            {
+                _touchOutside.Click -= TouchOutside_Click;
+            }
+        }
+    }
+
+    private void TouchOutside_Click(object? sender, EventArgs e)
+    {
+        if (IsCancelable == false)
+        {
+            return;
+        }
+
+        Dismiss();
+    }
 
     public bool IsCancelable { get => _behavior.Hideable; set => _behavior.Hideable = value; }
 
@@ -76,6 +104,8 @@ internal sealed class BottomSheet : PopupWindow, IOnApplyWindowInsetsListener
 
         if (_behavior.State == BottomSheetBehavior.StateHidden)
         {
+            _touchOutside.Click -= TouchOutside_Click;
+
             base.Dismiss();
         }
         else
