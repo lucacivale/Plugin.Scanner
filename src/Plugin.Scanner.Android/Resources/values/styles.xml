@@ -8,4 +8,8 @@
 		<item name="android:windowEnterAnimation">@anim/plugin_scanner_popup_enter_animation</item>
 		<item name="android:windowExitAnimation">@anim/plugin_scanner_popup_exit_animation</item>
 	</style>
+	<style name="PluginScannerBottomSheetPopupAnimation">
+		<item name="android:windowEnterAnimation">@anim/plugin_scanner_popup_enter_animation</item>
+		<item name="android:windowExitAnimation">@anim/plugin_scanner_popup_exit_animation</item>
+	</style>
 </resources>

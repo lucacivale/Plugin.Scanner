@@ -3,7 +3,6 @@ using Android.Runtime;
 using Android.Views;
 using Avalonia.Platform;
 using Plugin.Scanner.Core.Options;
-using AvaloniaControl = Avalonia.Controls.Control;
 using Object = Java.Lang.Object;
 
 namespace Plugin.Scanner.Avalonia.Scanners.Popups;

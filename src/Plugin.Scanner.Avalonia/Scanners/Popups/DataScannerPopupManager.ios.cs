@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Avalonia.Controls;
 using Avalonia.Platform;
 using ObjCRuntime;
 using Plugin.Scanner.Core.Options;

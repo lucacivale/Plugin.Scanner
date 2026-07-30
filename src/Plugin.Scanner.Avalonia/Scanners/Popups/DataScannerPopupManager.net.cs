@@ -1,4 +1,3 @@
-using Avalonia.Controls;
 using Avalonia.Platform;
 using Plugin.Scanner.Core.Options;
 
