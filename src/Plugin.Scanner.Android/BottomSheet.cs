@@ -50,16 +50,6 @@ internal sealed class BottomSheet : PopupWindow, IOnApplyWindowInsetsListener
         }
     }
 
-    private void TouchOutside_Click(object? sender, EventArgs e)
-    {
-        if (IsCancelable == false)
-        {
-            return;
-        }
-
-        Dismiss();
-    }
-
     public bool IsCancelable { get => _behavior.Hideable; set => _behavior.Hideable = value; }
 
     public bool FitToContent { get => _behavior.FitToContents; set => _behavior.FitToContents = value; }
@@ -145,6 +135,16 @@ internal sealed class BottomSheet : PopupWindow, IOnApplyWindowInsetsListener
         }
 
         base.Dispose(disposing);
+    }
+
+    private void TouchOutside_Click(object? sender, EventArgs e)
+    {
+        if (IsCancelable == false)
+        {
+            return;
+        }
+
+        Dismiss();
     }
 
     private sealed class BottomSheetCallback : BottomSheetBehavior.BottomSheetCallback

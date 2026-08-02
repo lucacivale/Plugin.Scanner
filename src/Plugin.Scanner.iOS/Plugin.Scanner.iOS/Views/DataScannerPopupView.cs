@@ -11,7 +11,7 @@ internal sealed class DataScannerPopupView : UIView
         _panGestureRecognizer = new UIPanGestureRecognizer(OnPan);
 
         Alpha = 0;
-        BackgroundColor = UIColor.Black;
+        BackgroundColor = UIColor.SystemBackground;
         Layer.CornerRadius = 16;
         Layer.ShadowOpacity = 0.3f;
         Layer.ShadowRadius = 10;

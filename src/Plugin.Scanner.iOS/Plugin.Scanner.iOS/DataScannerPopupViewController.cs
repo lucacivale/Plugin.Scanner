@@ -85,6 +85,12 @@ public class DataScannerPopupViewController : UIViewController
                 UIViewAutoresizing.FlexibleWidth |
                 UIViewAutoresizing.FlexibleHeight;
             _dataScannerViewController.DidMoveToParentViewController(this);
+
+            if (Binding.DataScannerViewController.IsAvailable
+                && Binding.DataScannerViewController.IsSupported)
+            {
+                _dataScannerViewController.StartScanning();
+            }
         }
     }
 

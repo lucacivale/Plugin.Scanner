@@ -23,7 +23,10 @@ internal abstract partial class ScannerOverlay
     private readonly DataScannerBarOverlay _topBar = [];
     private readonly DataScannerBarOverlay _bottomBar = [];
     private readonly IconButton _cancelButton = new("x.circle.fill");
+    private readonly IconButton _openResultsButton = new("dot.viewfinder");
     private readonly RecognizedItemButton _barcodeItemButton = [];
+    private readonly DataScannerResultsViewController _resultsViewController;
+    private readonly UINavigationController _resultsViewNavigationController;
 
     private UIView? _root;
     private IDataScannerController? _controller;
@@ -33,6 +36,12 @@ internal abstract partial class ScannerOverlay
     private DataScannerRegionOfInterest? _dataScannerRegionOfInterest;
     private DataScannerTorchButton? _torchButton;
     private DataScannerExpandMinimizeButton? _expandMinimizeButton;
+
+    protected ScannerOverlay()
+    {
+        _resultsViewController = new();
+        _resultsViewNavigationController = new(_resultsViewController);
+    }
 
     /// <summary>
     /// Releases resources used by the overlay.
@@ -65,6 +74,8 @@ internal abstract partial class ScannerOverlay
         {
             AddExpandMinimizeButton();
         }
+
+        AddOpenResultsButton();
     }
 
     /// <summary>
@@ -101,6 +112,8 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     public void Cleanup()
     {
+        _resultsViewNavigationController.DismissViewController(true, null);
+
         _controller?.Added -= OnAdded;
         _controller?.Removed -= OnRemoved;
 
@@ -109,7 +122,13 @@ internal abstract partial class ScannerOverlay
             _controller?.Tapped -= OnTapped;
         }
 
+        _barcodeItemButton.RemoveFromSuperview();
+        _barcodeItemButton.TouchUpInside -= BarcodeItemButtonOnTouchUpInside;
+
         _cancelButton.RemoveFromSuperview();
+
+        _openResultsButton.TouchUpInside -= OpenResultsClicked;
+        _openResultsButton.RemoveFromSuperview();
 
         _torchButton?.Toggled -= TorchButtonToggled;
         _torchButton?.RemoveFromSuperview();
@@ -158,12 +177,16 @@ internal abstract partial class ScannerOverlay
         {
             // Dispose managed resources
             _cancelButton.Dispose();
+            _openResultsButton.Dispose();
             _torchButton?.Dispose();
             _expandMinimizeButton?.Dispose();
             _topBar.Dispose();
             _bottomBar.Dispose();
             _dataScannerRegionOfInterest?.Dispose();
             _barcodeItemButton.Dispose();
+
+            _resultsViewController.Dispose();
+            _resultsViewNavigationController.Dispose();
         }
     }
 
@@ -250,14 +273,7 @@ internal abstract partial class ScannerOverlay
 
         _ = _root ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
 
-        EventHandler @event = null!;
-        @event = (s, _) =>
-        {
-            ((RecognizedItemButton)s!).TouchUpInside -= @event;
-
-            _controller?.Dismiss(((RecognizedItemButton)s).Barcode?.Text ?? string.Empty);
-        };
-        _barcodeItemButton.TouchUpInside += @event;
+        _barcodeItemButton.TouchUpInside += BarcodeItemButtonOnTouchUpInside;
 
         _root.Add(_barcodeItemButton);
 
@@ -267,6 +283,18 @@ internal abstract partial class ScannerOverlay
             _barcodeItemButton.BottomAnchor.ConstraintEqualTo(_root.BottomAnchor, -(DataScannerBarOverlay.Height + buttonBottomAnchorAdd)),
             _barcodeItemButton.WidthAnchor.ConstraintLessThanOrEqualTo(_root.WidthAnchor, constant: -buttonWidthAnchorAdd),
         ]);
+    }
+
+    private void BarcodeItemButtonOnTouchUpInside(object? sender, EventArgs e)
+    {
+        if (_controller?.IsDialog == true)
+        {
+            _controller?.Dismiss(_barcodeItemButton.Barcode?.Text ?? string.Empty);
+        }
+        else if (_barcodeItemButton.Barcode is not null)
+        {
+            _resultsViewController.Add(_barcodeItemButton.Barcode);
+        }
     }
 
     /// <summary>
@@ -309,6 +337,23 @@ internal abstract partial class ScannerOverlay
         ]);
     }
 
+    private void AddOpenResultsButton()
+    {
+        _ = _root ?? throw new DataScannerViewNullReferenceException("View can not be null here.");
+
+        _openResultsButton.TouchUpInside += OpenResultsClicked;
+
+        _root.Add(_openResultsButton);
+
+        NSLayoutConstraint.ActivateConstraints(
+        [
+            _openResultsButton.BottomAnchor.ConstraintEqualTo(_root.BottomAnchor, constant: -_margin),
+            _openResultsButton.TrailingAnchor.ConstraintEqualTo(_root.TrailingAnchor, constant: -_margin),
+            _openResultsButton.HeightAnchor.ConstraintEqualTo(TopButtonHeightAnchor),
+            _openResultsButton.WidthAnchor.ConstraintEqualTo(TopButtonWidthAnchor),
+        ]);
+    }
+
     /// <summary>
     /// Handles the added event when new items are recognized and displays the first item.
     /// </summary>
@@ -344,10 +389,20 @@ internal abstract partial class ScannerOverlay
     /// </summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The tapped recognized item.</param>
-    [SuppressMessage("Documentation Rules", "S1172:Remove this unused method parameter 'sende", Justification = "Event handler.")]
+    [SuppressMessage("Documentation Rules", "S1172:Remove this unused method parameter 'sender", Justification = "Event handler.")]
     private void OnTapped(object? sender, RecognizedItem e)
     {
         _barcodeItemButton.Barcode = e;
         _barcodeItemButton.Hidden = false;
+    }
+
+    private void OpenResultsClicked(object? sender, EventArgs e)
+    {
+        if (_resultsViewController.IsOpen)
+        {
+            return;
+        }
+
+        WindowUtils.GetTopViewController()?.PresentViewController(_resultsViewNavigationController, true, null);
     }
 }
