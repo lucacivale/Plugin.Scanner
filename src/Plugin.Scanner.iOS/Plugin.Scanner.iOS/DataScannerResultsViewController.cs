@@ -57,7 +57,7 @@ internal sealed class DataScannerResultsViewController : UIViewController
     public DataScannerResultsViewController()
     {
         _peekDetent = UISheetPresentationControllerDetent.Create(PeekDetentId, PeekHeightValue);
-        _clearButton = new UIBarButtonItem("Clear", UIBarButtonItemStyle.Plain, OnClearTouched);
+        _clearButton = new UIBarButtonItem(string.Empty, UIBarButtonItemStyle.Plain, OnClearTouched);
 
         _editAlert = CreateEditAlertViewController();
         _listConfiguration = CreateListConfiguration();
@@ -108,7 +108,7 @@ internal sealed class DataScannerResultsViewController : UIViewController
             _collectionView.BottomAnchor.ConstraintEqualTo(View.BottomAnchor),
 
             _emptyStateStack.CenterXAnchor.ConstraintEqualTo(_collectionView.CenterXAnchor),
-            _emptyStateStack.CenterYAnchor.ConstraintEqualTo(_collectionView.CenterYAnchor, -ToastOffset),
+            _emptyStateStack.CenterYAnchor.ConstraintEqualTo(_collectionView.CenterYAnchor),
             _emptyStateStack.LeadingAnchor.ConstraintGreaterThanOrEqualTo(View.LayoutMarginsGuide.LeadingAnchor),
             _emptyStateStack.TrailingAnchor.ConstraintLessThanOrEqualTo(View.LayoutMarginsGuide.TrailingAnchor),
 
@@ -549,6 +549,7 @@ internal sealed class DataScannerResultsViewController : UIViewController
 
         _clearButton.TintColor = UIColor.SystemRed;
         _clearButton.AccessibilityLabel = "Clear all items";
+        _clearButton.Image = UIImage.GetSystemImage(DeleteIcon);
 
         _searchController.ObscuresBackgroundDuringPresentation = false;
         _searchController.SearchBar.Placeholder = "Search";
